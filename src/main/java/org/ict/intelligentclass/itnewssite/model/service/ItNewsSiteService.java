@@ -28,4 +28,8 @@ public class ItNewsSiteService {
                 .collect(Collectors.toList());
     }//
 
+    public ItNewsSiteDto saveSite(ItNewsSiteDto itNewsSiteDto) {
+        return itNewsSiteRepository.save(itNewsSiteDto.toEntity()).toDto();
+    }
+
 }//

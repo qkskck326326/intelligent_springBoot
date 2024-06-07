@@ -16,9 +16,6 @@ import org.ict.intelligentclass.itnewssite.model.dto.ItNewsSiteDto;
 @AllArgsConstructor
 public class ItNewsSiteEntity {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long boardId;
-
     @Column(name = "site_url", length = 300)
     private String siteUrl;
 
@@ -39,7 +36,6 @@ public class ItNewsSiteEntity {
 
     public ItNewsSiteDto toDto() {
         return ItNewsSiteDto.builder()
-                .boardId(this.boardId)
                 .siteUrl(this.siteUrl)
                 .latestBoardUrl(this.latestBoardUrl)
                 .siteName(this.siteName)
