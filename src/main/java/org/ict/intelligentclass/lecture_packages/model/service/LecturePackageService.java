@@ -39,7 +39,7 @@ public class LecturePackageService {
             // PackageSubCategoryEntity객체 생성.
             PackageSubCategoryEntity packageSubCategoryEntity = new PackageSubCategoryEntity();
             //복합키 객체를 생성하여, 위에서 저장해둔 lecturePackage엔티티 객체와 하위카테고리의 dto에서 id를 가져와 PackageSubCategory의 복합키로 넣어줌.
-            packageSubCategoryEntity.setId(new PackageSubCategoryId(savedLecturePackageEntity.getId(), packageSubCategoryDto.getId().getSubCategoryId()));
+            packageSubCategoryEntity.setId(new PackageSubCategoryId(savedLecturePackageEntity.getLecturePackageId(), packageSubCategoryDto.getPackageSubCategoryId().getSubCategoryId()));
             //강의 패키지엔티티 저장.
             packageSubCategoryEntity.setLecturePackage(savedLecturePackageEntity);
             //패키지마다의 카테고리에서
@@ -52,7 +52,7 @@ public class LecturePackageService {
         // 패키지마다의 기술스택 저장.
         lecturePackageDto.getPackageTechStacks().forEach(packageTechStackDto -> {
             PackageTechStackEntity techStackEntity = new PackageTechStackEntity();
-            techStackEntity.setId(new PackageTechStackId(savedLecturePackageEntity.getId(), packageTechStackDto.getId().getTechStackId()));
+            techStackEntity.setId(new PackageTechStackId(savedLecturePackageEntity.getLecturePackageId(), packageTechStackDto.getPackageTechStackId().getTechStackId()));
             techStackEntity.setLecturePackage(savedLecturePackageEntity);
             techStackEntity.setTechStack(packageTechStackDto.getTechStack().toEntity());
             packageTechStackRepository.save(techStackEntity);

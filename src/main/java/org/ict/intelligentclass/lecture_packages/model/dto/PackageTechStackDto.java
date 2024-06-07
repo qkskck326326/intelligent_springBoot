@@ -12,19 +12,19 @@ import org.ict.intelligentclass.lecture_packages.jpa.entity.PackageTechStackId;
 @NoArgsConstructor
 @Builder
 public class PackageTechStackDto {
-    private PackageTechStackIdDto id;
+    private PackageTechStackIdDto packageTechStackId;
     private TechStackDto techStack;
 
     public static PackageTechStackDto fromEntity(PackageTechStackEntity entity) {
         return PackageTechStackDto.builder()
-                .id(new PackageTechStackIdDto(entity.getId().getLecturePackageId(), entity.getId().getTechStackId()))
+                .packageTechStackId(new PackageTechStackIdDto(entity.getId().getLecturePackageId(), entity.getId().getTechStackId()))
                 .techStack(TechStackDto.fromEntity(entity.getTechStack()))
                 .build();
     }
 
     public PackageTechStackEntity toEntity() {
         PackageTechStackEntity entity = new PackageTechStackEntity();
-        entity.setId(new PackageTechStackId(this.id.getLecturePackageId(), this.id.getTechStackId()));
+        entity.setId(new PackageTechStackId(this.packageTechStackId.getLecturePackageId(), this.packageTechStackId.getTechStackId()));
         entity.setTechStack(this.techStack.toEntity());
         return entity;
     }

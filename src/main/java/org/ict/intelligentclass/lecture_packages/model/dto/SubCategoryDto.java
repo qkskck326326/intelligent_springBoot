@@ -12,22 +12,22 @@ import org.ict.intelligentclass.lecture_packages.jpa.entity.SubCategoryEntity;
 @NoArgsConstructor
 @Builder
 public class SubCategoryDto {
-    private Long id;
-    private String name;
+    private Long subCategoryId;
+    private String subCategoryName;
     private Long upperCategoryId;
 
     public static SubCategoryDto fromEntity(SubCategoryEntity entity) {
         return SubCategoryDto.builder()
-                .id(entity.getId())
-                .name(entity.getName())
+                .subCategoryId(entity.getSubCategoryId())
+                .subCategoryName(entity.getSubCategoryName())
                 .upperCategoryId(entity.getUpperCategoryId())
                 .build();
     }
 
     public SubCategoryEntity toEntity() {
         return SubCategoryEntity.builder()
-                .id(this.id)
-                .name(this.name)
+                .subCategoryId(this.subCategoryId)
+                .subCategoryName(this.subCategoryName)
                 .upperCategoryId(this.upperCategoryId)
                 .build();
     }

@@ -18,8 +18,8 @@ public class UpperCategoryEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "UPPER_CATEGORY_ID")
-    private Long id;
+    private Long upperCategoryId;
 
     @Column(name = "UPPER_CATEGORY_NAME", nullable = false)
-    private String name;
+    private String upperCategoryName;
 }

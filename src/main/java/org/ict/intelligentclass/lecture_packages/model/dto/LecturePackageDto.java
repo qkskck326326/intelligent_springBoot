@@ -16,7 +16,7 @@ import java.util.stream.Collectors;
 @NoArgsConstructor
 @Builder
 public class LecturePackageDto {
-    private Long id;
+    private Long lecturePackageId;
     private String nickname;
     private String title;
     private String classGoal;
@@ -30,9 +30,11 @@ public class LecturePackageDto {
     private Set<PackageSubCategoryDto> packageSubCategories;
     private Set<PackageTechStackDto> packageTechStacks;
 
+
+
     public static LecturePackageDto fromEntity(LecturePackageEntity entity) {
         return LecturePackageDto.builder()
-                .id(entity.getId())
+                .lecturePackageId(entity.getLecturePackageId())
                 .nickname(entity.getNickname())
                 .title(entity.getTitle())
                 .classGoal(entity.getClassGoal())
@@ -53,7 +55,7 @@ public class LecturePackageDto {
 
     public LecturePackageEntity toEntity() {
         LecturePackageEntity entity = LecturePackageEntity.builder()
-                .id(this.id)
+                .lecturePackageId(this.lecturePackageId)
                 .nickname(this.nickname)
                 .title(this.title)
                 .classGoal(this.classGoal)

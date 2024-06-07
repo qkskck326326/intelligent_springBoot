@@ -19,10 +19,10 @@ public class SubCategoryEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "SUB_CATEGORY_ID")
-    private Long id;
+    private Long subCategoryId;
 
     @Column(name = "SUB_CATEGORY_NAME", nullable = false)
-    private String name;
+    private String subCategoryName;
 
     @Column(name = "UPPER_CATEGORY_ID", nullable = false)
     private Long upperCategoryId;
