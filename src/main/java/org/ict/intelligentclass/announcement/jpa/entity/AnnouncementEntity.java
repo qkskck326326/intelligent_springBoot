@@ -14,7 +14,6 @@ import java.util.Date;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@RequiredArgsConstructor
 @Table(name="TB_ANNOUNCEMENT")
 @Builder
 public class AnnouncementEntity {
