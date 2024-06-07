@@ -7,6 +7,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.ict.intelligentclass.itnewssite.model.dto.ItNewsSiteDto;
 
+import java.util.Date;
+
 
 @Entity
 @Table(name = "TB_IT_NEWS_SITE")
@@ -16,22 +18,22 @@ import org.ict.intelligentclass.itnewssite.model.dto.ItNewsSiteDto;
 @AllArgsConstructor
 public class ItNewsSiteEntity {
     @Id
-    @Column(name = "site_url", length = 300)
+    @Column(name = "SITE_URL", length = 300)
     private String siteUrl;
 
-    @Column(name = "latest_board_url", length = 300)
+    @Column(name = "LATEST_BOARD_URL", length = 300)
     private String latestBoardUrl;
 
-    @Column(name = "site_name", length = 100)
+    @Column(name = "SITE_NAME", length = 100)
     private String siteName;
 
-    @Column(name = "video_element", length = 500)
+    @Column(name = "VIDEO_ELEMENT", length = 500)
     private String videoElement;
 
-    @Column(name = "title_element", length = 300)
+    @Column(name = "TITLE_ELEMENT", length = 300)
     private String titleElement;
 
-    @Column(name = "context_element", length = 300)
+    @Column(name = "CONTEXT_ELEMENT", length = 300)
     private String contextElement;
 
     public ItNewsSiteDto toDto() {
@@ -44,5 +46,4 @@ public class ItNewsSiteEntity {
                 .contextElement(this.contextElement)
                 .build();
     }
-
 }//

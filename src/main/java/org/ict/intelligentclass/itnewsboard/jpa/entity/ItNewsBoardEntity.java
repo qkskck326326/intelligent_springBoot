@@ -20,26 +20,26 @@ import java.util.Date;
 public class ItNewsBoardEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "BOARD_ID")
     private Long boardId;
 
-    @Column(length = 300, nullable = false)
+    @Column(name = "SITE_URL", length = 300)
     private String siteUrl;
 
-    @Column(length = 300, nullable = false)
+    @Column(name = "TITLE", length = 300)
     private String title;
 
-    @Column(length = 3000)
+    @Column(name = "VIDEO_TEXTLIZED_CONTEXT", length = 3000)
     private String videoTextlizedContext;
 
-    @Column(length = 3000)
+    @Column(name = "ORIGINAL_CONTEXT", length = 3000)
     private String originalContext;
 
-    @Temporal(TemporalType.TIMESTAMP)
+    @Column(name = "REGIST_DATE")
     private Date registDate;
 
     public ItNewsBoardDto toDto() {
         return ItNewsBoardDto.builder()
-                .boardId(this.boardId)
                 .siteUrl(this.siteUrl)
                 .title(this.title)
                 .videoTextlizedContext(this.videoTextlizedContext)
@@ -47,5 +47,4 @@ public class ItNewsBoardEntity {
                 .registDate(this.registDate)
                 .build();
     }
-
 }//
