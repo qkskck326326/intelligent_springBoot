@@ -5,7 +5,7 @@ plugins {
     // Spring Dependency Management 플러그인을 적용합니다. 이는 의존성 관리를 쉽게 하기 위한 플러그인입니다.
 }
 
-group = 'com.apocaly' // 프로젝트의 그룹 ID를 설정합니다. 일반적으로 도메인 이름을 거꾸로 쓴 것을 사용합니다.
+group = 'org.ict' // 프로젝트의 그룹 ID를 설정합니다. 일반적으로 도메인 이름을 거꾸로 쓴 것을 사용합니다.
 version = '0.0.1-SNAPSHOT' // 프로젝트의 버전을 설정합니다. SNAPSHOT은 개발 중인 버전을 의미합니다.
 
 java {
@@ -27,20 +27,70 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa' // Spring Data JPA와 관련된 기본 설정과 의존성을 제공합니다.
     implementation 'org.springframework.boot:spring-boot-starter-security' // Spring Security와 관련된 기본 설정과 의존성을 제공합니다.
     implementation 'org.springframework.boot:spring-boot-starter-web' // Spring Web과 관련된 기본 설정과 의존성을 제공합니다.
+    implementation 'org.springframework.boot:spring-boot-starter-validation' // 데이터의 유효성 검사용 어노테이션 제공, pring Boot Validation 스타터 추가
     compileOnly 'org.projectlombok:lombok'
     // Lombok 라이브러리를 컴파일 시간 의존성으로 추가합니다. 자동으로 getter, setter, constructor 등을 생성해 줍니다.
     developmentOnly 'org.springframework.boot:spring-boot-devtools'
     // 개발 시 유용한 도구(예: 자동 리스타트)를 제공하는 Spring Boot Devtools를 추가합니다.
     //	runtimeOnly 'org.mariadb.jdbc:mariadb-java-client' // MariaDB JDBC 드라이버를 런타임 시 의존성으로 추가합니다.
     runtimeOnly 'com.oracle.database.jdbc:ojdbc8' // 오라클 데이터베이스용 jdbc 드라이버
-    implementation 'org.springframework.boot:spring-boot-starter-validation' // Spring Boot Validation 스타터 추가
     annotationProcessor 'org.projectlombok:lombok' // Lombok을 annotation processor로 사용합니다.
     testImplementation 'org.springframework.boot:spring-boot-starter-test' // 테스트를 위한 Spring Boot 테스트 스타터를 추가합니다.
     testImplementation 'org.springframework.security:spring-security-test' // Spring Security 테스트를 위한 의존성을 추가합니다.
+    implementation 'org.json:json:20210307' // JSON 파싱을 위한 org.json 라이브러리를 추가합니다.
+
+    // jwt
     implementation 'io.jsonwebtoken:jjwt-api:0.11.5' // JWT를 생성하고 검증하기 위한 JJWT API를 추가합니다.
     runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.11.5' // JJWT 구현체를 런타임 시 의존성으로 추가합니다.
     runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.11.5' // JSON 처리를 위한 Jackson과 연동되는 JJWT 의존성을 런타임 시 추가합니다.
-    implementation 'org.json:json:20210307' // JSON 파싱을 위한 org.json 라이브러리를 추가합니다.
+
+    // querydsl
+    implementation 'com.querydsl:querydsl-jpa:5.0.0:jakarta'
+    annotationProcessor "com.querydsl:querydsl-apt:${dependencyManagement.importedProperties['querydsl.version']}:jakarta"
+    annotationProcessor "jakarta.annotation:jakarta.annotation-api"
+    annotationProcessor "jakarta.persistence:jakarta.persistence-api"
+}
+
+//sourceSets
+//gradle build 시 QClass 소스도 함께 build 하기 위해서 sourceSets 에 해당 위치를 추가해준다.
+def querydslSrcDir = 'src/main/generated'
+sourceSets {
+    main {
+        java {
+            srcDirs += [ querydslSrcDir ]
+        }
+    }
+}
+
+// 해당 내용을 명시해주지 않으면 Q 파일 내 Generated 를 import 할 때
+// 자바 9 에만 있는 import javax.annotation.processing.Generated 로 import 해준다.
+// 그렇기 때문에 다른 버전에서도 사용할 수 있도록 java.annotation.Generated 로 import 하도록 설정하는 코드
+compileJava {
+    options.compilerArgs << '-Aquerydsl.generatedAnnotationClass=javax.annotation.Generated'
+}
+
+// annotationProcessorGeneratedSourcesDirectory 를 사용할 수도 있는데,
+// Gradle 공식 문서에 해당 기능은 deprecated 되었고, 추후 major version 에선 삭제할 것이라고 소개하고 있기 때문에
+// generatedSourceOutputDirectory 를 사용한다.
+// generatedSourceOutputDirectory 는 annotation processors 에서 생성한 소스 파일을 저장할 디렉토리를 지정 해준다.
+// (Gradle 공식문서 → CompileOptions - Gradle DSL Version 7.5.1 )
+// 이 코드를 통해 위에서 선언한 querydslSrcDir 변수의 src/main/generated 에다가 annotation processors 가 만든 QClass 들을 저장해준다.
+tasks.withType(JavaCompile) {
+    options.generatedSourceOutputDirectory = file(querydslSrcDir)
+}
+
+// build clean 시에 생성되었던 QClass 를 모두 삭제 (querydslSrcDir = src/main/generated)
+// 만들어진 QClass 삭제하기 : Gradle > build > clean
+// QClass 만들기 : Gradle > build > compileJava
+// src > main > generated 내에 Q 클래스가 만들어졌으면 queryDSL 설정이 정상적으로 된 것이다
+clean {
+    delete file(querydslSrcDir)
+}
+
+// 이 설정을 추가하면, Gradle을 통해 애플리케이션을 빌드할 때 bootBuildImage 태스크를 실행하여 자동으로 Docker 이미지를 생성할 수 있습니다.
+// 필요없나?
+tasks.named('bootBuildImage') {
+    builder = 'paketobuildpacks/builder-jammy-base:latest'
 }
 
 tasks.named('test') {
