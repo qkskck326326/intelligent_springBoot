@@ -3,7 +3,6 @@ package org.ict.intelligentclass.itnewssite.controller;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-import org.ict.intelligentclass.itnewsboard.model.service.ItNewsBoardService;
 import org.ict.intelligentclass.itnewssite.model.dto.ItNewsSiteDto;
 import org.ict.intelligentclass.itnewssite.model.service.ItNewsSiteService;
 import org.springframework.data.domain.Pageable;
@@ -17,7 +16,7 @@ import java.util.List;
 
 @Slf4j
 @RestController
-@RequestMapping("/itNewsBoard")
+@RequestMapping("/itNewsSite")
 @RequiredArgsConstructor
 @CrossOrigin
 public class ItNewsSiteController {
