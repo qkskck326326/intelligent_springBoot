@@ -30,6 +30,8 @@ public class MyCertificateController {
         return ResponseEntity.ok(certificates);
     }
 
+
+
     @PostMapping
     public ResponseEntity<MyCertificateDto> addCertificate(@RequestBody MyCertificateDto certificateDTO) {
         MyCertificateDto newCertificate = myCertificateService.addCertificate(certificateDTO);
