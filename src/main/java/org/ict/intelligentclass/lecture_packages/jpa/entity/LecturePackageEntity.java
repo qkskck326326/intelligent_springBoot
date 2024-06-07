@@ -21,7 +21,7 @@ public class LecturePackageEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "LECTURE_PACKAGE_ID")
-    private Long id;
+    private Long lecturePackageId;
 
     @Column(name = "NICKNAME")
     private String nickname;

@@ -11,20 +11,20 @@ import org.ict.intelligentclass.lecture_packages.jpa.entity.UpperCategoryEntity;
 @NoArgsConstructor
 @Builder
 public class UpperCategoryDto {
-    private Long id;
-    private String name;
+    private Long upperCategoryId;
+    private String upperCategoryName;
 
     public static UpperCategoryDto fromEntity(UpperCategoryEntity entity) {
         return UpperCategoryDto.builder()
-                .id(entity.getId())
-                .name(entity.getName())
+                .upperCategoryId(entity.getUpperCategoryId())
+                .upperCategoryName(entity.getUpperCategoryName())
                 .build();
     }
 
     public UpperCategoryEntity toEntity() {
         return UpperCategoryEntity.builder()
-                .id(this.id)
-                .name(this.name)
+                .upperCategoryId(this.upperCategoryId)
+                .upperCategoryName(this.upperCategoryName)
                 .build();
     }
 }

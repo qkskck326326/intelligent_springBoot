@@ -1,14 +1,11 @@
 package org.ict.intelligentclass.certificate.controller;
 
-import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.ict.intelligentclass.certificate.jpa.entity.MyCertificateEntity;
 import org.ict.intelligentclass.certificate.model.dto.MyCertificateDto;
 import org.ict.intelligentclass.certificate.model.service.MyCertificateService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -19,16 +16,16 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/certificates")
 @RequiredArgsConstructor
 @CrossOrigin
-@AllArgsConstructor
 public class MyCertificateController {
 
-    private MyCertificateService myCertificateService;
+    private final MyCertificateService myCertificateService;
 
-    @GetMapping("/nickname")
+    @GetMapping
     public ResponseEntity<Page<MyCertificateEntity>> getCertificatesByNickname(
             @RequestParam String nickname,
-            @RequestParam int page,
-            @RequestParam int size) {
+            @RequestParam(name="page") int page,
+            @RequestParam(name="size") int size) {
+        log.info("nickname : "+ nickname);
         Page<MyCertificateEntity> certificates = myCertificateService.getCertificatesByNickname(nickname, page, size);
         return ResponseEntity.ok(certificates);
     }

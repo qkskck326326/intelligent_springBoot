@@ -11,23 +11,23 @@ import org.ict.intelligentclass.lecture_packages.jpa.entity.TechStackEntity;
 @NoArgsConstructor
 @Builder
 public class TechStackDto {
-    private Long id;
+    private Long techStackId;
     private String path;
-    private String name;
+    private String techStackName;
 
     public static TechStackDto fromEntity(TechStackEntity entity) {
         return TechStackDto.builder()
-                .id(entity.getId())
+                .techStackId(entity.getTechStackId())
                 .path(entity.getPath())
-                .name(entity.getName())
+                .techStackName(entity.getTechStackName())
                 .build();
     }
 
     public TechStackEntity toEntity() {
         return TechStackEntity.builder()
-                .id(this.id)
+                .techStackId(this.techStackId)
                 .path(this.path)
-                .name(this.name)
+                .techStackName(this.techStackName)
                 .build();
     }
 }

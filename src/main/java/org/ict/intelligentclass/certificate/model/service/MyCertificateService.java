@@ -1,6 +1,7 @@
 package org.ict.intelligentclass.certificate.model.service;
 
 import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import org.ict.intelligentclass.certificate.jpa.entity.MyCertificateEntity;
 import org.ict.intelligentclass.certificate.jpa.repository.MyCertificateRepository;
