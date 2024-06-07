@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.ict.intelligentclass.itnewsboard.jpa.entity.ItNewsBoardEntity;
 import org.ict.intelligentclass.itnewsboard.jpa.repository.ItNewsBoardRepository;
+
 import org.ict.intelligentclass.itnewsboard.model.dto.ItNewsBoardDto;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

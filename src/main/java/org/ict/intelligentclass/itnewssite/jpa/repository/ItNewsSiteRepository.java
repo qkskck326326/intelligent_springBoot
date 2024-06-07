@@ -1,0 +1,9 @@
+package org.ict.intelligentclass.itnewssite.jpa.repository;
+
+import org.ict.intelligentclass.itnewsboard.jpa.entity.ItNewsBoardEntity;
+import org.ict.intelligentclass.itnewssite.jpa.entity.ItNewsSiteEntity;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+public interface ItNewsSiteRepository extends JpaRepository<ItNewsSiteEntity, String> {
+
+}//

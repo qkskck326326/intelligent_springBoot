@@ -1,10 +1,11 @@
-package org.ict.intelligentclass.itnewsboard.controller;
+package org.ict.intelligentclass.itnewssite.controller;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.ict.intelligentclass.itnewsboard.model.dto.ItNewsBoardDto;
 
 import org.ict.intelligentclass.itnewsboard.model.service.ItNewsBoardService;
+import org.ict.intelligentclass.itnewssite.model.dto.ItNewsSiteDto;
+import org.ict.intelligentclass.itnewssite.model.service.ItNewsSiteService;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -19,14 +20,14 @@ import java.util.List;
 @RequestMapping("/itNewsBoard")
 @RequiredArgsConstructor
 @CrossOrigin
-public class ItNewsBoardController {
+public class ItNewsSiteController {
 
-    private final ItNewsBoardService itNewsBoardService;
+    private final ItNewsSiteService itNewsSiteService;
 
     @GetMapping
-    public ResponseEntity<List<ItNewsBoardDto>> getItNewsBoardList(Pageable pageable) {
+    public ResponseEntity<List<ItNewsSiteDto>> getItNewsBoardList(Pageable pageable) {
         log.info("Fetching IT news board list with pageable: {}", pageable);
-        List<ItNewsBoardDto> list = itNewsBoardService.getItNewsBoardList(pageable);
+        List<ItNewsSiteDto> list = itNewsSiteService.getItNewsSiteList(pageable);
         return ResponseEntity.ok(list);
     }//
 
