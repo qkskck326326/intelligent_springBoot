@@ -1,5 +1,6 @@
 package org.ict.intelligentclass.certificate.model.service;
 
+import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import org.ict.intelligentclass.certificate.jpa.entity.MyCertificateEntity;
 import org.ict.intelligentclass.certificate.jpa.repository.MyCertificateRepository;
@@ -10,13 +11,12 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-
+@AllArgsConstructor
 @RequiredArgsConstructor
 @Service
 public class MyCertificateService {
 
 
-    @Autowired
     private MyCertificateRepository myCertificateRepository;
 
 

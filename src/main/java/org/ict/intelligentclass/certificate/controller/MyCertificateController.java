@@ -1,5 +1,7 @@
 package org.ict.intelligentclass.certificate.controller;
 
+import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.ict.intelligentclass.certificate.jpa.entity.MyCertificateEntity;
 import org.ict.intelligentclass.certificate.model.dto.MyCertificateDto;
@@ -11,12 +13,15 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+
 @Slf4j
 @RestController
 @RequestMapping("/certificates")
+@RequiredArgsConstructor
+@CrossOrigin
+@AllArgsConstructor
 public class MyCertificateController {
 
-    @Autowired
     private MyCertificateService myCertificateService;
 
     @GetMapping("/nickname")
