@@ -23,7 +23,7 @@ public class ItNewsBoardController {
 
     private final ItNewsBoardService itNewsBoardService;
 
-    @GetMapping("/list")
+    @GetMapping
     public ResponseEntity<List<ItNewsBoardDto>> getItNewsBoardList(Pageable pageable) {
         log.info("Fetching IT news board list with pageable: {}", pageable);
         List<ItNewsBoardDto> list = itNewsBoardService.getItNewsBoardList(pageable);
