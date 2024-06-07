@@ -14,7 +14,6 @@ import org.springframework.stereotype.Component;
 @Builder
 @Component
 public class ItNewsSiteDto {
-    private Long boardId;
     private String siteUrl;
     private String latestBoardUrl;
     private String siteName;
@@ -24,7 +23,6 @@ public class ItNewsSiteDto {
 
     public ItNewsSiteEntity toEntity() {
         return ItNewsSiteEntity.builder()
-                .boardId(this.boardId)
                 .siteUrl(this.siteUrl)
                 .latestBoardUrl(this.latestBoardUrl)
                 .siteName(this.siteName)

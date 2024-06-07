@@ -6,11 +6,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.ict.intelligentclass.itnewssite.model.dto.ItNewsSiteDto;
 import org.ict.intelligentclass.itnewssite.model.service.ItNewsSiteService;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -29,5 +27,12 @@ public class ItNewsSiteController {
         List<ItNewsSiteDto> list = itNewsSiteService.getItNewsSiteList(pageable);
         return ResponseEntity.ok(list);
     }//
+
+    @PostMapping
+    public ResponseEntity<ItNewsSiteDto> saveSite(@RequestBody ItNewsSiteDto itNewsSiteDto) {
+        ItNewsSiteDto savedSite = itNewsSiteService.saveSite(itNewsSiteDto);
+        return new ResponseEntity<>(savedSite, HttpStatus.CREATED);
+    }
+
 
 }//
