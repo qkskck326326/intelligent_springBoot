@@ -34,7 +34,12 @@ public class ItNewsSiteController {
         return new ResponseEntity<>(savedSite, HttpStatus.CREATED);
     }
 
-
+    @DeleteMapping
+    public ResponseEntity<Void> deleteSite(@RequestBody ItNewsSiteDto itNewsSiteDto) {
+        log.info("Deleting IT news site: {}", itNewsSiteDto);
+        itNewsSiteService.deleteSite(itNewsSiteDto);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
 
 
 }//

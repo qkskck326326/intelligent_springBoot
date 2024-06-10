@@ -32,4 +32,7 @@ public class ItNewsSiteService {
         return itNewsSiteRepository.save(itNewsSiteDto.toEntity()).toDto();
     }
 
+    public void deleteSite(ItNewsSiteDto itNewsSiteDto) {
+        itNewsSiteRepository.delete(itNewsSiteDto.toEntity());
+    }
 }//
