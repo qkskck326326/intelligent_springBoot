@@ -15,14 +15,6 @@ public class TechStackDto {
     private String path;
     private String techStackName;
 
-    public static TechStackDto fromEntity(TechStackEntity entity) {
-        return TechStackDto.builder()
-                .techStackId(entity.getTechStackId())
-                .path(entity.getPath())
-                .techStackName(entity.getTechStackName())
-                .build();
-    }
-
     public TechStackEntity toEntity() {
         return TechStackEntity.builder()
                 .techStackId(this.techStackId)
