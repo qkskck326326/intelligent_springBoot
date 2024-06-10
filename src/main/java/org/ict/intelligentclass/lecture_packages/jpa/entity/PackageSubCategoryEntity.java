@@ -6,6 +6,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -15,7 +16,7 @@ import lombok.NoArgsConstructor;
 public class PackageSubCategoryEntity {
 
     @EmbeddedId
-    private PackageSubCategoryId id;
+    private PackageSubCategoryId packageSubCategoryId;
 
     @ManyToOne
     @MapsId("lecturePackageId")
@@ -26,4 +27,7 @@ public class PackageSubCategoryEntity {
     @MapsId("subCategoryId")
     @JoinColumn(name = "SUB_CATEGORY_ID", insertable = false, updatable = false)
     private SubCategoryEntity subCategory;
+
+
+
 }

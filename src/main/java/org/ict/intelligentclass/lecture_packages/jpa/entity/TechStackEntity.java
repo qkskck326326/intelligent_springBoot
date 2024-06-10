@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.ict.intelligentclass.lecture_packages.model.dto.TechStackDto;
 
 
 @Data
@@ -25,4 +26,12 @@ public class TechStackEntity {
 
     @Column(name = "TECH_STACK_NAME", nullable = false)
     private String techStackName;
+
+    public TechStackDto toDto() {
+        return TechStackDto.builder()
+                .techStackId(this.techStackId)
+                .path(this.path)
+                .techStackName(this.techStackName)
+                .build();
+    }
 }

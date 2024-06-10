@@ -6,6 +6,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -15,7 +16,7 @@ import lombok.NoArgsConstructor;
 public class PackageTechStackEntity {
 
     @EmbeddedId
-    private PackageTechStackId id;
+    private PackageTechStackId packageTechStackId;
 
     @ManyToOne
     @MapsId("lecturePackageId")
@@ -26,4 +27,6 @@ public class PackageTechStackEntity {
     @MapsId("techStackId")
     @JoinColumn(name = "TECH_STACK_ID", insertable = false, updatable = false)
     private TechStackEntity techStack;
+
+
 }
