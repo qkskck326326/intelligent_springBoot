@@ -6,9 +6,13 @@ import org.ict.intelligentclass.certificate.jpa.entity.MyCertificateEntity;
 import org.ict.intelligentclass.certificate.model.dto.MyCertificateDto;
 import org.ict.intelligentclass.certificate.model.service.MyCertificateService;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 
 @Slf4j
@@ -21,13 +25,11 @@ public class MyCertificateController {
     private final MyCertificateService myCertificateService;
 
     @GetMapping
-    public ResponseEntity<Page<MyCertificateEntity>> getCertificatesByNickname(
-            @RequestParam String nickname,
-            @RequestParam(name="page") int page,
-            @RequestParam(name="size") int size) {
-        log.info("nickname : "+ nickname);
-        Page<MyCertificateEntity> certificates = myCertificateService.getCertificatesByNickname(nickname, page, size);
-        return ResponseEntity.ok(certificates);
+    public ResponseEntity<List<MyCertificateDto>> getCertificatesByNickname( @RequestParam String nickname) {
+        log.info("nickname : ", nickname);
+
+        List<MyCertificateDto> certificates = myCertificateService.getCertificatesByNickname(nickname);
+        return new ResponseEntity<>(certificates, HttpStatus.OK);
     }
 
 
@@ -38,9 +40,10 @@ public class MyCertificateController {
         return new ResponseEntity<>(newCertificate, HttpStatus.CREATED);
     }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteCertificate(@PathVariable String id) {
-        myCertificateService.deleteCertificate(id);
+    @DeleteMapping("/{certificateNumber}")
+    public ResponseEntity<Void> deleteCertificate(@PathVariable String certificateNumber) {
+        log.info("certificateNumber : ", certificateNumber);
+        myCertificateService.deleteCertificate(certificateNumber);
         return ResponseEntity.ok().build();
     }
 }
