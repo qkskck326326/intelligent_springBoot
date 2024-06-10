@@ -42,13 +42,14 @@ public class JwtTokenUtil {
 
         // 사용자의 관리자 여부를 확인합니다.
         int userType = userEntity.get().getUserType();
-
+        String nickname = userEntity.get().getNickname();
         // JWT를 생성합니다. 여기서는 사용자 이메일을 주체(subject)로, 관리자 여부를 클레임으로 추가합니다.
         return Jwts.builder()
                 .setSubject(userEmail)
                 .claim("provider", provider) // "provider" 클레임에 provider 정보를 설정합니다.
                 .claim("userType", userType)
                 .claim("tokenType",tokenType)
+                .claim("nickname",nickname)
                 .setExpiration(new Date(System.currentTimeMillis() + expiredMs)) // 만료 시간 설정
                 .signWith(secretKey, SignatureAlgorithm.HS256) // 비밀키와 HS256 알고리즘으로 JWT를 서명
                 .compact(); // JWT 문자열을 생성
