@@ -1,9 +1,6 @@
 package org.ict.intelligentclass.announcement.jpa.entity;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.*;
 import org.ict.intelligentclass.announcement.model.dto.AnnouncementDto;
 import org.ict.intelligentclass.itnewssite.model.dto.ItNewsSiteDto;
@@ -19,6 +16,8 @@ import java.util.Date;
 public class AnnouncementEntity {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "SQ_ANNOUNCEMENT_ID")
+    @SequenceGenerator(name = "SQ_ANNOUNCEMENT_ID", sequenceName = "SQ_ANNOUNCEMENT_ID", allocationSize = 1)
     @Column(name="ANNOUNCEMENT_ID")
     private Long announcementId;
     @Column(name="TITLE", nullable = false)
