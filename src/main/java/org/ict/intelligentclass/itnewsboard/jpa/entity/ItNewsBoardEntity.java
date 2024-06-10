@@ -6,7 +6,6 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.ict.intelligentclass.itnewsboard.model.dto.ItNewsBoardDto;
-import org.ict.intelligentclass.itnewssite.model.dto.ItNewsSiteDto;
 
 
 import java.util.Date;
