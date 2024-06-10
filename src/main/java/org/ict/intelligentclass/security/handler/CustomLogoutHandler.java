@@ -55,10 +55,10 @@ public class CustomLogoutHandler implements LogoutHandler {
             UserId userId = jwtTokenUtil.getUserIdFromToken(tokenValue);
             Optional<UserEntity> optionalUser = userService.findByUserId(userId);
             //Optional<UserEntity> optionalUser = userRepository.findByEmailAndProvider(userId.getUserEmail(),userId.getProvider());
-
+            log.info("if문 전 확인 : " , optionalUser);
             if (optionalUser.isPresent()) {
                 UserEntity userEntity = optionalUser.get();
-
+                log.info("if문 안 확인 : " , userEntity);
                 // 카카오 로그아웃 처리
                 if ("kakao".equals(userEntity.getUserId().getProvider())) {
                     String kakaoAccessToken = userEntity.getSnsAccessToken(); // 저장된 카카오 토큰 사용
