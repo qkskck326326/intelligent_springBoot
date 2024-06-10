@@ -16,7 +16,7 @@ public class RatingDto {
 
     private int ratingId;
     private String nickname;
-    private int packageId;
+    private Long lecturePackageId;
     private Float rating;
 
     // 엔티티로 변환하는 메서드
@@ -24,7 +24,7 @@ public class RatingDto {
         return RatingEntity.builder()
                 .ratingId(this.ratingId)
                 .nickname(this.nickname)
-                .packageId(this.packageId)
+                .lecturePackageId(this.lecturePackageId)
                 .rating(this.rating)
                 .build();
     }

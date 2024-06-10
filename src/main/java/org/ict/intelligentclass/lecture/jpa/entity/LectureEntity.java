@@ -6,8 +6,11 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.ict.intelligentclass.lecture.model.dto.LectureDto;
+import org.ict.intelligentclass.lecture_packages.jpa.entity.LecturePackageEntity;
 
 import java.util.Date;
+import java.util.List;
+import java.util.Set;
 
 @Data
 @AllArgsConstructor
@@ -31,16 +34,15 @@ public class LectureEntity {
     @Column(name = "LECTURE_THUMBNAIL")
     private String lectureThumbnail;
 
-    @Lob
-    @Column(name = "LECTURE_VIDEO", nullable = false)
-    private byte[] lectureVideo;
+    @Column(name = "STREAM_URL", nullable = false)
+    private String streamUrl;
 
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "LECTURE_DATE", nullable = false)
     private Date lectureDate;
 
-    @Column(name = "PACKAGE_ID", nullable = false)
-    private int packageId;
+    @Column(name = "LECTURE_PACKAGE_ID")
+    private Long lecturePackageId;
 
     @Column(name = "NICKNAME")
     private String nickname;
@@ -53,6 +55,16 @@ public class LectureEntity {
         this.lectureDate = this.lectureDate == null ? new Date() : this.lectureDate;
     }
 
+    @OneToMany(mappedBy = "lecture", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private Set<LectureReadEntity> lectureReads;
+
+    @OneToMany(mappedBy = "lecture")
+    private List<LectureCommentEntity> lectureComments;
+
+    @ManyToOne
+    @JoinColumn(name = "LECTURE_PACKAGE_ID", insertable = false, updatable = false)
+    private LecturePackageEntity lecturePackage;
+
     // entity -> dto 변환 메서드 추가
     public LectureDto toDto() {
         return LectureDto.builder()
@@ -60,9 +72,9 @@ public class LectureEntity {
                 .lectureName(lectureName)
                 .lectureContent(lectureContent)
                 .lectureThumbnail(lectureThumbnail)
-                .lectureVideo(lectureVideo)
+                .streamUrl(streamUrl)
                 .lectureDate(lectureDate)
-                .packageId(packageId)
+                .lecturePackageId(lecturePackageId)
                 .nickname(nickname)
                 .lectureViewCount(lectureViewCount)
                 .build();

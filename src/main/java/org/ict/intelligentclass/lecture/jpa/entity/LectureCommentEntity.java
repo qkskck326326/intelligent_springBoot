@@ -40,6 +40,10 @@ public class LectureCommentEntity {
     @Column(name = "PARENT_COMMENT_ID")
     private int parentCommentId;
 
+    @ManyToOne
+    @JoinColumn(name = "LECTURE_FK") // 예시로 다른 이름으로 변경
+    private LectureEntity lecture;
+
     // entity -> dto 변환 메서드 추가
     public LectureCommentDto toDto() {
         return LectureCommentDto.builder()
