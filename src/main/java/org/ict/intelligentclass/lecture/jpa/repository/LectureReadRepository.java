@@ -7,5 +7,6 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface LectureReadRepository
     extends JpaRepository<LectureReadEntity, String> {
+
 }
 

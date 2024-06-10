@@ -23,8 +23,8 @@ public class RatingEntity {
     @Column(name = "NICKNAME")
     private String nickname;
 
-    @Column(name = "PACKAGE_ID", nullable = false)
-    private int packageId;
+    @Column(name = "LECTURE_PACKAGE_ID")
+    private Long lecturePackageId;
 
     @Column(name = "RATING", nullable = false)
     private Float rating;
@@ -34,7 +34,7 @@ public class RatingEntity {
         return RatingDto.builder()
                 .ratingId(ratingId)
                 .nickname(nickname)
-                .packageId(packageId)
+                .lecturePackageId(lecturePackageId)
                 .rating(rating)
                 .build();
     }

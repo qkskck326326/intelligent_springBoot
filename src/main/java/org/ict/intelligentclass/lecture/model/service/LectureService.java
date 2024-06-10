@@ -6,17 +6,18 @@ import lombok.extern.slf4j.Slf4j;
 import org.ict.intelligentclass.lecture.jpa.entity.LectureEntity;
 //import org.ict.intelligentclass.lecture.jpa.entity.LectureReadEntity;
 import org.ict.intelligentclass.lecture.jpa.repository.LectureCommentRepository;
-import org.ict.intelligentclass.lecture.jpa.repository.LectureReadRepository;
+//import org.ict.intelligentclass.lecture.jpa.repository.LectureReadRepository;
 import org.ict.intelligentclass.lecture.jpa.repository.LectureRepository;
-import org.ict.intelligentclass.lecture.jpa.repository.RatingRepository;
+//import org.ict.intelligentclass.lecture.jpa.repository.RatingRepository;
 import org.ict.intelligentclass.lecture.model.dto.LectureCommentDto;
 import org.ict.intelligentclass.lecture.model.dto.LectureDto;
+//import org.ict.intelligentclass.lecture.model.dto.LecturePreviewDto;
 //import org.ict.intelligentclass.lecture.model.dto.LectureReadDto;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
 import java.util.List;
-//import java.util.Optional;
+import java.util.Optional;
 
 @Service
 @Slf4j
@@ -25,38 +26,37 @@ import java.util.List;
 public class LectureService {
     private final LectureRepository lectureRepository;
     private final LectureCommentRepository lectureCommentRepository;
-    private final LectureReadRepository lectureReadRepository;
-    private final RatingRepository ratingRepository;
+//    private final LectureReadRepository lectureReadRepository;
+//    private final RatingRepository ratingRepository;
 
     // 강의 목록 페이지
+//    public List<LectureDto> selectAllLecture(Long lecturePackageId) {
+//        List<LectureEntity> lectureEntities = lectureRepository.findByLecturePackageId(lecturePackageId);
+//        List<LectureDto> lectureDtoList = new ArrayList<>();
+//        for (LectureEntity lectureEntity : lectureEntities) {
+//            lectureDtoList.add(lectureEntity.toDto());
+//        }
+//        return lectureDtoList;
+//    } 패키지 id 받고 출력
+
     public List<LectureDto> selectAllLecture() {
-        List<LectureEntity> lectureEntities = lectureRepository.findAll();
-        List<LectureDto> lectureDto = new ArrayList<>();
+        List<LectureEntity> lectureEntities = lectureRepository.findListWithRead();
+        List<LectureDto> lectureDtoList = new ArrayList<>();
         for (LectureEntity lectureEntity : lectureEntities) {
-            lectureDto.add(lectureEntity.toDto());
+            lectureDtoList.add(lectureEntity.toDto());
         }
-        return lectureDto;
-    }
-    // 강의 총 갯수 가져오기
-    public int selectLectureCount() {
-        return (int) lectureRepository.count();
+        return lectureDtoList;
     }
 
+
+
     // 강의 미리보기
-//    public LectureDto selectLecturePreview(int lectureId) {
-//        Optional<LectureEntity> optionalLectureEntity =  lectureRepository.findById(lectureId);
-//        LectureEntity LectureEntity = optionalLectureEntity.get();
-//
-//        return LectureEntity.toDto();
+//    public List<LecturePreviewDto> getLecturePreviewsByLectureId(int lectureId) {
+//        return lectureRepository.getLecturePreviewsByLectureId(lectureId);
 //    }
 
     // 강의 읽음 처리
-//    public LectureReadDto selectLectureHistory(int lectureId) {
-//        Optional<LectureReadEntity> optionalLectureReadEntity = lectureReadRepository.findById(lectureId);
-//        LectureReadEntity LectureReadEntity = optionalLectureReadEntity.get();
-//
-//        return LectureReadEntity.toDto();
-//    }
+
 
     // 강의 디테일 보기
 //    public LectureDto selectLectureDetail(int lectureId) {
@@ -99,9 +99,8 @@ public class LectureService {
 //    }
 
     // 강의 댓글 추가
-    public void insertLectureComment(LectureCommentDto lectureCommentDto) {
-        lectureCommentRepository.save(lectureCommentDto.toEntity());
-    }
+
+
 
     // 강의 댓글 수정
 //    public void updateLectureComment(LectureCommentDto lectureCommentDto) {

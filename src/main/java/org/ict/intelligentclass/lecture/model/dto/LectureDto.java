@@ -19,12 +19,14 @@ public class LectureDto {
     private String lectureName;
     private String lectureContent;
     private String lectureThumbnail;
-    private byte[] lectureVideo;
+    private String streamUrl;
     @JsonFormat(pattern = "yyyy-MM-dd")
     private java.util.Date lectureDate;
-    private int packageId;
+    private Long lecturePackageId;
     private String nickname;
     private int lectureViewCount;
+
+
 
     public LectureEntity toEntity() {
         return LectureEntity.builder()
@@ -32,9 +34,9 @@ public class LectureDto {
                 .lectureName(this.lectureName)
                 .lectureContent(this.lectureContent)
                 .lectureThumbnail(this.lectureThumbnail)
-                .lectureVideo(this.lectureVideo)
+                .streamUrl(this.streamUrl)
                 .lectureDate(this.lectureDate)
-                .packageId(this.packageId)
+                .lecturePackageId(this.lecturePackageId)
                 .nickname(this.nickname)
                 .lectureViewCount(this.lectureViewCount)
                 .build();
