@@ -40,6 +40,7 @@ public class ItNewsBoardEntity {
 
     public ItNewsBoardDto toDto() {
         return ItNewsBoardDto.builder()
+                .boardId(this.boardId)
                 .siteUrl(this.siteUrl)
                 .title(this.title)
                 .videoTextlizedContext(this.videoTextlizedContext)

@@ -7,6 +7,7 @@ import org.ict.intelligentclass.itnewsboard.jpa.entity.ItNewsBoardEntity;
 import org.ict.intelligentclass.itnewsboard.jpa.repository.ItNewsBoardRepository;
 import org.ict.intelligentclass.itnewsboard.model.dto.ItNewsBoardDto;
 
+import org.ict.intelligentclass.itnewssite.model.dto.ItNewsSiteDto;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -28,5 +29,13 @@ public class ItNewsBoardService {
                 .map(ItNewsBoardEntity::toDto)
                 .collect(Collectors.toList());
     }//
+
+    public ItNewsBoardDto saveBoard(ItNewsBoardDto itNewsBoardDto) {
+        return itNewsBoardRepository.save(itNewsBoardDto.toEntity()).toDto();
+    }
+
+    public void deleteBoard(ItNewsBoardDto itNewsBoardDto) {
+        itNewsBoardRepository.delete(itNewsBoardDto.toEntity());
+    }
 
 }//

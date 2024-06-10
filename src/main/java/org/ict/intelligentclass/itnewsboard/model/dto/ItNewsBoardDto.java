@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.ict.intelligentclass.itnewsboard.jpa.entity.ItNewsBoardEntity;
 
 import java.util.Date;
 
@@ -18,4 +19,15 @@ public class ItNewsBoardDto {
     private String videoTextlizedContext;
     private String originalContext;
     private Date registDate;
+
+    public ItNewsBoardEntity toEntity() {
+        return ItNewsBoardEntity.builder()
+                .boardId(this.boardId)
+                .siteUrl(this.siteUrl)
+                .title(this.title)
+                .videoTextlizedContext(this.videoTextlizedContext)
+                .originalContext(this.originalContext)
+                .registDate(this.registDate)
+                .build();
+    }
 }//
