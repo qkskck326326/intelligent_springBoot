@@ -21,6 +21,13 @@ public class AnnouncementController {
 
     private final AnnouncementService announcementService;
 
+    @GetMapping("/id")
+    public ResponseEntity<AnnouncementEntity> getOneAnnouncement(@RequestParam int announcementId) {
+        log.info(String.valueOf(announcementId));
+        AnnouncementEntity entity = announcementService.selectOneAnnouncement(announcementId);
+        return ResponseEntity.ok(entity);
+    }
+
     @GetMapping
     public ResponseEntity<List<AnnouncementDto>> getAnnouncements(@RequestParam int page){
         log.info("this happened");
@@ -47,6 +54,14 @@ public class AnnouncementController {
         log.info(announcementEntity.toString());
         AnnouncementEntity entity = announcementService.insertAnnouncement(announcementEntity);
         return new ResponseEntity<>(entity, HttpStatus.CREATED);
+
+    }
+
+    @PutMapping
+    public ResponseEntity<AnnouncementEntity> updateAnnouncement(@RequestBody AnnouncementEntity announcementEntity){
+        log.info(announcementEntity.toString());
+        AnnouncementEntity entity = announcementService.updateAnnouncement(announcementEntity);
+        return new ResponseEntity<>(entity, HttpStatus.ACCEPTED);
 
     }
 
