@@ -53,4 +53,13 @@ public class AnnouncementService {
 
         return announcementRepository.save(announcementEntity);
     }
+
+    public AnnouncementEntity updateAnnouncement(AnnouncementEntity announcementEntity) {
+
+        return announcementRepository.save(announcementEntity);
+    }
+
+    public AnnouncementEntity selectOneAnnouncement(int id) {
+        return announcementRepository.findById(id).orElse(null);
+    }
 }
