@@ -1,13 +1,11 @@
 package org.ict.intelligentclass.lecture.jpa.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.ict.intelligentclass.lecture.model.dto.LectureCommentDto;
 
 import java.util.Date;
+
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -34,15 +32,11 @@ public class LectureCommentEntity {
     @Column(name = "LECTURE_COMMENT_DATE", nullable = false)
     private Date lectureCommentDate;
 
-    @Column(name = "NICKNAME")
+    @Column(name = "NICKNAME", nullable = false, length = 50)
     private String nickname;
 
     @Column(name = "PARENT_COMMENT_ID")
     private int parentCommentId;
-
-    @ManyToOne
-    @JoinColumn(name = "LECTURE_FK") // 예시로 다른 이름으로 변경
-    private LectureEntity lecture;
 
     // entity -> dto 변환 메서드 추가
     public LectureCommentDto toDto() {
