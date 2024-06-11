@@ -3,6 +3,7 @@ package org.ict.intelligentclass.lecture_packages.controller;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.ict.intelligentclass.lecture_packages.jpa.output.LecturePackageList;
 import org.ict.intelligentclass.lecture_packages.model.service.LecturePackageService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -17,18 +18,18 @@ import java.util.Map;
 @RequiredArgsConstructor
 @CrossOrigin
 @RestController
-@RequestMapping("/lecture-packages")
+@RequestMapping("/packages")
 public class LecturePackageController {
 
     private final LecturePackageService lecturePackageService;
 
+
+
     @GetMapping
-    public ResponseEntity<Map<String, Object>> getLecturePackages() {
-        Map<String, Object> lecturePackages = lecturePackageService.getLecturePackages();
+    public ResponseEntity<List<LecturePackageList>> getLecturePackages() {
+        List<LecturePackageList> lecturePackages = lecturePackageService.getAllLecturePackages();
         return ResponseEntity.ok(lecturePackages);
     }
-
-
 
 
 //    @GetMapping
