@@ -65,4 +65,11 @@ public class AnnouncementController {
 
     }
 
+    @DeleteMapping
+    public ResponseEntity<Void> deleteAnnouncement(@RequestBody AnnouncementEntity announcementEntity){
+        log.info(announcementEntity.getAnnouncementId().toString());
+        announcementService.deleteAnnouncement(announcementEntity.getAnnouncementId());
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
 }
