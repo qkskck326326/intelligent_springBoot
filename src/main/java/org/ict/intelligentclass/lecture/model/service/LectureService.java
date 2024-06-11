@@ -2,17 +2,15 @@ package org.ict.intelligentclass.lecture.model.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-//import org.ict.intelligentclass.lecture.jpa.entity.LectureCommentEntity;
+import org.ict.intelligentclass.lecture.jpa.entity.output.LectureListDto;
+import org.ict.intelligentclass.lecture_packages.jpa.entity.LecturePackageEntity;
+import org.ict.intelligentclass.lecture_packages.jpa.repository.LecturePackageRepository;
 import org.ict.intelligentclass.lecture.jpa.entity.LectureEntity;
-//import org.ict.intelligentclass.lecture.jpa.entity.LectureReadEntity;
+import org.ict.intelligentclass.lecture.jpa.entity.LectureReadEntity;
 import org.ict.intelligentclass.lecture.jpa.repository.LectureCommentRepository;
-//import org.ict.intelligentclass.lecture.jpa.repository.LectureReadRepository;
+import org.ict.intelligentclass.lecture.jpa.repository.LectureReadRepository;
 import org.ict.intelligentclass.lecture.jpa.repository.LectureRepository;
-//import org.ict.intelligentclass.lecture.jpa.repository.RatingRepository;
-import org.ict.intelligentclass.lecture.model.dto.LectureCommentDto;
-import org.ict.intelligentclass.lecture.model.dto.LectureDto;
-//import org.ict.intelligentclass.lecture.model.dto.LecturePreviewDto;
-//import org.ict.intelligentclass.lecture.model.dto.LectureReadDto;
+import org.ict.intelligentclass.lecture.jpa.repository.RatingRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
@@ -24,10 +22,18 @@ import java.util.Optional;
 @Transactional
 @RequiredArgsConstructor
 public class LectureService {
+
+    private final LecturePackageRepository lecturePackageRepository;
     private final LectureRepository lectureRepository;
     private final LectureCommentRepository lectureCommentRepository;
-//    private final LectureReadRepository lectureReadRepository;
-//    private final RatingRepository ratingRepository;
+    private final LectureReadRepository lectureReadRepository;
+    private final RatingRepository ratingRepository;
+
+    // 강의 패키지 타이틀 가져오기
+    public LecturePackageEntity selectLecturePackageTitle(Long lecturePackageId) {
+        Optional<LecturePackageEntity> lecturePackageEntity = lecturePackageRepository.findById(lecturePackageId);
+        return lecturePackageEntity.get();
+    }
 
     // 강의 목록 페이지
 //    public List<LectureDto> selectAllLecture(Long lecturePackageId) {
@@ -37,17 +43,32 @@ public class LectureService {
 //            lectureDtoList.add(lectureEntity.toDto());
 //        }
 //        return lectureDtoList;
-//    } 패키지 id 받고 출력
+//    } // 패키지 Id 로 강의 목록
 
-    public List<LectureDto> selectAllLecture() {
-        List<LectureEntity> lectureEntities = lectureRepository.findListWithRead();
-        List<LectureDto> lectureDtoList = new ArrayList<>();
+    // 실험용 강의 목록 페이지
+    public List<LectureListDto> selectAllLecture() {
+        List<LectureEntity> lectureEntities = lectureRepository.findAll();
+        List<LectureReadEntity> lectureReadEntities = lectureReadRepository.findAll();
+        List<LectureListDto> lectureListDtos = new ArrayList<>();
         for (LectureEntity lectureEntity : lectureEntities) {
-            lectureDtoList.add(lectureEntity.toDto());
+            // LectureReadEntity를 찾음
+            Optional<LectureReadEntity> lectureReadEntity = lectureReadEntities.stream()
+                    .filter(lr -> lr.getLectureId() == lectureEntity.getLectureId())
+                    .findFirst();
+            lectureReadEntity.ifPresent(lr -> {
+                LectureListDto lectureListDto = new LectureListDto(lectureEntity, lr);
+                lectureListDtos.add(lectureListDto);
+            });
         }
-        return lectureDtoList;
+        return lectureListDtos;
     }
 
+    // 강의 읽음 가져오기
+//    public String selectLectureRead(String nickname, int lectureId) {
+//        LectureRead lectureRead = lectureReadRepository.findByNicknameAndLectureId(nickname, lectureId);
+//
+//
+//    }
 
 
     // 강의 미리보기

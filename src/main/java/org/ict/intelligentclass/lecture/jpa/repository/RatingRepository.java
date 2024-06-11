@@ -8,6 +8,7 @@ import org.springframework.stereotype.Repository;
 public interface RatingRepository
     extends JpaRepository<RatingEntity, String> {
 
+    RatingEntity findByLecturePackageId(Long lecturePackageId);
 }
 
 
