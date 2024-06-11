@@ -7,6 +7,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.ict.intelligentclass.lecture_packages.jpa.output.LecturePackageDto;
+import org.ict.intelligentclass.user.jpa.entity.UserEntity;
 
 import java.util.Date;
 import java.util.Set;
@@ -23,6 +24,10 @@ public class LecturePackageEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "LECTURE_PACKAGE_ID")
     private Long lecturePackageId;
+
+//    @ManyToOne
+//    @JoinColumn(name = "NICKNAME", referencedColumnName = "NICKNAME", insertable = false, updatable = false)
+//    private UserEntity user;
 
     @Column(name = "NICKNAME")
     private String nickname;
