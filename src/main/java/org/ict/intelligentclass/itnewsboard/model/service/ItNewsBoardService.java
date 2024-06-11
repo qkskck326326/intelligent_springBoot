@@ -2,10 +2,12 @@ package org.ict.intelligentclass.itnewsboard.model.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+
 import org.ict.intelligentclass.itnewsboard.jpa.entity.ItNewsBoardEntity;
 import org.ict.intelligentclass.itnewsboard.jpa.repository.ItNewsBoardRepository;
-
 import org.ict.intelligentclass.itnewsboard.model.dto.ItNewsBoardDto;
+
+import org.ict.intelligentclass.itnewssite.model.dto.ItNewsSiteDto;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -28,4 +30,15 @@ public class ItNewsBoardService {
                 .collect(Collectors.toList());
     }//
 
+    public ItNewsBoardDto saveBoard(ItNewsBoardDto itNewsBoardDto) {
+        return itNewsBoardRepository.save(itNewsBoardDto.toEntity()).toDto();
+    }
+
+    public void deleteBoard(ItNewsBoardDto itNewsBoardDto) {
+        itNewsBoardRepository.delete(itNewsBoardDto.toEntity());
+    }
+
+    public ItNewsBoardDto getItNewsBoard(Long no) {
+        return itNewsBoardRepository.findById(no).get().toDto();
+    }
 }//

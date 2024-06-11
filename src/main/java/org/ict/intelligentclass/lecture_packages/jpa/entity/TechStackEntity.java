@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.ict.intelligentclass.lecture_packages.model.dto.TechStackDto;
 
 
 @Data
@@ -18,11 +19,19 @@ public class TechStackEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "TECH_STACK_ID")
-    private Long id;
+    private Long techStackId;
 
     @Column(name = "TECH_STACK_PATH", nullable = false)
     private String path;
 
     @Column(name = "TECH_STACK_NAME", nullable = false)
-    private String name;
+    private String techStackName;
+
+    public TechStackDto toDto() {
+        return TechStackDto.builder()
+                .techStackId(this.techStackId)
+                .path(this.path)
+                .techStackName(this.techStackName)
+                .build();
+    }
 }

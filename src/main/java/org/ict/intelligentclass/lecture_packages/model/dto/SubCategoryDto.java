@@ -6,29 +6,26 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.ict.intelligentclass.lecture_packages.jpa.entity.SubCategoryEntity;
+import org.ict.intelligentclass.lecture_packages.jpa.entity.UpperCategoryEntity;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
 public class SubCategoryDto {
-    private Long id;
-    private String name;
+    private Long subCategoryId;
+    private String subCategoryName;
     private Long upperCategoryId;
 
-    public static SubCategoryDto fromEntity(SubCategoryEntity entity) {
-        return SubCategoryDto.builder()
-                .id(entity.getId())
-                .name(entity.getName())
-                .upperCategoryId(entity.getUpperCategoryId())
-                .build();
-    }
-
     public SubCategoryEntity toEntity() {
-        return SubCategoryEntity.builder()
-                .id(this.id)
-                .name(this.name)
+        UpperCategoryEntity upperCategoryEntity = UpperCategoryEntity.builder()
                 .upperCategoryId(this.upperCategoryId)
+                .build();
+
+        return SubCategoryEntity.builder()
+                .subCategoryId(this.subCategoryId)
+                .subCategoryName(this.subCategoryName)
+                .upperCategory(upperCategoryEntity)
                 .build();
     }
 }

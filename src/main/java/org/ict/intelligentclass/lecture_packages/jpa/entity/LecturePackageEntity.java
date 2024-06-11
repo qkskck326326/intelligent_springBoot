@@ -6,6 +6,8 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.ict.intelligentclass.lecture_packages.jpa.output.LecturePackageDto;
+import org.ict.intelligentclass.user.jpa.entity.UserEntity;
 
 import java.util.Date;
 import java.util.Set;
@@ -21,7 +23,11 @@ public class LecturePackageEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "LECTURE_PACKAGE_ID")
-    private Long id;
+    private Long lecturePackageId;
+
+//    @ManyToOne
+//    @JoinColumn(name = "NICKNAME", referencedColumnName = "NICKNAME", insertable = false, updatable = false)
+//    private UserEntity user;
 
     @Column(name = "NICKNAME")
     private String nickname;
@@ -51,8 +57,24 @@ public class LecturePackageEntity {
     private int viewCount;
 
     @OneToMany(mappedBy = "lecturePackage")
-    private Set<PackageSubCategoryEntity> subCategories;
+    private Set<PackageSubCategoryEntity> packageSubCategory;
 
     @OneToMany(mappedBy = "lecturePackage")
-    private Set<PackageTechStackEntity> techStacks;
+    private Set<PackageTechStackEntity> packageTechStack;
+
+
+    public LecturePackageDto toDto() {
+        return LecturePackageDto.builder()
+                .lecturePackageId(this.lecturePackageId)
+                .nickname(this.nickname)
+                .title(this.title)
+                .classGoal(this.classGoal)
+                .recommendPerson(this.recommendPerson)
+                .priceKind(this.priceKind)
+                .price(this.price)
+                .thumbnail(this.thumbnail)
+                .registerDate(this.registerDate)
+                .viewCount(this.viewCount)
+                .build();
+    }
 }

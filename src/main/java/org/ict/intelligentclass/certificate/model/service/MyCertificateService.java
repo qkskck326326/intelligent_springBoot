@@ -5,24 +5,53 @@ import lombok.RequiredArgsConstructor;
 import org.ict.intelligentclass.certificate.jpa.entity.MyCertificateEntity;
 import org.ict.intelligentclass.certificate.jpa.repository.MyCertificateRepository;
 import org.ict.intelligentclass.certificate.model.dto.MyCertificateDto;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
-@AllArgsConstructor
+import java.util.ArrayList;
+import java.util.List;
+
+import static org.json.XMLTokener.entity;
+
+
 @RequiredArgsConstructor
 @Service
 public class MyCertificateService {
 
 
-    private MyCertificateRepository myCertificateRepository;
+    private static final Logger log = LoggerFactory.getLogger(MyCertificateService.class);
+    private final MyCertificateRepository myCertificateRepository;
 
 
-    public Page<MyCertificateEntity> getCertificatesByNickname(String nickname, int page, int size) {
-        Pageable pageable = PageRequest.of(page, size);
-        return myCertificateRepository.findByNickname(nickname, pageable);
+    public List<MyCertificateDto> getCertificatesByNickname(String nickname) {
+        log.info("nickname : ", nickname);
+
+        List<MyCertificateEntity> myCertificateEntities = myCertificateRepository.findByNicknameContaining(nickname);
+
+        ArrayList<MyCertificateDto> list = new ArrayList<>();
+        for(MyCertificateEntity entity : myCertificateEntities){
+            MyCertificateDto myCertificateDto = entity.toDto();
+            list.add(myCertificateDto);
+        }
+
+        return list;
+
+
+
+//        Page<MyCertificateEntity> pages =myCertificateRepository.findByNicknameContaining(nickname, pageable);
+//        ArrayList<MyCertificateDto> list = new ArrayList<>();
+//
+//        for(MyCertificateEntity entity : pages){
+//            MyCertificateDto myCertificateDto = entity.toDto();
+//            list.add(myCertificateDto);
+//        }
+//        return list;
+
     }
 
     public MyCertificateDto addCertificate(MyCertificateDto certificateDTO) {
@@ -31,7 +60,7 @@ public class MyCertificateService {
         return MyCertificateDto.fromEntity(savedEntity);
     }
 
-    public void deleteCertificate(String id) {
-        myCertificateRepository.deleteById(id);
+    public void deleteCertificate(String certificateNumber) {
+        myCertificateRepository.deleteById(certificateNumber);
     }
 }

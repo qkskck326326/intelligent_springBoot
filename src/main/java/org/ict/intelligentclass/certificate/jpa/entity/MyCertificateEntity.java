@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.ict.intelligentclass.certificate.model.dto.MyCertificateDto;
 
 import java.util.Date;
 
@@ -35,5 +36,16 @@ public class MyCertificateEntity {
     private String issuePlace;
 
 
+    // toDto 메서드
+    public MyCertificateDto toDto() {
+        return new MyCertificateDto(
+                this.certificateNumber,
+                this.nickname,
+                this.pdfFile,
+                this.kind,
+                this.passDate,
+                this.issuePlace
+        );
+    }
 
 }

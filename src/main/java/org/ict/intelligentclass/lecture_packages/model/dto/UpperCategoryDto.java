@@ -6,25 +6,21 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.ict.intelligentclass.lecture_packages.jpa.entity.UpperCategoryEntity;
 
+import java.util.stream.Collectors;
+
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
 public class UpperCategoryDto {
-    private Long id;
-    private String name;
+    private Long upperCategoryId;
+    private String upperCategoryName;
 
-    public static UpperCategoryDto fromEntity(UpperCategoryEntity entity) {
-        return UpperCategoryDto.builder()
-                .id(entity.getId())
-                .name(entity.getName())
-                .build();
-    }
 
     public UpperCategoryEntity toEntity() {
         return UpperCategoryEntity.builder()
-                .id(this.id)
-                .name(this.name)
+                .upperCategoryId(this.upperCategoryId)
+                .upperCategoryName(this.upperCategoryName)
                 .build();
     }
 }
