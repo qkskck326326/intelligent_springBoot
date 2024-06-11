@@ -14,6 +14,7 @@ import org.ict.intelligentclass.user.jpa.repository.UserInterestRepository;
 import org.ict.intelligentclass.user.jpa.repository.UserRepository;
 import org.ict.intelligentclass.user.model.dto.AttendanceDto;
 import org.ict.intelligentclass.user.model.dto.UserDto;
+import org.springframework.data.repository.query.Param;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -47,6 +48,10 @@ public class UserService {
 
     public Optional<UserEntity> findByUserId(UserId userId) {
         return userRepository.findByEmailAndProvider(userId.getUserEmail(),userId.getProvider());
+    }
+
+    public Optional<UserEntity> findByUserEmailAndProvider(String userEmail, String provider) {
+        return userRepository.findByEmailAndProvider(userEmail, provider);
     }
 
     public UserDto getUserById(String userEmail, String provider) {
@@ -183,8 +188,8 @@ public class UserService {
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    @Transactional
-    public UserDto insertUser(UserDto userDto /*, List<Integer> interestIdList */ ) {
+    @Transactional 
+    public UserDto insertUser(UserDto userDto /*, List<Integer> interestIdList */ ) { // 일반 회원가입
         // 비밀번호 암호화
         String encodedPassword = passwordEncoder.encode(userDto.getUserPwd());
         userDto.setUserPwd(encodedPassword);
@@ -206,6 +211,25 @@ public class UserService {
 
         return userEntity.toDto();
     }
+
+    @Transactional
+    public UserDto insertKakaoUser(UserDto userDto /*, List<Integer> interestIdList */ ) { // 카카오 회원가입
+        // UserEntity 저장
+        UserEntity userEntity = userDto.toEntity();
+        userRepository.save(userEntity);
+
+        // UserInterestEntity 저장
+//        List<UserInterestEntity> userInterests = interestIdList.stream()
+//                .map(subCategoryId -> UserInterestEntity.builder()
+//                        .interestId(new UserInterestId(userDto.getUserEmail(), userDto.getProvider(), subCategoryId))
+//                        .user(userEntity)
+//                        .build())
+//                .collect(Collectors.toList());
+//        userInterestRepository.saveAll(userInterests);
+
+        return userEntity.toDto();
+    }
+
 
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
