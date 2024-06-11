@@ -6,6 +6,6 @@ import org.ict.intelligentclass.itnewsboard.jpa.entity.ItNewsBoardEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-public interface ItNewsBoardRepository extends JpaRepository<ItNewsBoardEntity, String> {
+public interface ItNewsBoardRepository extends JpaRepository<ItNewsBoardEntity, Long> {
 
 }//
