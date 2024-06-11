@@ -1,6 +1,7 @@
 package org.ict.intelligentclass.lecture_packages.model.service;
 
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.ict.intelligentclass.certificate.model.dto.MyCertificateDto;
 import org.ict.intelligentclass.lecture.jpa.entity.RatingEntity;
 import org.ict.intelligentclass.lecture.jpa.repository.RatingRepository;
@@ -10,6 +11,7 @@ import org.ict.intelligentclass.lecture_packages.jpa.entity.PackageTechStackEnti
 import org.ict.intelligentclass.lecture_packages.jpa.entity.PackageSubCategoryId;
 import org.ict.intelligentclass.lecture_packages.jpa.entity.PackageTechStackId;
 import org.ict.intelligentclass.lecture_packages.jpa.output.LecturePackageDto;
+import org.ict.intelligentclass.lecture_packages.jpa.output.LecturePackageList;
 import org.ict.intelligentclass.lecture_packages.jpa.repository.LecturePackageRepository;
 import org.ict.intelligentclass.lecture_packages.jpa.repository.PackageSubCategoryRepository;
 import org.ict.intelligentclass.lecture_packages.jpa.repository.PackageTechStackRepository;
@@ -22,6 +24,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+@Slf4j
 @AllArgsConstructor
 @Service
 public class LecturePackageService {
@@ -31,28 +34,46 @@ public class LecturePackageService {
     private final PackageTechStackRepository packageTechStackRepository;
     private final RatingRepository ratingRepository;
 
-    public Map<String, Object> getLecturePackages() {
 
+
+    public List<LecturePackageList> getAllLecturePackages() {
         List<LecturePackageEntity> lecturePackages = lecturePackageRepository.findAll();
-        List<PackageSubCategoryEntity> packageSubCategories = packageSubCategoryRepository.findAll();
-        List<PackageTechStackEntity> packageTechStacks = packageTechStackRepository.findAll();
-        List<RatingEntity> ratings = ratingRepository.findAll();
-
-
-        //dto객체 생성
-        List<LecturePackageDto> lecturePackageDtos = lecturePackages.stream()
-                .map(LecturePackageDto::new)
-                .collect(Collectors.toList());
-
-        //map방식으로 넣어줌.
-        Map<String, Object> response = new HashMap<>();
-        response.put("lecturePackages", lecturePackageDtos);
-        response.put("packageSubCategories", packageSubCategories);
-        response.put("packageTechStacks", packageTechStacks);
-        response.put("ratings", ratings);
-
-        return response;
+        return lecturePackages.stream().map(this::toLecturePackageList).collect(Collectors.toList());
     }
+
+    private LecturePackageList toLecturePackageList(LecturePackageEntity lecturePackage) {
+        RatingEntity rating = ratingRepository.findByLecturePackageId(lecturePackage.getLecturePackageId());
+
+        return LecturePackageList.builder()
+                .lecturePackageId(lecturePackage.getLecturePackageId())
+                .nickname(lecturePackage.getNickname())
+                .title(lecturePackage.getTitle())
+                .thumbnail(lecturePackage.getThumbnail())
+                .ratingId(rating != null ? rating.getRatingId() : 0)
+                .rating(rating != null ? rating.getRating() : 0.0f)
+                .build();
+    }
+
+//    public Map<String, Object> getLecturePackages() {
+//
+//        List<LecturePackageEntity> lecturePackages = lecturePackageRepository.findAllSort();
+//        List<RatingEntity> ratings = ratingRepository.findAll();
+//
+//        log.info("Lecture Packages: {}", lecturePackages);
+//
+////        //dto객체 생성
+////        List<LecturePackageList> lecturePackage = lecturePackages.stream()
+////                .map(LecturePackageList::new)
+////                .collect(Collectors.toList());
+//
+//
+//
+//        return lecturePackages.map(package -> {
+//            LecturePackageList list = new LecturePackageList();
+//            list.setLecturePackageId(lecturePackages.getPackage)
+//
+//        });
+//    }
 
 
 
