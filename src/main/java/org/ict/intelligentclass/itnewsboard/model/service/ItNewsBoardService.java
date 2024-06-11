@@ -38,4 +38,7 @@ public class ItNewsBoardService {
         itNewsBoardRepository.delete(itNewsBoardDto.toEntity());
     }
 
+    public ItNewsBoardDto getItNewsBoard(Long no) {
+        return itNewsBoardRepository.findById(no).get().toDto();
+    }
 }//

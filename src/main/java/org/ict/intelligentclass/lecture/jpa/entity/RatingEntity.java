@@ -6,6 +6,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.ict.intelligentclass.lecture.model.dto.RatingDto;
+import org.ict.intelligentclass.lecture_packages.jpa.entity.LecturePackageEntity;
+import org.ict.intelligentclass.lecture_packages.jpa.entity.SubCategoryEntity;
 
 @Data
 @AllArgsConstructor

@@ -15,6 +15,7 @@ import java.util.Date;
 public class ItNewsBoardDto {
     private Long boardId; // BOARD_ID 필드 추가
     private String siteUrl;
+    private String boardUrl;
     private String title;
     private String videoTextlizedContext;
     private String originalContext;
@@ -24,6 +25,7 @@ public class ItNewsBoardDto {
         return ItNewsBoardEntity.builder()
                 .boardId(this.boardId)
                 .siteUrl(this.siteUrl)
+                .boardUrl(this.boardUrl)
                 .title(this.title)
                 .videoTextlizedContext(this.videoTextlizedContext)
                 .originalContext(this.originalContext)
