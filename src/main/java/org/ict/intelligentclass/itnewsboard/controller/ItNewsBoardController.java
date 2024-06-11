@@ -29,6 +29,12 @@ public class ItNewsBoardController {
         return ResponseEntity.ok(list);
     }//
 
+    @GetMapping("/{no}")
+    public ResponseEntity<ItNewsBoardDto> getItNewsBoard(@PathVariable("no") Long no) {
+        log.info("Fetching IT news board with no: {}", no);
+        return ResponseEntity.ok(itNewsBoardService.getItNewsBoard(no));
+    }
+
     @PostMapping
     public ResponseEntity<ItNewsBoardDto> saveBoard(@RequestBody ItNewsBoardDto itNewsBoardDto) {
         ItNewsBoardDto savedBoard = itNewsBoardService.saveBoard(itNewsBoardDto);
