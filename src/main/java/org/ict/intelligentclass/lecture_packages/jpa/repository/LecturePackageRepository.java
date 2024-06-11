@@ -12,7 +12,7 @@ import java.util.List;
 @Repository
 public interface LecturePackageRepository extends JpaRepository<LecturePackageEntity, Long> {
 
-    @Query("SELECT l.title FROM LecturePackageEntity l ORDER BY l.registerDate")
+    @Query("SELECT l FROM LecturePackageEntity l ORDER BY l.registerDate desc")
     List<LecturePackageEntity> findAllSort();
 
 

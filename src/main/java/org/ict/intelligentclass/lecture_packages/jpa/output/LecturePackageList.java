@@ -19,6 +19,7 @@ public class LecturePackageList {
     private String nickname;
     private String title;
     private String thumbnail;
+    private int viewCount;
     private int ratingId;
     private float rating;
 }
