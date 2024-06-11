@@ -2,26 +2,18 @@ package org.ict.intelligentclass.lecture_packages.model.service;
 
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.ict.intelligentclass.certificate.model.dto.MyCertificateDto;
 import org.ict.intelligentclass.lecture.jpa.entity.RatingEntity;
 import org.ict.intelligentclass.lecture.jpa.repository.RatingRepository;
 import org.ict.intelligentclass.lecture_packages.jpa.entity.LecturePackageEntity;
-import org.ict.intelligentclass.lecture_packages.jpa.entity.PackageSubCategoryEntity;
-import org.ict.intelligentclass.lecture_packages.jpa.entity.PackageTechStackEntity;
-import org.ict.intelligentclass.lecture_packages.jpa.entity.PackageSubCategoryId;
-import org.ict.intelligentclass.lecture_packages.jpa.entity.PackageTechStackId;
-import org.ict.intelligentclass.lecture_packages.jpa.output.LecturePackageDto;
 import org.ict.intelligentclass.lecture_packages.jpa.output.LecturePackageList;
 import org.ict.intelligentclass.lecture_packages.jpa.repository.LecturePackageRepository;
 import org.ict.intelligentclass.lecture_packages.jpa.repository.PackageSubCategoryRepository;
 import org.ict.intelligentclass.lecture_packages.jpa.repository.PackageTechStackRepository;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.HashMap;
+
+
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -37,7 +29,7 @@ public class LecturePackageService {
 
 
     public List<LecturePackageList> getAllLecturePackages() {
-        List<LecturePackageEntity> lecturePackages = lecturePackageRepository.findAll();
+        List<LecturePackageEntity> lecturePackages = lecturePackageRepository.findAllSort();
         return lecturePackages.stream().map(this::toLecturePackageList).collect(Collectors.toList());
     }
 
@@ -49,6 +41,7 @@ public class LecturePackageService {
                 .nickname(lecturePackage.getNickname())
                 .title(lecturePackage.getTitle())
                 .thumbnail(lecturePackage.getThumbnail())
+                .viewCount(lecturePackage.getViewCount())
                 .ratingId(rating != null ? rating.getRatingId() : 0)
                 .rating(rating != null ? rating.getRating() : 0.0f)
                 .build();
