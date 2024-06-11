@@ -25,6 +25,9 @@ public class ItNewsBoardEntity {
     @Column(name = "SITE_URL", length = 300)
     private String siteUrl;
 
+    @Column(name = "BOARD_URL", length = 300)
+    private String boardUrl;
+
     @Column(name = "TITLE", length = 300)
     private String title;
 
@@ -41,6 +44,7 @@ public class ItNewsBoardEntity {
         return ItNewsBoardDto.builder()
                 .boardId(this.boardId)
                 .siteUrl(this.siteUrl)
+                .boardUrl(this.boardUrl)
                 .title(this.title)
                 .videoTextlizedContext(this.videoTextlizedContext)
                 .originalContext(this.originalContext)
