@@ -62,4 +62,8 @@ public class AnnouncementService {
     public AnnouncementEntity selectOneAnnouncement(int id) {
         return announcementRepository.findById(id).orElse(null);
     }
+
+    public void deleteAnnouncement(long announcementId) {
+        announcementRepository.deleteById((int)announcementId);
+    }
 }
