@@ -22,7 +22,7 @@ public class TechStackEntity {
     private Long techStackId;
 
     @Column(name = "TECH_STACK_PATH", nullable = false)
-    private String path;
+    private String techStackPath;
 
     @Column(name = "TECH_STACK_NAME", nullable = false)
     private String techStackName;
@@ -30,7 +30,7 @@ public class TechStackEntity {
     public TechStackDto toDto() {
         return TechStackDto.builder()
                 .techStackId(this.techStackId)
-                .path(this.path)
+                .techStackPath(this.techStackPath)
                 .techStackName(this.techStackName)
                 .build();
     }

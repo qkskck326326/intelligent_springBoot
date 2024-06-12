@@ -4,7 +4,8 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.ict.intelligentclass.lecture.jpa.entity.RatingEntity;
 import org.ict.intelligentclass.lecture.jpa.repository.RatingRepository;
-import org.ict.intelligentclass.lecture_packages.jpa.entity.LecturePackageEntity;
+import org.ict.intelligentclass.lecture_packages.jpa.entity.*;
+import org.ict.intelligentclass.lecture_packages.jpa.output.LecturePackageDetail;
 import org.ict.intelligentclass.lecture_packages.jpa.output.LecturePackageList;
 import org.ict.intelligentclass.lecture_packages.jpa.repository.LecturePackageRepository;
 import org.ict.intelligentclass.lecture_packages.jpa.repository.PackageSubCategoryRepository;
@@ -12,7 +13,8 @@ import org.ict.intelligentclass.lecture_packages.jpa.repository.PackageTechStack
 import org.springframework.stereotype.Service;
 
 
-
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -33,6 +35,7 @@ public class LecturePackageService {
         return lecturePackages.stream().map(this::toLecturePackageList).collect(Collectors.toList());
     }
 
+
     private LecturePackageList toLecturePackageList(LecturePackageEntity lecturePackage) {
         RatingEntity rating = ratingRepository.findByLecturePackageId(lecturePackage.getLecturePackageId());
 
@@ -46,6 +49,108 @@ public class LecturePackageService {
                 .rating(rating != null ? rating.getRating() : 0.0f)
                 .build();
     }
+
+
+    public LecturePackageDetail getLecturePackageDetail(Long lecturePackageId) {
+        LecturePackageEntity lecturePackage = lecturePackageRepository.findById(lecturePackageId).orElse(null);
+
+
+        List<PackageSubCategoryEntity> packageSubCategories = packageSubCategoryRepository.findByLecturePackageId(lecturePackageId);
+        List<PackageTechStackEntity> packageTechStacks = packageTechStackRepository.findByLecturePackageId(lecturePackageId);
+
+
+
+
+        List<Long> subCategoryIds = packageSubCategories.stream()
+                .map(subCategory -> subCategory.getSubCategory().getSubCategoryId())
+                .collect(Collectors.toList());
+
+        List<Long> techStackIds = packageTechStacks.stream()
+                .map(techStack -> techStack.getTechStack().getTechStackId())
+                .collect(Collectors.toList());
+
+
+
+        //패키지마다의 서브카테고리의 일치하는 서브카테고리entity에서 map으로 name을 꺼냄.
+        String subCategoryNames = packageSubCategories.stream()
+                .map(subCategory -> subCategory.getSubCategory().getSubCategoryName())
+                .collect(Collectors.joining(", "));
+
+        String techStackPaths = packageTechStacks.stream()
+                .map(techStack -> techStack.getTechStack().getTechStackPath())
+                .collect(Collectors.joining(", "));
+
+
+
+            return LecturePackageDetail.builder()
+                    .lecturePackageId(lecturePackageId)
+                    .nickname(lecturePackage.getNickname())
+                    .title(lecturePackage.getTitle())
+                    .classGoal(lecturePackage.getClassGoal())
+                    .recommendPerson(lecturePackage.getRecommendPerson())
+                    .priceKind(lecturePackage.getPriceKind())
+                    .price(lecturePackage.getPrice())
+                    .thumbnail(lecturePackage.getThumbnail())
+                    .register(lecturePackage.getRegisterDate())
+                    .viewCount(lecturePackage.getViewCount())
+                    .subCategoryId(subCategoryIds)
+                    .subCategoryName(subCategoryNames)
+                    .techStackId(techStackIds)
+                    .techStackPath(techStackPaths)
+                    .build();
+
+
+    }
+
+
+
+
+
+
+
+//    public LecturePackageDetail getLecturePackage(Long lecturePackageId) {
+//        LecturePackageEntity lecturePackageEntity = lecturePackageRepository.findById(lecturePackageId)
+//                .orElseThrow(() -> new RuntimeException("패키지를 찾을 수 없습니다."));
+//
+//        // 서브 카테고리 및 기술 스택 엔티티를 조회하여 DTO로 변환
+//        List<PackageSubCategoryId> packageSubCategoryIds = lecturePackageEntity.getPackageSubCategory().stream()
+//                .map(PackageSubCategoryEntity::getPackageSubCategoryId)
+//                .collect(Collectors.toList());
+//
+//        List<PackageTechStackId> packageTechStackIds = lecturePackageEntity.getPackageTechStack().stream()
+//                .map(PackageTechStackEntity::getPackageTechStackId)
+//                .collect(Collectors.toList());
+//
+//        // 서브 카테고리 이름과 기술 스택 경로를 조회
+//        String subCategoryNames = lecturePackageEntity.getPackageSubCategory().stream()
+//                .map(subCategory -> subCategory.getSubCategory().getSubCategoryName())
+//                .collect(Collectors.joining(", "));
+//
+//        String techStackPaths = lecturePackageEntity.getPackageTechStack().stream()
+//                .map(techStack -> techStack.getTechStack().getPath())
+//                .collect(Collectors.joining(", "));
+//
+//        return LecturePackageDetail.builder()
+//                .lecturePackageId(lecturePackageEntity.getLecturePackageId())
+//                .nickname(lecturePackageEntity.getNickname())
+//                .title(lecturePackageEntity.getTitle())
+//                .classGoal(lecturePackageEntity.getClassGoal())
+//                .recommendPerson(lecturePackageEntity.getRecommendPerson())
+//                .priceKind(lecturePackageEntity.getPriceKind())
+//                .price(lecturePackageEntity.getPrice())
+//                .thumbnail(lecturePackageEntity.getThumbnail())
+//                .register(lecturePackageEntity.getRegisterDate())
+//                .viewCount(lecturePackageEntity.getViewCount())
+//                .ratingId(lecturePackageEntity.getRating().getRatingId())
+//                .rating(lecturePackageEntity.getRating().getRating())
+//                .packageSubCategoryIds(packageSubCategoryIds)
+//                .subCategoryName(subCategoryNames)
+//                .packageTechStackIds(packageTechStackIds)
+//                .path(techStackPaths)
+//                .build();
+//    }
+
+
 
 //    public Map<String, Object> getLecturePackages() {
 //
