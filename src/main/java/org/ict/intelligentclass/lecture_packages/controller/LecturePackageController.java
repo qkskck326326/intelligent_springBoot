@@ -3,15 +3,14 @@ package org.ict.intelligentclass.lecture_packages.controller;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.ict.intelligentclass.lecture_packages.jpa.input.LecturePackageRegister;
+import org.ict.intelligentclass.lecture_packages.jpa.output.LecturePackageDetail;
 import org.ict.intelligentclass.lecture_packages.jpa.output.LecturePackageList;
 import org.ict.intelligentclass.lecture_packages.model.service.LecturePackageService;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 
 @Slf4j
@@ -31,19 +30,30 @@ public class LecturePackageController {
         return ResponseEntity.ok(lecturePackages);
     }
 
+    @GetMapping("/detail")
+    public ResponseEntity<LecturePackageDetail> getLecturePackageById(@RequestParam Long lecturePackageId) {
+        log.info("getLecturePackageById : ", lecturePackageId);
+        LecturePackageDetail lecturePackageDetail = lecturePackageService.getLecturePackageDetail(lecturePackageId);
+        return ResponseEntity.ok(lecturePackageDetail);
+    }
 
-//    @GetMapping
-//    public ResponseEntity<List<LecturePackageDto>> getLecturePackages() {
-//
-//
-//        List<LecturePackageDto> lecturePackages = lecturePackageService.getLecturePackages();
-//        return new ResponseEntity<>(lecturePackages, HttpStatus.OK);
-//    }
-//
-//
+
+
+
 //    @PostMapping
-//    public ResponseEntity<LecturePackageDto> createLecturePackage(@RequestBody LecturePackageDto lecturePackageDto) {
-//        LecturePackageDto createdLecturePackage = lecturePackageService.createLecturePackage(lecturePackageDto);
+//    public ResponseEntity<LecturePackageRegister> createLecturePackage(@RequestBody LecturePackageRegister lecturePackage) {
+//
+//
+//
+//        lecturePackageRegister.getLecturePackageId()
+//
+//        LecturePackageRegister createdLecturePackage = lecturePackageService.createLecturePackage(lecturePackage);
 //        return ResponseEntity.ok(createdLecturePackage);
 //    }
+
+
+
+
+
+
 }

@@ -12,13 +12,13 @@ import org.ict.intelligentclass.lecture_packages.jpa.entity.TechStackEntity;
 @Builder
 public class TechStackDto {
     private Long techStackId;
-    private String path;
+    private String techStackPath;
     private String techStackName;
 
     public TechStackEntity toEntity() {
         return TechStackEntity.builder()
                 .techStackId(this.techStackId)
-                .path(this.path)
+                .techStackPath(this.techStackPath)
                 .techStackName(this.techStackName)
                 .build();
     }
