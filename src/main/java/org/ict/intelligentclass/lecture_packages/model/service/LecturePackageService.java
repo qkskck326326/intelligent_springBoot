@@ -62,7 +62,7 @@ public class LecturePackageService {
 
 
         List<Long> subCategoryIds = packageSubCategories.stream()
-                .map(subCategory -> subCategory.getSubCategory().getSubCategoryId())
+                .map(subCategory -> subCategory.getSubCategory().getId())
                 .collect(Collectors.toList());
 
         List<Long> techStackIds = packageTechStacks.stream()
@@ -73,7 +73,7 @@ public class LecturePackageService {
 
         //패키지마다의 서브카테고리의 일치하는 서브카테고리entity에서 map으로 name을 꺼냄.
         String subCategoryNames = packageSubCategories.stream()
-                .map(subCategory -> subCategory.getSubCategory().getSubCategoryName())
+                .map(subCategory -> subCategory.getSubCategory().getName())
                 .collect(Collectors.joining(", "));
 
         String techStackPaths = packageTechStacks.stream()
