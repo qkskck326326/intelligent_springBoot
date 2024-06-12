@@ -14,7 +14,6 @@ import org.ict.intelligentclass.user.jpa.repository.UserInterestRepository;
 import org.ict.intelligentclass.user.jpa.repository.UserRepository;
 import org.ict.intelligentclass.user.model.dto.AttendanceDto;
 import org.ict.intelligentclass.user.model.dto.UserDto;
-import org.springframework.data.repository.query.Param;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
