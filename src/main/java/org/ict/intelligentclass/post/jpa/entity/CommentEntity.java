@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 
 @Data
@@ -19,20 +20,17 @@ public class CommentEntity {
     @Column(name = "COMMENT_ID")
     private Long id;
 
-    @ManyToOne
-    @JoinColumn(name = "POST_ID")
-    private PostEntity post;
+    @Column(name = "POST_ID", nullable = false)
+    private Long postId;
 
-//    @ManyToOne
-//    @JoinColumns({
-//            @JoinColumn(name = "USER_EMAIL", referencedColumnName = "USER_EMAIL"),
-//            @JoinColumn(name = "PROVIDER", referencedColumnName = "PROVIDER")
-//    })
-//    private User user;
+    @Column(name = "USEREMAIL", nullable = false, length = 50)
+    private String userEmail;
 
-    @Column(name = "CONTENT")
+    @Column(name = "PROVIDER", nullable = false, length = 20)
+    private String provider;
+
+    @Column(name = "CONTENT", nullable = false, length = 4000)
     private String content;
 
-    @Column(name = "COMMENT_TIME")
-    private Date commentTime;
-}
+    @Column(name = "COMMENT_TIME", columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
+    private LocalDateTime commentTime;}

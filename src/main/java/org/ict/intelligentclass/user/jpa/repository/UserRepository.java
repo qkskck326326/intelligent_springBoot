@@ -20,6 +20,7 @@ public interface UserRepository extends JpaRepository<UserEntity, UserId> {
     Optional<UserEntity> findByNickname(String nickname);
     Optional<UserEntity> findByPhone(String phone);
     List<UserEntity> findByUserName(String userName);
+    Optional<UserEntity> findById(UserId userId);
 
 
     @Query("SELECT u FROM UserEntity u WHERE u.userId.userEmail = :userEmail")
@@ -68,6 +69,7 @@ public interface UserRepository extends JpaRepository<UserEntity, UserId> {
     @Transactional
     @Query("UPDATE UserEntity u SET u.userPwd = :newPw WHERE u.userId.userEmail = :email AND u.userId.provider = :provider")
     void updateUserPwd(@Param("email") String email, @Param("provider") String provider, @Param("newPw") String newPw);
+
 
 
 }

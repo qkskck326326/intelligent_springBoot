@@ -17,10 +17,10 @@ public class UpperCategoryDto {
     private String upperCategoryName;
 
 
-    public UpperCategoryEntity toEntity() {
-        return UpperCategoryEntity.builder()
-                .upperCategoryId(this.upperCategoryId)
-                .upperCategoryName(this.upperCategoryName)
-                .build();
-    }
+//    public UpperCategoryEntity toEntity() {
+//        return UpperCategoryEntity.builder()
+//                .subCategories(this.upperCategoryId)
+//                .upperCategoryName(this.upperCategoryName)
+//                .build();
+//    }
 }

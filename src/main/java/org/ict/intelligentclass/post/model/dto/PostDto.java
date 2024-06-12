@@ -3,20 +3,28 @@ package org.ict.intelligentclass.post.model.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 
 @Data
 @AllArgsConstructor
+@NoArgsConstructor
 public class PostDto {
+    private Long id;
+    private String userEmail;
+    private String provider;
+    private Long subCategoryId;
     private String title;
     private String content;
-    private Date postTime;
+    private LocalDateTime postTime;
+    private int viewCount;
+    private String contentSnippet;
     private String nickname;
-    private String subCategoryName;
-    private Long likeCount;
-    private Long commentCount;
-    private Long postViewCount;
+    private String categoryName;
+    private long likeCount;
+    private long commentCount;
 
 //    public PostEntity toEntity(User user, SubCategory subCategory) {
 //        PostEntity postEntity = new PostEntity();

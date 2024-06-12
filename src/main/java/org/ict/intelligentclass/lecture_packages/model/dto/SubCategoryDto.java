@@ -17,15 +17,15 @@ public class SubCategoryDto {
     private String subCategoryName;
     private Long upperCategoryId;
 
-    public SubCategoryEntity toEntity() {
-        UpperCategoryEntity upperCategoryEntity = UpperCategoryEntity.builder()
-                .upperCategoryId(this.upperCategoryId)
-                .build();
-
-        return SubCategoryEntity.builder()
-                .subCategoryId(this.subCategoryId)
-                .subCategoryName(this.subCategoryName)
-                .upperCategory(upperCategoryEntity)
-                .build();
-    }
+//    public SubCategoryEntity toEntity() {
+//        UpperCategoryEntity upperCategoryEntity = UpperCategoryEntity.builder()
+//                .upperCategoryId(this.upperCategoryId)
+//                .build();
+//
+//        return SubCategoryEntity.builder()
+//                .subCategoryId(this.subCategoryId)
+//                .subCategoryName(this.subCategoryName)
+//                .upperCategory(upperCategoryEntity)
+//                .build();
+//    }
 }

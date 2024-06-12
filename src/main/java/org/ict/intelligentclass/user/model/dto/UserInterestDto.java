@@ -20,7 +20,7 @@ public class UserInterestDto {
 
     public UserInterestEntity toEntity(UserEntity userEntity) {
         SubCategoryEntity subCategory = SubCategoryEntity.builder()
-                .subCategoryId(this.subCategoryId)
+                .id(this.subCategoryId)
                 .build();
 
         return UserInterestEntity.builder()
