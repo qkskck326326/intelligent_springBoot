@@ -17,23 +17,7 @@ import java.util.Set;
 @Table(name = "TB_UPPER_CATEGORY")
 public class UpperCategoryEntity {
 
-//    @Id
-//    @GeneratedValue(strategy = GenerationType.IDENTITY)
-//    @Column(name = "UPPER_CATEGORY_ID")
-//    private Long upperCategoryId;
-//
-//    @Column(name = "UPPER_CATEGORY_NAME", nullable = false, length = 30)
-//    private String upperCategoryName;
-//
-//    @OneToMany(mappedBy = "upperCategory")
-//    private Set<SubCategoryEntity> subCategory;
 
-//    public UpperCategoryDto toDto() {
-//        return UpperCategoryDto.builder()
-//                .upperCategoryId(this.upperCategoryId)
-//                .upperCategoryName(this.upperCategoryName)
-//                .build();
-//    }
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

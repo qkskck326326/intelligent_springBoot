@@ -6,6 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.ict.intelligentclass.lecture_packages.jpa.input.LecturePackageRegister;
 import org.ict.intelligentclass.lecture_packages.jpa.output.LecturePackageDetail;
 import org.ict.intelligentclass.lecture_packages.jpa.output.LecturePackageList;
+import org.ict.intelligentclass.lecture_packages.jpa.output.SubCategoryAll;
 import org.ict.intelligentclass.lecture_packages.model.service.LecturePackageService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -36,6 +37,7 @@ public class LecturePackageController {
         LecturePackageDetail lecturePackageDetail = lecturePackageService.getLecturePackageDetail(lecturePackageId);
         return ResponseEntity.ok(lecturePackageDetail);
     }
+
 
 
 
