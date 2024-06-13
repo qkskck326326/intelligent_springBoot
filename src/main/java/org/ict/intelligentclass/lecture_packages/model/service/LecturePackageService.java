@@ -7,6 +7,7 @@ import org.ict.intelligentclass.lecture.jpa.repository.RatingRepository;
 import org.ict.intelligentclass.lecture_packages.jpa.entity.*;
 import org.ict.intelligentclass.lecture_packages.jpa.output.LecturePackageDetail;
 import org.ict.intelligentclass.lecture_packages.jpa.output.LecturePackageList;
+import org.ict.intelligentclass.lecture_packages.jpa.output.SubCategoryAll;
 import org.ict.intelligentclass.lecture_packages.jpa.repository.LecturePackageRepository;
 import org.ict.intelligentclass.lecture_packages.jpa.repository.PackageSubCategoryRepository;
 import org.ict.intelligentclass.lecture_packages.jpa.repository.PackageTechStackRepository;
@@ -98,9 +99,10 @@ public class LecturePackageService {
                     .techStackId(techStackIds)
                     .techStackPath(techStackPaths)
                     .build();
-
-
     }
+
+
+
 
 
 
