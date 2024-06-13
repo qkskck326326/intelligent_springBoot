@@ -2,6 +2,7 @@ package org.ict.intelligentclass.lecture.controller;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.ict.intelligentclass.lecture.jpa.entity.input.LectureInput;
 import org.ict.intelligentclass.lecture.jpa.entity.input.RatingInput;
 import org.ict.intelligentclass.lecture.jpa.entity.output.LectureListDto;
 import org.ict.intelligentclass.lecture.jpa.entity.output.LecturePreviewDto;
@@ -9,17 +10,17 @@ import org.ict.intelligentclass.lecture.jpa.entity.output.PackageRatingDto;
 import org.ict.intelligentclass.lecture.jpa.entity.output.LectureDetailDto;
 import org.ict.intelligentclass.lecture.model.service.LectureService;
 import org.ict.intelligentclass.lecture_packages.jpa.entity.LecturePackageEntity;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
 import java.util.List;
 
 @Slf4j
 @RestController
 @RequestMapping("/lecture")
 @RequiredArgsConstructor
-@CrossOrigin
+@CrossOrigin(origins = "http://localhost:3000")
 public class LectureController {
 
     private final LectureService lectureService;
@@ -67,5 +68,20 @@ public class LectureController {
         LectureDetailDto lectureDetail = lectureService.getLectureDetailById(lectureId);
         return new ResponseEntity<>(lectureDetail, HttpStatus.OK);
     }
+
+    // 강의 추가
+    @PostMapping("/register")
+    public ResponseEntity<String> registerLecture(@RequestBody LectureInput lectureInput, @RequestParam Long lecturePackageId, @RequestParam String nickname) {
+        try {
+            if (lectureInput.getStreamUrl() == null || lectureInput.getStreamUrl().isEmpty()) {
+                lectureInput.setStreamUrl("http://example.com/default-stream");
+            }
+            lectureService.registerLecture(lectureInput, lecturePackageId, nickname);
+            return ResponseEntity.ok("Lecture registered successfully");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error registering lecture");
+        }
+    }
+
 
 }

@@ -7,6 +7,7 @@ import org.ict.intelligentclass.lecture.jpa.entity.output.LectureDetailDto;
 import org.ict.intelligentclass.lecture.jpa.entity.output.LectureListDto;
 import org.ict.intelligentclass.lecture.jpa.entity.output.LecturePreviewDto;
 import org.ict.intelligentclass.lecture.jpa.entity.output.PackageRatingDto;
+import org.ict.intelligentclass.lecture.model.dto.LectureDto;
 import org.ict.intelligentclass.lecture_packages.jpa.entity.LecturePackageEntity;
 import org.ict.intelligentclass.lecture_packages.jpa.repository.LecturePackageRepository;
 import org.ict.intelligentclass.lecture.jpa.entity.LectureEntity;
@@ -16,9 +17,13 @@ import org.ict.intelligentclass.lecture.jpa.repository.LectureReadRepository;
 import org.ict.intelligentclass.lecture.jpa.repository.LectureRepository;
 import org.ict.intelligentclass.lecture.jpa.repository.RatingRepository;
 import org.ict.intelligentclass.lecture.jpa.entity.input.RatingInput;
+import org.ict.intelligentclass.lecture.jpa.entity.input.LectureInput;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
+
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -98,7 +103,21 @@ public class LectureService {
                 .map(LectureDetailDto::new)
                 .orElse(null);
     }
+
     // 강의 추가
+    public void registerLecture(LectureInput lectureInput, Long lecturePackageId, String nickname) {
+        LectureEntity lectureEntity = LectureEntity.builder()
+                .lectureName(lectureInput.getLectureName())
+                .lectureContent(lectureInput.getLectureContent())
+                .lectureThumbnail(lectureInput.getLectureThumbnail())
+                .streamUrl(lectureInput.getStreamUrl())
+                .lecturePackageId(lecturePackageId)
+                .nickname(nickname)
+                .build();
+
+        lectureRepository.save(lectureEntity);
+    }
+
     // 강의 수정
     // 강의 삭제
     // 강의 댓글 목록 가져오기

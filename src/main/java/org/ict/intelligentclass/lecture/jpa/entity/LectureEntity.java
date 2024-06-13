@@ -17,7 +17,8 @@ import java.util.Date;
 public class LectureEntity {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "lecture_seq_generator")
+    @SequenceGenerator(name = "lecture_seq_generator", sequenceName = "SQ_LECTURE_ID", allocationSize = 1)
     @Column(name = "LECTURE_ID")
     private int lectureId;
 

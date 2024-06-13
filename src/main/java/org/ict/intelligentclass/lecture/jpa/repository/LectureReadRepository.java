@@ -8,7 +8,5 @@ import org.springframework.stereotype.Repository;
 public interface LectureReadRepository
     extends JpaRepository<LectureReadEntity, String> {
 
-    // 강의 읽음 처리 가져오기
-//    List<LectureReadEntity> findReadById(int lectureId);
 }
 
