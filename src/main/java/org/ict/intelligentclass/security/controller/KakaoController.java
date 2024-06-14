@@ -101,7 +101,7 @@
 //            //userEntity.setLastLogin(LocalDateTime.now()); // 마지막 로그인 시간을 현재 시간으로 설정합니다.
 //            userEntity.setSnsAccessToken(accessToken); // 액세스 토큰을 사용자 정보에 저장합니다.
 //            //userRepository.save(user); // 사용자 정보를 저장합니다.
-//            userService.
+//            //userService.insertUser()
 //
 //            // JWT 토큰 발급
 //            Long accessExpiredMs = 600000L; // 액세스 토큰의 만료 시간을 설정합니다.
