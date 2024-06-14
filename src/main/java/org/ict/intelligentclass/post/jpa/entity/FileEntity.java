@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.sql.Timestamp;
 import java.time.LocalDateTime;
 
 @Data
@@ -26,6 +27,7 @@ public class FileEntity {
     @Column(name = "POST_FILE_URL", nullable = false)
     private String fileUrl;
 
+
     @Column(name = "FILE_UPLOAD_TIME", columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
-    private LocalDateTime uploadTime;
+    private Timestamp uploadTime;
 }
