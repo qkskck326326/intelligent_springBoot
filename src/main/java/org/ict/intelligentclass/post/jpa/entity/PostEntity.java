@@ -5,9 +5,14 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.ict.intelligentclass.lecture_packages.jpa.entity.SubCategoryEntity;
+import org.ict.intelligentclass.post.model.dto.CommentDto;
+import org.ict.intelligentclass.post.model.dto.PostDetailDto;
+import org.ict.intelligentclass.post.model.dto.PostDto;
+import org.ict.intelligentclass.user.model.dto.UserDto;
 
 import java.time.LocalDateTime;
 import java.util.Date;
+import java.util.List;
 import java.util.Set;
 
 @Data
@@ -49,6 +54,41 @@ public class PostEntity {
         if (postTime == null) {
             postTime = LocalDateTime.now();
         }
+    }
+
+    public PostDto toDto(UserDto userDto, String categoryName, int likeCount, int commentCount) {
+        PostDto dto = new PostDto();
+        dto.setId(this.id);
+        dto.setTitle(this.title);
+        dto.setContentSnippet(this.content.substring(0, Math.min(this.content.length(), 80)));
+        dto.setNickname(userDto.getNickname());
+        dto.setProfileImageUrl(userDto.getProfileImageUrl());
+        dto.setCategoryName(categoryName);
+        dto.setLikeCount(likeCount);
+        dto.setCommentCount(commentCount);
+        dto.setViewCount(this.viewCount);
+        dto.setPostTime(this.postTime);
+        return dto;
+    }
+
+    public PostDetailDto toDetailDto(UserDto userDto, String categoryName, boolean userLiked, long likeCount, long commentCount, List<CommentDto> commentDtos, List<FileEntity> files) {
+        PostDetailDto dto = new PostDetailDto();
+        dto.setId(this.id);
+        dto.setUserEmail(this.userEmail);
+        dto.setProvider(this.provider);
+        dto.setSubCategoryId(this.subCategoryId);
+        dto.setTitle(this.title);
+        dto.setContent(this.content);
+        dto.setPostTime(this.postTime);
+        dto.setViewCount(this.viewCount);
+        dto.setNickname(userDto.getNickname());
+        dto.setCategoryName(categoryName);
+        dto.setUserLiked(userLiked);
+        dto.setLikeCount(likeCount);
+        dto.setCommentCount(commentCount);
+        dto.setComments(commentDtos);
+        dto.setFiles(files);
+        return dto;
     }
 
 //    public PostDto toDto() {

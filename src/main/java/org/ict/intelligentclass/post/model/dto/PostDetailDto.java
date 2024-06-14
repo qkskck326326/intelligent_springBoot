@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 import org.ict.intelligentclass.post.jpa.entity.CommentEntity;
 import org.ict.intelligentclass.post.jpa.entity.FileEntity;
 import org.ict.intelligentclass.post.jpa.entity.PostEntity;
+import org.ict.intelligentclass.user.model.dto.UserDto;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -26,7 +27,8 @@ public class PostDetailDto {
     private String categoryName;
     private long commentCount;
     private long likeCount;
-    private List<CommentEntity> comments;
+    private boolean userLiked;
+    private List<CommentDto> comments;
     private List<FileEntity> files;
 
     // Getters and setters
@@ -43,4 +45,8 @@ public class PostDetailDto {
         postEntity.setViewCount(viewCount);
         return postEntity;
     }
+
+
+
+
 }

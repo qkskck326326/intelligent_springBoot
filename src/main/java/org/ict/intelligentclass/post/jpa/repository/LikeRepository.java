@@ -10,4 +10,7 @@ import org.springframework.stereotype.Repository;
 public interface LikeRepository extends JpaRepository<LikeEntity, Long> {
     @Query("SELECT COUNT(l) FROM LikeEntity l WHERE l.postId = :postId")
     long countByPostId(@Param("postId") Long postId);
+    LikeEntity findByPostIdAndUserEmailAndProvider(Long postId, String userEmail, String provider);
+
+    boolean existsByPostIdAndUserEmailAndProvider(Long postId, String userEmail, String provider);
 }

@@ -13,7 +13,8 @@ import lombok.NoArgsConstructor;
 public class LikeEntity {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "SQ_LIKE_ID")
+    @SequenceGenerator(name = "SQ_LIKE_ID", sequenceName = "SQ_LIKE_ID", allocationSize = 1)
     @Column(name = "LIKE_ID")
     private Long id;
 
