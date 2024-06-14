@@ -36,6 +36,7 @@ public class LectureController {
 //    public ResponseEntity<List<LectureDto>> selectAllLecture(Long lecturePackageId) {
 //        return new ResponseEntity<>(lectureService.selectAllLecture(lecturePackageId), HttpStatus.OK);
 //    }
+
     @GetMapping("/list")
     public ResponseEntity<List<LectureListDto>> getAllLectures() {
         List<LectureListDto> lectureListDtos = lectureService.selectAllLecture();
