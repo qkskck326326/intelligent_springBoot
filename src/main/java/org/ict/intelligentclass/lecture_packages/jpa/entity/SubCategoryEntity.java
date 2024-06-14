@@ -6,6 +6,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.ict.intelligentclass.lecture_packages.model.dto.SubCategoryDto;
 
 
 @Data
@@ -16,21 +17,11 @@ import lombok.NoArgsConstructor;
 @Table(name = "TB_SUB_CATEGORY")
 public class SubCategoryEntity {
 
-//    @Id
-//    @GeneratedValue(strategy = GenerationType.IDENTITY)
-//    @Column(name = "SUB_CATEGORY_ID")
-//    private Long subCategoryId;
-//
-//    @Column(name = "SUB_CATEGORY_NAME", nullable = false, length = 30)
-//    private String subCategoryName;
-//
-//    @ManyToOne
-//    @JoinColumn(name = "UPPER_CATEGORY_ID", nullable = false)
-//    private UpperCategoryEntity upperCategory;
-@Id
-@GeneratedValue(strategy = GenerationType.IDENTITY)
-@Column(name = "SUB_CATEGORY_ID")
-private Long id;
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "SUB_CATEGORY_ID")
+    private Long id;
 
     @Column(name = "SUB_CATEGORY_NAME")
     private String name;
