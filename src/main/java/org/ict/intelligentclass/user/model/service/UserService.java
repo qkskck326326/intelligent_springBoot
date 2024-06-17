@@ -212,21 +212,9 @@ public class UserService {
     }
 
     @Transactional
-    public UserDto insertKakaoUser(UserDto userDto /*, List<Integer> interestIdList */ ) { // 카카오 회원가입
+    public void insertKakaoUser(UserEntity userEntity) { // 카카오 회원가입
         // UserEntity 저장
-        UserEntity userEntity = userDto.toEntity();
         userRepository.save(userEntity);
-
-        // UserInterestEntity 저장
-//        List<UserInterestEntity> userInterests = interestIdList.stream()
-//                .map(subCategoryId -> UserInterestEntity.builder()
-//                        .interestId(new UserInterestId(userDto.getUserEmail(), userDto.getProvider(), subCategoryId))
-//                        .user(userEntity)
-//                        .build())
-//                .collect(Collectors.toList());
-//        userInterestRepository.saveAll(userInterests);
-
-        return userEntity.toDto();
     }
 
 

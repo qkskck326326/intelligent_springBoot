@@ -59,6 +59,11 @@ public class CustomUserDetails implements UserDetails {
         return userEntity.getNickname();
     }
 
+    // 사용자의 프로필이미지 url을 반환합니다.
+    public String getProfileImageUrl() {
+        return userEntity.getProfileImageUrl();
+    }
+
     // 계정이 잠겨있지 않은지를 반환합니다.
     @Override
     public boolean isAccountNonLocked() {

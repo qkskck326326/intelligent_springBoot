@@ -75,7 +75,7 @@ public class CustomUserDetailsService implements UserDetailsService {
             userEntity =  optionalUser.get();
         }
         log.info("CustomUserDetailsService validateUser : " + userEntity);
-                //.orElseThrow(() -> new UsernameNotFoundException("존재하지 않는 이메일입니다: " + inputUser.getUserEmail() + inputUser.getProvider()));
+        //.orElseThrow(() -> new UsernameNotFoundException("존재하지 않는 이메일입니다: " + inputUser.getUserEmail() + inputUser.getProvider()));
 
         // 사용자 계정이 삭제된 경우 UsernameNotFoundException 예외를 발생시킵니다.
         if (archivedUserRepository.findByEmailAndProvider(inputUser.getUserEmail(), inputUser.getProvider()).isPresent()) {

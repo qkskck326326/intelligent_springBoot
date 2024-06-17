@@ -8,6 +8,9 @@ import org.ict.intelligentclass.chat.model.service.ChatService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @RestController
 @RequestMapping("/chat")
 @Slf4j
@@ -27,7 +30,6 @@ public class ChatController {
         return ResponseEntity.ok(countTotalUnRead);
 
     }
-
 
 
 }

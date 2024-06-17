@@ -36,30 +36,30 @@ public class AccessTokenReissueController {
             return new ResponseEntity<>("refresh token null", HttpStatus.BAD_REQUEST);
         }
 
-        String tokenValue = authorizationHeader.substring("Bearer ".length()); // 실제 토큰 값을 추출합니다.
+        String refreshTokenValue = authorizationHeader.substring("Bearer ".length()); // 실제 토큰 값을 추출합니다.
 
         // 토큰 만료 여부 검사
         try {
-            if (jwtTokenUtil.isTokenExpired(tokenValue)) {
+            if (jwtTokenUtil.isTokenExpired(refreshTokenValue)) {
                 // 리프레시 토큰이 만료되면 데이터베이스에서 삭제합니다.
-                loginTokenService.deleteByRefreshTokenValue(tokenValue);
+                loginTokenService.deleteByRefreshTokenValue(refreshTokenValue);
                 return new ResponseEntity<>("refresh token expired", HttpStatus.BAD_REQUEST);
             }
         } catch (ExpiredJwtException e) { // 정상적이지 않은 경우(토큰 만료 검사의 결과값이 true or false 가 아닌경우!!!)
             // 리프레시 토큰이 만료되면 데이터베이스에서 삭제합니다.
-            loginTokenService.deleteByRefreshTokenValue(tokenValue);
+            loginTokenService.deleteByRefreshTokenValue(refreshTokenValue);
             return new ResponseEntity<>("refresh token expired", HttpStatus.BAD_REQUEST);
         }
 
         // 리프레시 토큰이 맞는지 카테고리로 확인합니다.
-        String category = jwtTokenUtil.getTokenTypeFromToken(tokenValue);
+        String category = jwtTokenUtil.getTokenTypeFromToken(refreshTokenValue);
         if (!category.equals("refresh")) {
             return new ResponseEntity<>("invalid refresh token", HttpStatus.BAD_REQUEST);
         }
 
         // 토큰에서 사용자 이메일을 추출합니다.
-        String userEamil = jwtTokenUtil.getUserEmailFromToken(tokenValue);
-        String provider = jwtTokenUtil.getProviderFromToken(tokenValue);
+        String userEamil = jwtTokenUtil.getUserEmailFromToken(refreshTokenValue);
+        String provider = jwtTokenUtil.getProviderFromToken(refreshTokenValue);
 
         //
         UserId userId = new UserId(userEamil, provider);
@@ -69,7 +69,7 @@ public class AccessTokenReissueController {
         }
 
         // 리프레시 토큰이 유효한지 확인합니다.
-        Optional<LoginTokenEntity> refreshTokenOptional = loginTokenService.findByTokenValue(tokenValue);
+        Optional<LoginTokenEntity> refreshTokenOptional = loginTokenService.findByTokenValue(refreshTokenValue);
         if (refreshTokenOptional.isEmpty() || !refreshTokenOptional.get().getUser().equals(optionalUser.get())) {
             return new ResponseEntity<>("refresh token not found or does not match", HttpStatus.BAD_REQUEST);
         }

@@ -32,7 +32,4 @@ public class ChatroomEntity {
     @Column(name="CREATOR") //방 생성자 닉네임
     private String creator;
 
-    @Column(name="PIN") //핀 여부(0: 핀없음(기본) 1: 핀있음)
-    private Long pin;
-
 }

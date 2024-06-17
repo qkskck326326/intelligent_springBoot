@@ -1,6 +1,5 @@
 package org.ict.intelligentclass.lecture_packages.jpa.entity;
 
-
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -19,13 +18,10 @@ import java.util.Set;
 public class LecturePackageEntity {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "lecture_package_seq")
+    @SequenceGenerator(name = "lecture_package_seq", sequenceName = "LECTURE_PACKAGE_SEQ", allocationSize = 1)
     @Column(name = "LECTURE_PACKAGE_ID")
     private Long lecturePackageId;
-
-//    @ManyToOne
-//    @JoinColumn(name = "NICKNAME", referencedColumnName = "NICKNAME", insertable = false, updatable = false)
-//    private UserEntity user;
 
     @Column(name = "NICKNAME")
     private String nickname;
@@ -33,11 +29,11 @@ public class LecturePackageEntity {
     @Column(name = "TITLE", nullable = false)
     private String title;
 
-    @Column(name = "CLASS_GOAL", nullable = false)
-    private String classGoal;
+    @Column(name = "CONTENT", nullable = false)
+    private String content;
 
-    @Column(name = "RECOMMEND_PERSON", nullable = false)
-    private String recommendPerson;
+    @Column(name = "PACKAGE_LEVEL", nullable = false)
+    private String packageLevel;
 
     @Column(name = "PRICE_KIND", nullable = false)
     private int priceKind;
@@ -48,7 +44,7 @@ public class LecturePackageEntity {
     @Column(name = "THUMBNAIL", nullable = false)
     private String thumbnail;
 
-    @Column(name = "REGISTER_DATE", nullable = false)
+    @Column(name = "REGISTER_DATE", nullable = false, updatable = false)
     private Date registerDate;
 
     @Column(name = "VIEW_COUNT", nullable = false, columnDefinition = "int default 0")
@@ -60,20 +56,10 @@ public class LecturePackageEntity {
     @OneToMany(mappedBy = "lecturePackage")
     private Set<PackageTechStackEntity> packageTechStack;
 
-
-
-//    public LecturePackage toDto() {
-//        return LecturePackage.builder()
-//                .lecturePackageId(this.lecturePackageId)
-//                .nickname(this.nickname)
-//                .title(this.title)
-//                .classGoal(this.classGoal)
-//                .recommendPerson(this.recommendPerson)
-//                .priceKind(this.priceKind)
-//                .price(this.price)
-//                .thumbnail(this.thumbnail)
-//                .registerDate(this.registerDate)
-//                .viewCount(this.viewCount)
-//                .build();
-//    }
+    @PrePersist
+    protected void onCreate() {
+        if (this.registerDate == null) {
+            this.registerDate = new Date();
+        }
+    }
 }

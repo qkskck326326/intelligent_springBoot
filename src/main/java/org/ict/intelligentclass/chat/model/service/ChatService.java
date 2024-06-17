@@ -55,4 +55,8 @@ public class ChatService {
     }
 
 
+//    public ArrayList<ChatUserEntity> selectChatrooms(String userId) {
+//        log.info("selectChatrooms userId = " + userId);
+//
+//    }
 }
