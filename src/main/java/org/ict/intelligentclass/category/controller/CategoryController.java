@@ -1,6 +1,7 @@
 package org.ict.intelligentclass.category.controller;
 
 
+import lombok.extern.slf4j.Slf4j;
 import org.ict.intelligentclass.category.service.CategoryService;
 import org.ict.intelligentclass.lecture_packages.jpa.entity.SubCategoryEntity;
 import org.ict.intelligentclass.lecture_packages.jpa.entity.UpperCategoryEntity;
@@ -14,8 +15,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
+@Slf4j
 @RestController
-@RequestMapping("/api/categories")
+@RequestMapping("/categories")
 public class CategoryController {
     @Autowired
     private CategoryService categoryService;
@@ -32,6 +34,7 @@ public class CategoryController {
 
     @GetMapping("/sub")
     public List<SubCategoryEntity> getAllSubCategories() {
+        log.info("getAllSubCategories : ", categoryService.getAllSubCategories());
         return categoryService.getAllSubCategories();
     }
 

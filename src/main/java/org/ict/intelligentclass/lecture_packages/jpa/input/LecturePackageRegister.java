@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.ict.intelligentclass.lecture_packages.jpa.entity.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Data
@@ -16,21 +17,21 @@ public class LecturePackageRegister {
     private Long lecturePackageId;
     private String nickname;
     private String title;
-    private String classGoal;
-    private String recommendPerson;
+    private String content;
+    private String packageLevel;
     private int priceKind;
     private int price;
     private String thumbnail;
-    private List<Long> packageSubCategoryId;
-    private List<Long> packageTechStackId;
+    private List<Long> packageSubCategoryId = new ArrayList<>(); // 빈 리스트로 초기화
+    private List<Long> packageTechStackId = new ArrayList<>();
 
 
     public LecturePackageRegister(LecturePackageEntity lecturePackageEntity) {
         this.lecturePackageId = lecturePackageEntity.getLecturePackageId();
         this.nickname = lecturePackageEntity.getNickname();
         this.title = lecturePackageEntity.getTitle();
-        this.classGoal = lecturePackageEntity.getClassGoal();
-        this.recommendPerson = lecturePackageEntity.getRecommendPerson();
+        this.content = lecturePackageEntity.getContent();
+        this.packageLevel = lecturePackageEntity.getPackageLevel();
         this.priceKind = lecturePackageEntity.getPriceKind();
         this.price = lecturePackageEntity.getPrice();
         this.thumbnail = lecturePackageEntity.getThumbnail();

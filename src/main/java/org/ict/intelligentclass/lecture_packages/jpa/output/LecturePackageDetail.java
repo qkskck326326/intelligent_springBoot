@@ -1,5 +1,6 @@
 package org.ict.intelligentclass.lecture_packages.jpa.output;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -20,12 +21,13 @@ public class LecturePackageDetail {
     private Long lecturePackageId;
     private String nickname;
     private String title;
-    private String classGoal;
-    private String recommendPerson;
+    private String content;
     private int priceKind;
     private int price;
+    private String packageLevel;
     private String thumbnail;
-    private Date register;
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
+    private Date registerDate;
     private int viewCount;
     private List<Long> subCategoryId;
     private String subCategoryName;
