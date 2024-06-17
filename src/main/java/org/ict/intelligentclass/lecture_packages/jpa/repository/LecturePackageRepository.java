@@ -20,7 +20,9 @@ public interface LecturePackageRepository extends JpaRepository<LecturePackageEn
     @Query("SELECT l FROM LecturePackageEntity l WHERE l.lecturePackageId = :packageId")
     List<LecturePackageEntity> findByCategorySortPackages(@Param("packageId") Long packageId);
 
-    List<LecturePackageEntity> findByLecturePackageIdIn(List<Long> lecturePackageIds);
+
+    @Query("SELECT l FROM LecturePackageEntity l WHERE l.lecturePackageId IN :packageIds")
+    List<LecturePackageEntity> findByLecturePackageIdIn(@Param("packageIds") List<Long> packageIds);
 
 
 
