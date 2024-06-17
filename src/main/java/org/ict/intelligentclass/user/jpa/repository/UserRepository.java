@@ -12,6 +12,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -93,5 +94,7 @@ public interface UserRepository extends JpaRepository<UserEntity, UserId> {
                                          @Param("addingOption") String addingOption,
                                          @Param("searchQuery") String searchQuery,
                                          Pageable pageable);
+
+    List<UserEntity> findAllByRegisterTimeBetween(LocalDateTime startDate, LocalDateTime endDate);
 
 }
