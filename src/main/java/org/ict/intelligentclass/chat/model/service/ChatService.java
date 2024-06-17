@@ -3,6 +3,7 @@ package org.ict.intelligentclass.chat.model.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.ict.intelligentclass.chat.jpa.entity.ChatUserEntity;
+import org.ict.intelligentclass.chat.jpa.entity.ChatUserCompositeKey;
 import org.ict.intelligentclass.chat.jpa.entity.ChatroomEntity;
 import org.ict.intelligentclass.chat.jpa.repository.*;
 import org.springframework.http.ResponseEntity;
@@ -10,7 +11,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 @Service
 @Slf4j
@@ -54,9 +57,44 @@ public class ChatService {
         }
     }
 
+    public ChatroomEntity insertRoom(Map<Integer, String> people, String roomType) {
+        log.info("insertRoom people = " + people);
+
+        String roomName = String.join(", ", people.values());
+        String creator = people.get(0);
+
+        ChatroomEntity chatroomEntity = new ChatroomEntity();
+        chatroomEntity.setRoomName(roomName);
+        chatroomEntity.setRoomType(roomType.equals("groups") ? "group" : "individual");
+        chatroomEntity.setCreatedAt(new Date());
+        chatroomEntity.setCreator(creator);
+
+        ChatroomEntity newRoom = chatroomRepository.save(chatroomEntity);
+        log.info(newRoom.toString());
+
+        Long roomId = newRoom.getRoomId();
+
+        for (String userId : people.values()) {
+            ChatUserCompositeKey key = new ChatUserCompositeKey(userId, roomId);
+            ChatUserEntity chatUserEntity = ChatUserEntity.builder()
+                    .chatUserCompositeKey(key)
+                    .isMuted(0L)
+                    .isPinned(0L)
+                    .build();
+
+            chatUserRepository.save(chatUserEntity);
+        }
+
+        return newRoom;
+
+    }
+
+
+}
+
 
 //    public ArrayList<ChatUserEntity> selectChatrooms(String userId) {
 //        log.info("selectChatrooms userId = " + userId);
 //
 //    }
-}
+
