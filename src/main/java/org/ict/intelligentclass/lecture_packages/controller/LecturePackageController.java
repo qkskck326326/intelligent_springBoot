@@ -77,9 +77,11 @@ public class LecturePackageController {
         return ResponseEntity.ok().build();
     }
 
-    @GetMapping("/categorysort/{categoryId}")
-    public ResponseEntity<List<LecturePackageList>> getCategorySortPackages(@PathVariable Long categoryId) {
-        List<LecturePackageList> lecturePackageLists= lecturePackageService.getCategorySortedPackages(categoryId);
+    // 카테고리로 필터링된 패키지 리스트 조회
+    @GetMapping("/categorysort")
+    public ResponseEntity<List<LecturePackageList>> getCategorySortPackages(@RequestParam Long categoryId) {
+        List<LecturePackageList> lecturePackageLists = lecturePackageService.getCategorySortedPackages(categoryId);
+        log.info("getCategorySortPackages : {}", lecturePackageLists);
         return ResponseEntity.ok(lecturePackageLists);
     }
 

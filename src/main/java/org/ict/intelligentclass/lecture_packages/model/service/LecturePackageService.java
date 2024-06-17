@@ -56,21 +56,23 @@ public class LecturePackageService {
     }
 
 
-    //카테고리 버튼 클릭시 카테고리에 해당하는 패키지리스트 조회
+    // 카테고리 버튼 클릭 시 카테고리에 해당하는 패키지 리스트 조회
     @Transactional
     public List<LecturePackageList> getCategorySortedPackages(Long categoryId) {
-        //카테고리로 해당하는 패키지아이디를 추출함.
+        log.info("categoryId:", categoryId);
+        // 카테고리로 해당하는 패키지 아이디를 추출함.
         List<PackageSubCategoryEntity> subCategoryEntities = packageSubCategoryRepository.categorySortPackages(categoryId);
-        //추출한 패키지아이디를 map으로 하나하나 꺼냄.
+        // 추출한 패키지 아이디를 map으로 하나하나 꺼냄.
         List<Long> packageIds = subCategoryEntities.stream()
                 .map(ps -> ps.getPackageSubCategoryId().getLecturePackageId())
                 .collect(Collectors.toList());
 
-        //추출한 패키지아이디 리스트를 가지고 해당하는 패키지리스트를 추출함.
+        // 추출한 패키지 아이디 리스트를 가지고 해당하는 패키지 리스트를 추출함.
         List<LecturePackageEntity> lecturePackages = lecturePackageRepository.findByLecturePackageIdIn(packageIds);
-        //패키지아이디에 해당하는 별점 리스트와 같이 리턴해줌. //
+        // 패키지 아이디에 해당하는 별점 리스트와 같이 리턴해줌.
         return lecturePackages.stream().map(this::toLecturePackageList).collect(Collectors.toList());
     }
+
 
 
 
