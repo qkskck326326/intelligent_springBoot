@@ -38,9 +38,9 @@ public class CategoryController {
         return categoryService.getAllSubCategories();
     }
 
-    @GetMapping("/suball")
-    public ResponseEntity<List<SubCategoryAll>> getAllSubCategory(){
-        List<SubCategoryAll> subCategoryAll = categoryService.getAllSubCategory();
-        return ResponseEntity.ok(subCategoryAll);
-    }
+//    @GetMapping("/suball")
+//    public ResponseEntity<List<SubCategoryAll>> getAllSubCategory(){
+//        List<SubCategoryAll> subCategoryAll = categoryService.getAllSubCategory();
+//        return ResponseEntity.ok(subCategoryAll);
+//    }
 }
