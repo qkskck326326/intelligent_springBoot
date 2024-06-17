@@ -40,5 +40,12 @@ public class ChatController {
         return new ResponseEntity<>(entity, HttpStatus.CREATED);
     }
 
+    @GetMapping("/chatlist")
+    public ResponseEntity<List<ChatroomEntity>> listChatroom (@RequestParam String userId) {
+        log.info("listChatroom start");
+        List<ChatroomEntity> entities = chatService.getChatrooms(userId);
+        return ResponseEntity.ok(entities);
+    }
+
 
 }
