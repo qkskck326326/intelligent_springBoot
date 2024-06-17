@@ -6,6 +6,7 @@ import org.ict.intelligentclass.chat.jpa.entity.ChatUserEntity;
 import org.ict.intelligentclass.chat.jpa.entity.ChatUserCompositeKey;
 import org.ict.intelligentclass.chat.jpa.entity.ChatroomEntity;
 import org.ict.intelligentclass.chat.jpa.repository.*;
+import org.ict.intelligentclass.chat.model.dto.ChatroomDetailsDto;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,6 +27,7 @@ public class ChatService {
     private final ChatUserRepository chatUserRepository;
     private final MessageFileRepository messageFileRepository;
     private final MessageReadRepository messageReadRepository;
+
 
     public Long selectRoomIds(String userId) {
 
@@ -90,12 +92,18 @@ public class ChatService {
     }
 
 
-    public List<ChatroomEntity> getChatrooms(String userId) {
+    public List<ChatroomDetailsDto> getChatrooms(String userId) {
 
         List<Long> roomIds = chatUserRepository.findRoomIdsByUserIdOrderByIsPinned(userId);
+        List<ChatroomEntity> chatrooms = chatroomRepository.findByRoomIdIn(roomIds);
+        List<ChatroomDetailsDto> chatroomDetails = new ArrayList<>();
 
-        return chatroomRepository.findByRoomIdIn(roomIds);
+        for (ChatroomEntity chatroom : chatrooms) {
+            ChatUserEntity chatUser = chatUserRepository.findByChatUserCompositeKeyUserIdAndChatUserCompositeKeyRoomId(userId, chatroom.getRoomId());
+            chatroomDetails.add(new ChatroomDetailsDto(chatroom, chatUser));
+        }
 
+        return chatroomDetails;
 
     }
 }

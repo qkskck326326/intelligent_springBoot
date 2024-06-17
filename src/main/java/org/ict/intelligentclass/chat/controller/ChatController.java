@@ -2,7 +2,7 @@ package org.ict.intelligentclass.chat.controller;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.ict.intelligentclass.chat.jpa.entity.ChatUserEntity;
+import org.ict.intelligentclass.chat.model.dto.ChatroomDetailsDto;
 import org.ict.intelligentclass.chat.jpa.entity.ChatroomEntity;
 import org.ict.intelligentclass.chat.model.service.ChatService;
 import org.springframework.http.HttpStatus;
@@ -41,10 +41,10 @@ public class ChatController {
     }
 
     @GetMapping("/chatlist")
-    public ResponseEntity<List<ChatroomEntity>> listChatroom (@RequestParam String userId) {
+    public ResponseEntity<List<ChatroomDetailsDto>> listChatroom (@RequestParam String userId) {
         log.info("listChatroom start");
-        List<ChatroomEntity> entities = chatService.getChatrooms(userId);
-        return ResponseEntity.ok(entities);
+        List<ChatroomDetailsDto> chatrooms = chatService.getChatrooms(userId);
+        return ResponseEntity.ok(chatrooms);
     }
 
 
