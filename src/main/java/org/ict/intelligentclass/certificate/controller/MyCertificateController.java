@@ -5,9 +5,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.ict.intelligentclass.certificate.jpa.entity.MyCertificateEntity;
 import org.ict.intelligentclass.certificate.model.dto.MyCertificateDto;
 import org.ict.intelligentclass.certificate.model.service.MyCertificateService;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -40,8 +37,8 @@ public class MyCertificateController {
         return new ResponseEntity<>(newCertificate, HttpStatus.CREATED);
     }
 
-    @DeleteMapping("/{certificateNumber}")
-    public ResponseEntity<Void> deleteCertificate(@PathVariable String certificateNumber) {
+    @DeleteMapping
+    public ResponseEntity<Void> deleteCertificate(@RequestParam String certificateNumber) {
         log.info("certificateNumber : ", certificateNumber);
         myCertificateService.deleteCertificate(certificateNumber);
         return ResponseEntity.ok().build();

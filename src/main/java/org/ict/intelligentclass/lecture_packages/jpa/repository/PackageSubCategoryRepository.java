@@ -1,6 +1,7 @@
 package org.ict.intelligentclass.lecture_packages.jpa.repository;
 
 
+import org.ict.intelligentclass.lecture_packages.jpa.entity.LecturePackageEntity;
 import org.ict.intelligentclass.lecture_packages.jpa.entity.PackageSubCategoryEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -15,4 +16,7 @@ public interface PackageSubCategoryRepository extends JpaRepository<PackageSubCa
 
     @Query("SELECT ps FROM PackageSubCategoryEntity ps WHERE ps.packageSubCategoryId.lecturePackageId = :lecturePackageId")
     List<PackageSubCategoryEntity> findByLecturePackageId(@Param("lecturePackageId") Long lecturePackageId);
+
+    void deleteAllByPackageSubCategoryId_LecturePackageId(Long lecturePackageId);
+
 }

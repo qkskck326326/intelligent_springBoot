@@ -31,7 +31,7 @@ public class MyCertificateService {
     public List<MyCertificateDto> getCertificatesByNickname(String nickname) {
         log.info("nickname : ", nickname);
 
-        List<MyCertificateEntity> myCertificateEntities = myCertificateRepository.findByNicknameContaining(nickname);
+        List<MyCertificateEntity> myCertificateEntities = myCertificateRepository.findByNickname(nickname);
 
         ArrayList<MyCertificateDto> list = new ArrayList<>();
         for(MyCertificateEntity entity : myCertificateEntities){
@@ -62,5 +62,6 @@ public class MyCertificateService {
 
     public void deleteCertificate(String certificateNumber) {
         myCertificateRepository.deleteById(certificateNumber);
+
     }
 }
