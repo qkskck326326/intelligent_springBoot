@@ -1,5 +1,6 @@
 package org.ict.intelligentclass.post.model.service;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.ict.intelligentclass.exception.PostNotFoundException;
 import org.ict.intelligentclass.lecture_packages.jpa.entity.SubCategoryEntity;
@@ -12,6 +13,7 @@ import org.ict.intelligentclass.post.jpa.entity.PostEntity;
 
 import org.ict.intelligentclass.post.jpa.repository.*;
 import org.ict.intelligentclass.post.model.dto.CommentDto;
+import org.ict.intelligentclass.post.model.dto.ContentBlock;
 import org.ict.intelligentclass.post.model.dto.PostDetailDto;
 import org.ict.intelligentclass.post.model.dto.PostDto;
 import org.ict.intelligentclass.post.storage.FileStorageService;
@@ -30,7 +32,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -113,6 +117,7 @@ public class PostService {
         log.info("Returning post: {}", postDetailDto);
         return postDetailDto;
     }
+
 
 
     @Transactional

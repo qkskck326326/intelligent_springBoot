@@ -4,9 +4,11 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.ict.intelligentclass.post.model.dto.FileDto;
 
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
+import java.util.Date;
 
 @Data
 @AllArgsConstructor
@@ -29,5 +31,14 @@ public class FileEntity {
 
 
     @Column(name = "FILE_UPLOAD_TIME", columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
-    private Timestamp uploadTime;
+    private Date uploadTime;
+
+    public FileDto toDto() {
+        FileDto fileDto = new FileDto();
+        fileDto.setId(this.id);
+        fileDto.setFileUrl(this.fileUrl);
+        fileDto.setUploadTime(this.uploadTime);
+        return fileDto;
+    }
 }
+

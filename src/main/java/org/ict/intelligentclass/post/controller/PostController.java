@@ -61,7 +61,7 @@ public class PostController {
         }
     }
 
-    // 게시물 상세페이지 -----------------------------------------------------------------------------------------
+    // 게시물 상세페이지 ------------------------------------------------------ -----------------------------------
     @GetMapping("/detail/{postId}")
     public ResponseEntity<PostDetailDto> getPost(@PathVariable Long postId, @RequestParam String userEmail,
                                                  @RequestParam String provider, @RequestParam String nickname, HttpServletRequest request,
