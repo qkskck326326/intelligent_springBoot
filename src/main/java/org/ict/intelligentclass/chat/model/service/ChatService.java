@@ -90,6 +90,14 @@ public class ChatService {
     }
 
 
+    public List<ChatroomEntity> getChatrooms(String userId) {
+
+        List<Long> roomIds = chatUserRepository.findRoomIdsByUserIdOrderByIsPinned(userId);
+
+        return chatroomRepository.findByRoomIdIn(roomIds);
+
+
+    }
 }
 
 
