@@ -65,7 +65,7 @@ public class JwtRequestFilter extends OncePerRequestFilter {
 
         // Bearer 토큰에서 JWT를 추출함. (토큰 정보가 request해더에 있는 경우)
         // authorization이 가진 값 : "Bearer 토큰 문자열"
-        String tokenValue = authorizationHeader.split(" ")[0]; // authorizationHeader의 첫번째가 토큰임
+        String tokenValue = authorizationHeader.split(" ")[1]; // authorizationHeader의 첫번째가 토큰임
 
         //토큰만료 여부확인, 만료시 다음 필터로 넘기지 않음.
         if(jwtTokenUtil.isTokenExpired(tokenValue)){ // true: 만료
