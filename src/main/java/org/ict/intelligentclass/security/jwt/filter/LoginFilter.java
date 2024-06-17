@@ -97,6 +97,7 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
         String userEmail = customUserDetails.getUsername();
         String provider = customUserDetails.getProvider();
         String nickname = customUserDetails.getNickname();
+        String profileImageUrl = customUserDetails.getProfileImageUrl();
         UserId userId = new UserId(userEmail, provider);
 
         log.info("successfulAuthentication userEmail : " + userEmail);
@@ -136,13 +137,15 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
         // 사용자가 "ROLE_ADMIN" 권한을 가지고 있는지 확인하고 변수 isAdmin에 저장함.
 
         Map<String, Object> responseBody = new HashMap<>();
+
+        responseBody.put("refresh",refresh);  // refresh토큰
         responseBody.put("userEmail", userEmail);
         responseBody.put("provider", provider);
         responseBody.put("nickname", nickname);
+        responseBody.put("profileImageUrl",profileImageUrl);
         responseBody.put("isStudent", isStudent);
         responseBody.put("isTeacher", isTeacher);
         responseBody.put("isAdmin", isAdmin);
-        responseBody.put("refresh",refresh);  // refresh토큰
 
         // ObjectMapper를 사용하여 Map을 JSON 문자열로 변환합니다.
         String responseBodyJson = new ObjectMapper().writeValueAsString(responseBody);
