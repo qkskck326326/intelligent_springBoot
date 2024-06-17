@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import org.ict.intelligentclass.security.jwt.util.JwtTokenUtil;
 import org.ict.intelligentclass.security.service.LoginTokenService;
+import org.ict.intelligentclass.user.jpa.entity.UserEntity;
 import org.ict.intelligentclass.user.model.dto.AttendanceDto;
 import org.ict.intelligentclass.user.model.dto.UserDto;
 import org.ict.intelligentclass.user.model.service.UserService;
@@ -14,6 +15,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -239,4 +241,28 @@ public class UserController {
         userService.updateUserPwd(email, provider, newPw);
         return new ResponseEntity<>(HttpStatus.OK);
     }
+
+
+    // 허강 여기서부터
+    @GetMapping("/getpeople")
+    public ResponseEntity<List<UserEntity>> getPeople(@RequestParam("userId") String nickname,
+                                                   @RequestParam("userType") int userType,
+                                                   @RequestParam("addingOption") String addingOption,
+                                                      @RequestParam("page") int page,
+                                                      @RequestParam(name="searchQuery", required=false) String searchQuery) {
+
+        log.info("userId: " + nickname + "userType: " + userType + " addingOption: " + addingOption + " page: " + page + " searchQuery: " + searchQuery);
+        //이미 있는 챗방 로직 만들어야하나?
+        //addingOption 은 teachers면 강사들만, students 면 학생들만, groups면 강사와 학생
+        List<UserEntity> people;
+        if (searchQuery != null && !searchQuery.isEmpty()) {
+            people = userService.getPeopleWithQuery(nickname, userType, addingOption, page, searchQuery);
+        } else {
+            people = userService.getPeople(nickname, userType, addingOption, page);
+        }
+
+        return new ResponseEntity<>(people, HttpStatus.OK);
+
+    }
+    // 허강 여기까지
 }

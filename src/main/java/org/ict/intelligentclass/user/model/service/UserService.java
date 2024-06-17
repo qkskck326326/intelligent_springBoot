@@ -14,6 +14,10 @@ import org.ict.intelligentclass.user.jpa.repository.UserInterestRepository;
 import org.ict.intelligentclass.user.jpa.repository.UserRepository;
 import org.ict.intelligentclass.user.model.dto.AttendanceDto;
 import org.ict.intelligentclass.user.model.dto.UserDto;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -262,10 +266,6 @@ public class UserService {
     }
 
 
-
-
-
-
 //    public UserDto authenticate(String email, String rawPassword) {
 //        String provider = "intelliclass";  // 일반 로그인 유저는 항상 "intelliclass"로 설정
 //        Optional<UserEntity> optionalUser = userRepository.findByEmailAndProvider(email, provider);
@@ -289,5 +289,22 @@ public class UserService {
 //            throw new UserNotFoundException("User not found with email: " + email + " and provider: " + provider);
 //        }
 //    }
+
+
+    //허강 시작
+    public List<UserEntity> getPeople(String nickname, int userType, String addingOption, int page) {
+
+        Pageable pageable = PageRequest.of(page -1, 50, Sort.by(Sort.Direction.DESC, "userName"));
+        Page<UserEntity> people = userRepository.findPeople(nickname, addingOption, pageable);
+        return people.getContent();
+    }
+
+    public List<UserEntity> getPeopleWithQuery(String nickname, int userType, String addingOption, int page, String searchQuery) {
+
+        PageRequest pageRequest = PageRequest.of(page - 1, 50);
+        Page<UserEntity> peoplePage = userRepository.findPeopleWithQuery(nickname, addingOption, searchQuery, pageRequest);
+        return peoplePage.getContent();
+    }
+    //허강 끝
 
 }
