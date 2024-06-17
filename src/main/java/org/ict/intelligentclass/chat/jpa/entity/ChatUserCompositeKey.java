@@ -15,7 +15,7 @@ import java.io.Serializable;
 @Embeddable
 public class ChatUserCompositeKey implements Serializable {
 
-    private String userId;
-    private Long roomId;
+    private String userId; //유저닉네임
+    private Long roomId; //채팅방 일련번호
 
 }
