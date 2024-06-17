@@ -22,10 +22,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
+import java.time.LocalDate;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -307,4 +306,26 @@ public class UserService {
     }
     //허강 끝
 
+    // 시원 시작
+    public Map<String, Long> getUserRegistrationStats(LocalDate startDate, LocalDate endDate) {
+        List<UserEntity> users = userRepository.findAllByRegisterTimeBetween(startDate.atStartOfDay(), endDate.plusDays(1).atStartOfDay());
+
+        // Create a map to hold the results with default 0 values for all dates in the range
+        Map<String, Long> registrationStats = new LinkedHashMap<>();
+        for (LocalDate date = startDate; !date.isAfter(endDate); date = date.plusDays(1)) {
+            registrationStats.put(date.toString(), 0L);
+        }
+
+        // Update the map with actual registration counts
+        Map<String, Long> actualStats = users.stream()
+                .collect(Collectors.groupingBy(
+                        user -> user.getRegisterTime().toLocalDate().toString(),
+                        Collectors.counting()
+                ));
+
+        actualStats.forEach((date, count) -> registrationStats.put(date, count));
+
+        return registrationStats;
+    }
+    // 시원 끝
 }
