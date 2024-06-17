@@ -28,9 +28,9 @@ public class UserController {
     private final JwtTokenUtil jwtTokenUtil;
     private final PasswordEncoder passwordEncoder;
 
-    @GetMapping("/{email}/{provider}")
-    public ResponseEntity<UserDto> selectUserByEmail(@PathVariable("email") String email,
-                                                     @PathVariable("provider") String provider) {
+    @GetMapping
+    public ResponseEntity<UserDto> selectUserByEmail(@RequestParam("email") String email,
+                                                     @RequestParam("provider") String provider) {
         log.info("/users/email/provider/" + email, provider + " 사용자 정보 조회 요청");
         return new ResponseEntity<>(userService.getUserById(email, provider), HttpStatus.OK);
     }
@@ -136,12 +136,19 @@ public class UserController {
 
     // 회원 가입
     @PostMapping("/user")
-    public ResponseEntity<?> insertUser(@RequestBody UserDto userDto
-                                        /*, @RequestParam List<Integer> interestIdList*/) {
+    public ResponseEntity<?> insertUser(@RequestBody UserDto userDto /*, @RequestParam List<Integer> interestIdList*/) {
         log.info("/users/user/" + userDto.getUserEmail() + "/" + userDto.getProvider() + " 유저 회원가입 요청");
 
         try {
-            UserDto createdUser = userService.insertUser(userDto/*, interestIdList*/);
+            // 기본 프로필 이미지 URL 설정
+            String defaultProfileImageUrl = "/images/defaultProfile.png"; // 실제 기본 프로필 이미지 경로
+
+            // 프로필 이미지 URL이 없는 경우 기본 이미지로 설정
+            if (userDto.getProfileImageUrl() == null || userDto.getProfileImageUrl().isEmpty()) {
+                userDto.setProfileImageUrl(defaultProfileImageUrl);
+            }
+
+            UserDto createdUser = userService.insertUser(userDto /*, interestIdList*/);
             return new ResponseEntity<>(createdUser, HttpStatus.CREATED);
         } catch (Exception e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
