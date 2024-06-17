@@ -23,12 +23,13 @@ import java.util.stream.Collectors;
 public class ItNewsBoardService {
     private final ItNewsBoardRepository itNewsBoardRepository;
 
-    public List<ItNewsBoardDto> getItNewsBoardList(Pageable pageable) {
-        Page<ItNewsBoardEntity> pageResult = itNewsBoardRepository.findAll(pageable);
-        return pageResult.stream()
-                .map(ItNewsBoardEntity::toDto)
-                .collect(Collectors.toList());
+    public Page<ItNewsBoardEntity> getItNewsBoardList(Pageable pageable) {
+        return itNewsBoardRepository.findAll(pageable);
     }//
+
+    public Page<ItNewsBoardEntity> findByTitleContaining(String title, Pageable pageable) {
+        return itNewsBoardRepository.findByTitleContaining(title, pageable);
+    }
 
     public ItNewsBoardDto saveBoard(ItNewsBoardDto itNewsBoardDto) {
         return itNewsBoardRepository.save(itNewsBoardDto.toEntity()).toDto();
@@ -41,4 +42,6 @@ public class ItNewsBoardService {
     public ItNewsBoardDto getItNewsBoard(Long no) {
         return itNewsBoardRepository.findById(no).get().toDto();
     }
+
+
 }//

@@ -2,10 +2,13 @@ package org.ict.intelligentclass.itnewsboard.controller;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.ict.intelligentclass.itnewsboard.jpa.entity.ItNewsBoardEntity;
 import org.ict.intelligentclass.itnewsboard.model.dto.ItNewsBoardDto;
 
 import org.ict.intelligentclass.itnewsboard.model.service.ItNewsBoardService;
+import org.ict.intelligentclass.itnewssite.jpa.entity.ItNewsSiteEntity;
 import org.ict.intelligentclass.itnewssite.model.dto.ItNewsSiteDto;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -23,11 +26,19 @@ public class ItNewsBoardController {
     private final ItNewsBoardService itNewsBoardService;
 
     @GetMapping
-    public ResponseEntity<List<ItNewsBoardDto>> getItNewsBoardList(Pageable pageable) {
+    public ResponseEntity<Page<ItNewsBoardEntity>> getItNewsBoardList(Pageable pageable) {
         log.info("Fetching IT news board list with pageable: {}", pageable);
-        List<ItNewsBoardDto> list = itNewsBoardService.getItNewsBoardList(pageable);
+        Page<ItNewsBoardEntity> list = itNewsBoardService.getItNewsBoardList(pageable);
         return ResponseEntity.ok(list);
     }//
+
+    @GetMapping("/search/{title}")
+    public ResponseEntity<Page<ItNewsBoardEntity>> searchItNewsBoard(@PathVariable String title,Pageable pageable) {
+        log.info("Fetching IT news site list with pageable: {}", pageable);
+        Page<ItNewsBoardEntity> list  = itNewsBoardService.findByTitleContaining(title, pageable);
+        return ResponseEntity.ok(list);
+    }
+
 
     @GetMapping("/{no}")
     public ResponseEntity<ItNewsBoardDto> getItNewsBoard(@PathVariable("no") Long no) {
