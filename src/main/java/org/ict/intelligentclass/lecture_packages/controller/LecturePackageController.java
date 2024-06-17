@@ -30,12 +30,14 @@ public class LecturePackageController {
 
 
 
+    //패키지리스트 조회
     @GetMapping
     public ResponseEntity<List<LecturePackageList>> getLecturePackages() {
         List<LecturePackageList> lecturePackages = lecturePackageService.getAllLecturePackages();
         return ResponseEntity.ok(lecturePackages);
     }
 
+    //패키지 상세보기
     @GetMapping("/detail")
     public ResponseEntity<LecturePackageDetail> getLecturePackageById(@RequestParam Long lecturePackageId) {
         log.info("getLecturePackageById : ", lecturePackageId);
@@ -43,6 +45,7 @@ public class LecturePackageController {
         return ResponseEntity.ok(lecturePackageDetail);
     }
 
+    //패키지 등록하기
     @PostMapping
     public ResponseEntity<LecturePackageEntity> createLecturePackage(@RequestBody LecturePackageRegister lecturePackageRegister) {
         log.info("createLecturePackage : ", lecturePackageRegister);
@@ -51,7 +54,7 @@ public class LecturePackageController {
         return ResponseEntity.ok(savedLecturePackage);
 
     }
-
+    //패키지 수정하기
     @PutMapping
     public ResponseEntity<LecturePackageEntity> updateLecturePackage(@RequestParam Long lecturePackageId,
                                                                      @RequestBody LecturePackageRegister lecturePackageRegister) {
@@ -60,36 +63,25 @@ public class LecturePackageController {
 
     }
 
-
+    //패키지 삭제하기
     @DeleteMapping("/{lecturePackageId}")
     public ResponseEntity<Void> deleteLecturePackage(@PathVariable Long lecturePackageId) {
         lecturePackageService.deleteLecturePackage(lecturePackageId);
         return ResponseEntity.noContent().build();
     }
 
-
+    //패키지조회수 1 올리기
     @PutMapping("/view/{lecturePackageId}")
     public ResponseEntity<Void> incrementViewCount(@PathVariable Long lecturePackageId) {
         lecturePackageService.incrementViewCount(lecturePackageId);
         return ResponseEntity.ok().build();
     }
 
-
-
-//    @PostMapping
-//    public ResponseEntity<LecturePackageRegister> createLecturePackage(@RequestBody LecturePackageRegister lecturePackage) {
-//
-//
-//
-//        lecturePackageRegister.getLecturePackageId()
-//
-//        LecturePackageRegister createdLecturePackage = lecturePackageService.createLecturePackage(lecturePackage);
-//        return ResponseEntity.ok(createdLecturePackage);
-//    }
-
-
-
-
+    @GetMapping("/categorysort/{categoryId}")
+    public ResponseEntity<List<LecturePackageList>> getCategorySortPackages(@PathVariable Long categoryId) {
+        List<LecturePackageList> lecturePackageLists= lecturePackageService.getCategorySortedPackages(categoryId);
+        return ResponseEntity.ok(lecturePackageLists);
+    }
 
 
 }
