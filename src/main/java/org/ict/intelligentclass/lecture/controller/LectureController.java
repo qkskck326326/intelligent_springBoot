@@ -2,15 +2,17 @@ package org.ict.intelligentclass.lecture.controller;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.ict.intelligentclass.lecture.jpa.entity.input.CommentInput;
 import org.ict.intelligentclass.lecture.jpa.entity.input.LectureInput;
 import org.ict.intelligentclass.lecture.jpa.entity.input.RatingInput;
 import org.ict.intelligentclass.lecture.jpa.entity.output.LectureListDto;
 import org.ict.intelligentclass.lecture.jpa.entity.output.LecturePreviewDto;
 import org.ict.intelligentclass.lecture.jpa.entity.output.PackageRatingDto;
 import org.ict.intelligentclass.lecture.jpa.entity.output.LectureDetailDto;
+import org.ict.intelligentclass.lecture.model.dto.LectureCommentDto;
+import org.ict.intelligentclass.lecture.model.dto.LectureReadDto;
 import org.ict.intelligentclass.lecture.model.service.LectureService;
 import org.ict.intelligentclass.lecture_packages.jpa.entity.LecturePackageEntity;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -26,20 +28,15 @@ public class LectureController {
     private final LectureService lectureService;
 
     // 강의 패키지 타이틀 가져오기
-    @GetMapping("/title")
-    public ResponseEntity<LecturePackageEntity> selectLecturePackageTitle(Long lecturePackageId) {
+    @GetMapping("/title/{lecturePackageId}")
+    public ResponseEntity<LecturePackageEntity> selectLecturePackageTitle(@PathVariable Long lecturePackageId) {
         return new ResponseEntity<>(lectureService.selectLecturePackageTitle(lecturePackageId), HttpStatus.OK);
     }
 
     // 강의 목록 페이지
-//    @GetMapping()
-//    public ResponseEntity<List<LectureDto>> selectAllLecture(Long lecturePackageId) {
-//        return new ResponseEntity<>(lectureService.selectAllLecture(lecturePackageId), HttpStatus.OK);
-//    }
-
-    @GetMapping("/list")
-    public ResponseEntity<List<LectureListDto>> getAllLectures() {
-        List<LectureListDto> lectureListDtos = lectureService.selectAllLecture();
+    @GetMapping("/list/{lecturePackageId}")
+    public ResponseEntity<List<LectureListDto>> getAllLectures(@PathVariable Long lecturePackageId) {
+        List<LectureListDto> lectureListDtos = lectureService.selectAllLecture(lecturePackageId);
         return ResponseEntity.ok(lectureListDtos);
     }
 
@@ -56,6 +53,14 @@ public class LectureController {
         lectureService.addRating(ratingInput);
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
+
+    // 강의 읽음 처리
+    @PostMapping("/changeLectureRead")
+    public ResponseEntity<String> changeLectureRead(@RequestBody LectureReadDto lectureReadDto) {
+        lectureService.changeLectureRead(lectureReadDto.getLectureId(), lectureReadDto.getNickname());
+        return ResponseEntity.ok("Lecture marked as read");
+    }
+
     // 강의 미리보기
     @GetMapping("/preview/{lectureId}")
     public ResponseEntity<LecturePreviewDto> getLecturePreview(@PathVariable("lectureId") int lectureId) {
@@ -83,6 +88,35 @@ public class LectureController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error registering lecture");
         }
     }
+
+    // 강의 댓글 목록
+    @GetMapping("/comments/{lectureId}")
+    public ResponseEntity<List<LectureCommentDto>> getLectureComments(@PathVariable("lectureId") int lectureId) {
+        List<LectureCommentDto> lectureComments = lectureService.getLectureComments(lectureId);
+        return new ResponseEntity<>(lectureComments, HttpStatus.OK);
+    }
+
+    // 강의 댓글 추가
+    @PostMapping("/comments/{lectureId}")
+    public ResponseEntity<String> insertLectureComment(@RequestBody CommentInput commentInput) {
+        lectureService.insertLectureComment(commentInput);
+        return new ResponseEntity<>("Comment added successfully", HttpStatus.CREATED);
+    }
+
+    // 강의 댓글 수정
+    @PutMapping("/comments/{lectureCommentId}")
+    public ResponseEntity<String> updateLectureComment(@PathVariable("lectureCommentId") int lectureCommentId, @RequestBody String lectureCommentContent) {
+        lectureService.updateLectureComment(lectureCommentId, lectureCommentContent);
+        return new ResponseEntity<>("Comment updated successfully", HttpStatus.OK);
+    }
+
+    // 강의 댓글 삭제
+    @DeleteMapping("/comments/{lectureCommentId}")
+    public ResponseEntity<String> deleteLectureComment(@PathVariable("lectureCommentId") int lectureCommentId) {
+        lectureService.deleteLectureComment(lectureCommentId);
+        return new ResponseEntity<>("Comment deleted successfully", HttpStatus.OK);
+    }
+
 
 
 }
