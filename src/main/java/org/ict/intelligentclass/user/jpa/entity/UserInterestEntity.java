@@ -7,7 +7,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.ict.intelligentclass.lecture_packages.jpa.entity.SubCategoryEntity;
 import org.ict.intelligentclass.user.jpa.entity.id.UserInterestId;
-import org.ict.intelligentclass.user.model.dto.UserInterestDto;
+
 
 @Data
 @AllArgsConstructor
@@ -38,11 +38,11 @@ public class UserInterestEntity {
     @JoinColumn(name = "SUB_CATEGORY_ID")
     private SubCategoryEntity subCategory;
 
-    public UserInterestDto toDto() {
-        return UserInterestDto.builder()
-                .userEmail(this.interestId.getUserEmail())
-                .provider(this.interestId.getProvider())
-                .subCategoryId(this.interestId.getSubCategoryId())
-                .build();
-    }
+//    public UserInterestDto toDto() {
+//        return UserInterestDto.builder()
+//                .userEmail(this.interestId.getUserEmail())
+//                .provider(this.interestId.getProvider())
+//                .subCategoryId(this.interestId.getSubCategoryId())
+//                .build();
+//    }
 }

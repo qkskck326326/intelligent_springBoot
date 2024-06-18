@@ -1,9 +1,6 @@
 package org.ict.intelligentclass.chat.jpa.entity;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -18,6 +15,8 @@ import java.util.Date;
 public class ChatMessageEntity {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "SQ_MESSAGE_ID")
+    @SequenceGenerator(name = "SQ_MESSAGE_ID", sequenceName = "SQ_MESSAGE_ID", allocationSize = 1)
     @Column(name="MESSAGE_ID") //메시지 일련번호
     private Long messageId;
 

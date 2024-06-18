@@ -5,6 +5,7 @@ import org.ict.intelligentclass.lecture.jpa.entity.RatingEntity;
 import org.ict.intelligentclass.lecture_packages.jpa.entity.LecturePackageEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -14,6 +15,18 @@ public interface LecturePackageRepository extends JpaRepository<LecturePackageEn
 
     @Query("SELECT l FROM LecturePackageEntity l ORDER BY l.registerDate desc")
     List<LecturePackageEntity> findAllSort();
+
+
+    @Query("SELECT l FROM LecturePackageEntity l WHERE l.lecturePackageId = :packageId")
+    List<LecturePackageEntity> findByCategorySortPackages(@Param("packageId") Long packageId);
+
+
+    @Query("SELECT l FROM LecturePackageEntity l WHERE l.lecturePackageId IN :packageIds")
+    List<LecturePackageEntity> findByLecturePackageIdIn(@Param("packageIds") List<Long> packageIds);
+
+
+
+
 
 
 

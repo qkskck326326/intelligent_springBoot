@@ -40,9 +40,10 @@ public class JwtTokenUtil {
             throw new UsernameNotFoundException("User with email " + userEmail + " not found");
         }
 
-        // 사용자의 관리자 여부를 확인합니다.
+        // 사용자의 유저타입을 확인합니다.
         int userType = userEntity.get().getUserType();
         String nickname = userEntity.get().getNickname();
+
         // JWT를 생성합니다. 여기서는 사용자 이메일을 주체(subject)로, 관리자 여부를 클레임으로 추가합니다.
         return Jwts.builder()
                 .setSubject(userEmail)
