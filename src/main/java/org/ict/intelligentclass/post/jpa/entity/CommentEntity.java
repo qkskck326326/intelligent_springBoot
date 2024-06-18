@@ -38,6 +38,13 @@ public class CommentEntity {
     @Column(name = "COMMENT_TIME", columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
     private LocalDateTime commentTime;
 
+    @PrePersist
+    protected void onCreate() {
+        if (commentTime == null) {
+            commentTime = LocalDateTime.now();
+        }
+    }
+
     public CommentDto toDto(UserDto userDto) {
         CommentDto dto = new CommentDto();
         dto.setId(this.id);
