@@ -5,15 +5,14 @@ import lombok.extern.slf4j.Slf4j;
 import org.ict.intelligentclass.user.model.dto.AttendanceDto;
 import org.ict.intelligentclass.user.model.dto.UserDto;
 import org.ict.intelligentclass.user.model.service.UserService;
+import org.springframework.data.domain.Page;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -192,10 +191,52 @@ public class AdminController {
     }
 
     @GetMapping("/registration-stats")
-    public ResponseEntity<Map<String, Long>> getUserRegistrationStats(
+    public ResponseEntity<Map<String, Object>> getUserRegistrationStats(
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate) {
-        return new ResponseEntity<>(userService.getUserRegistrationStats(startDate, endDate), HttpStatus.OK);
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
+            @RequestParam int page,
+            @RequestParam int size) {
+        Map<String, Long> stats = userService.getUserRegistrationStats(startDate, endDate);
+        int total = stats.size();
+        List<Map<String, Object>> content = new ArrayList<>();
+        for (Map.Entry<String, Long> entry : stats.entrySet()) {
+            Map<String, Object> map = new HashMap<>();
+            map.put("date", entry.getKey());
+            map.put("count", entry.getValue());
+            content.add(map);
+        }
+        int start = page * size;
+        int end = Math.min(start + size, total);
+        List<Map<String, Object>> pageList = (start <= end) ? content.subList(start, end) : Collections.emptyList();
+        return new ResponseEntity<>(Map.of("content", pageList, "totalPages", (total + size - 1) / size), HttpStatus.OK);
     }
+
+    @GetMapping("/registration-stats-monthly")
+    public ResponseEntity<Map<String, Long>> getRegistrationStatsMonthly(
+            @RequestParam("startDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+            @RequestParam("endDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate) {
+        Map<String, Long> registrationStats = userService.getUserRegistrationStatsByMonth(startDate, endDate);
+        return ResponseEntity.ok(registrationStats);
+    }
+
+    @GetMapping("/users")
+    public ResponseEntity<Map<String, Object>> getAllUsers(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(required = false) String searchQuery,
+            @RequestParam(required = false) Integer userType,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate) {
+        Page<UserDto> usersPage = userService.getAllUsers(page, size, searchQuery, userType, startDate, endDate);
+        Map<String, Object> response = new HashMap<>();
+        response.put("content", usersPage.getContent());
+        response.put("totalPages", usersPage.getTotalPages());
+        response.put("totalElements", usersPage.getTotalElements());
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+
+
+
 
 }
