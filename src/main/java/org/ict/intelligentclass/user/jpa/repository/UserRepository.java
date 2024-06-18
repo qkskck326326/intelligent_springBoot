@@ -12,6 +12,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
@@ -21,8 +22,11 @@ import java.util.Optional;
 public interface UserRepository extends JpaRepository<UserEntity, UserId> {
 
     Optional<UserEntity> findByNickname(String nickname);
+
     Optional<UserEntity> findByPhone(String phone);
+
     List<UserEntity> findByUserName(String userName);
+
     Optional<UserEntity> findById(UserId userId);
 
 
@@ -97,4 +101,15 @@ public interface UserRepository extends JpaRepository<UserEntity, UserId> {
 
     List<UserEntity> findAllByRegisterTimeBetween(LocalDateTime startDate, LocalDateTime endDate);
 
+
+    @Query("SELECT u FROM UserEntity u WHERE "
+            + "(:searchQuery IS NULL OR u.userName LIKE %:searchQuery% OR u.userId.userEmail LIKE %:searchQuery% OR u.phone LIKE %:searchQuery%) AND "
+            + "(:userType IS NULL OR u.userType = :userType) AND "
+            + "(:startDate IS NULL OR u.registerTime >= :startDate) AND "
+            + "(:endDate IS NULL OR u.registerTime <= :endDate)")
+    Page<UserEntity> findAllUsers(@Param("searchQuery") String searchQuery,
+                                  @Param("userType") Integer userType,
+                                  @Param("startDate") LocalDateTime startDate,
+                                  @Param("endDate") LocalDateTime endDate,
+                                  Pageable pageable);
 }
