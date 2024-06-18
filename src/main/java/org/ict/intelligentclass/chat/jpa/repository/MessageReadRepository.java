@@ -11,4 +11,10 @@ public interface MessageReadRepository extends JpaRepository<MessageReadEntity, 
 
     @Query("SELECT COUNT(m) FROM MessageReadEntity m WHERE m.roomId = :roomId")
     long countByRoomId(@Param("roomId") Long roomId);
+
+    long countByRoomIdAndUserId(Long roomId, String userId);
+
+    int countByMessageId(Long messageId);
+
+    boolean existsByMessageIdAndUserId(Long messageId, String userId);
 }
