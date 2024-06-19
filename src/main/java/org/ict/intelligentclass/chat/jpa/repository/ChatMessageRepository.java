@@ -24,4 +24,9 @@ public interface ChatMessageRepository extends JpaRepository<ChatMessageEntity, 
     List<ChatMessageEntity> findByRoomId(Long roomId, PageRequest dateSent);
 
     Optional<ChatMessageEntity> findFirstByRoomIdAndIsAnnouncement(Long roomId, long l);
+
+    void deleteByRoomId(Long roomId);
+
+    @Query("SELECT m FROM ChatMessageEntity m WHERE m.roomId = :roomId AND m.isAnnouncement = 1")
+    ChatMessageEntity findAnnouncementByRoomId(Long roomId);
 }
