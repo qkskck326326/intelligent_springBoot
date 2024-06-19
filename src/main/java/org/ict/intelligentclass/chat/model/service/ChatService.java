@@ -141,7 +141,7 @@ public class ChatService {
         }
 
         // Fetch messages
-        List<ChatMessageEntity> messages = chatMessageRepository.findByRoomId(roomId, PageRequest.of(page - 1, 25, Sort.by("dateSent").ascending()));
+        List<ChatMessageEntity> messages = chatMessageRepository.findByRoomId(roomId, PageRequest.of(page - 1, 25, Sort.by("dateSent").descending()));
 
         // Process messages and mark them as read
         List<ChatMessageDto> messageDtos = messages.stream()
