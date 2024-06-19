@@ -19,4 +19,13 @@ public interface PackageSubCategoryRepository extends JpaRepository<PackageSubCa
 
     void deleteAllByPackageSubCategoryId_LecturePackageId(Long lecturePackageId);
 
+    @Query("SELECT ps FROM PackageSubCategoryEntity ps WHERE ps.subCategory.id = :categoryId")
+    List<PackageSubCategoryEntity> categorySortPackages(@Param("categoryId") Long categoryId);
+
+    @Query("SELECT DISTINCT ps FROM PackageSubCategoryEntity ps WHERE ps.subCategory.id IN :subCategoryIds")
+    List<PackageSubCategoryEntity> findBySubCategoryIdIn(@Param("subCategoryIds") List<Long> subCategoryIds);
+
+    @Query("SELECT ps FROM PackageSubCategoryEntity ps WHERE ps.subCategory.upperCategory.id IN :upperCategoryIds")
+    List<PackageSubCategoryEntity> findBySubCategoryUpperCategoryId(@Param("upperCategoryIds") Long upperCategoryIds);
+
 }

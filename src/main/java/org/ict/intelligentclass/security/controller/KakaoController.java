@@ -1,6 +1,5 @@
 package org.ict.intelligentclass.security.controller;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.ict.intelligentclass.security.entity.LoginTokenEntity;
@@ -14,21 +13,17 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Optional;
 
+@Slf4j
 @RestController
 @RequestMapping("/kakao")
-@Slf4j
+@CrossOrigin
 public class KakaoController {
 
     @Value("${kakao.client-id}")
@@ -37,8 +32,8 @@ public class KakaoController {
     @Value("${kakao.redirect-uri}")
     private String kakaoRedirectUri;
 
-    @Value("${kakao.redirect-signup-uri}")
-    private String kakaoRedirectSignupUri;
+//    @Value("${kakao.redirect-signup-uri}")
+//    private String kakaoRedirectSignupUri;
 
     private final UserService userService;
     private final LoginTokenService loginTokenService;
@@ -90,7 +85,7 @@ public class KakaoController {
             UserEntity userEntity = optionalUser.get();
             userEntity.setSnsAccessToken(kakaoAccessToken);
             UserId userId = userEntity.getUserId();
-            userService.insertKakaoUser(userEntity);
+            userService.insertSocailLoginUser(userEntity);
 
             Long accessExpiredMs = 600000L;
             String accessToken = jwtTokenUtil.generateToken(userId.getUserEmail(), "kakao", "access", accessExpiredMs);
@@ -221,8 +216,8 @@ public class KakaoController {
             userDto.setFaceLoginYn('N');
             userDto.setSnsAccessToken(kakaoAccessToken);
 
-            userService.insertKakaoUser(userDto.toEntity());
-            log.info("회원가입 성공: {}", userEmail);
+            userService.insertSocailLoginUser(userDto.toEntity());
+            log.info("회원가입 성공: {}, {}}", userDto.getUserEmail(), userDto.getProvider());
 
             String logoutUrl = "https://kapi.kakao.com/v1/user/logout";
             HttpHeaders logoutHeaders = new HttpHeaders();

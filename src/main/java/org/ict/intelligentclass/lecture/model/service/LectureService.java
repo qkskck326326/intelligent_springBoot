@@ -2,11 +2,14 @@ package org.ict.intelligentclass.lecture.model.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.ict.intelligentclass.lecture.jpa.entity.LectureCommentEntity;
 import org.ict.intelligentclass.lecture.jpa.entity.RatingEntity;
+import org.ict.intelligentclass.lecture.jpa.entity.input.CommentInput;
 import org.ict.intelligentclass.lecture.jpa.entity.output.LectureDetailDto;
 import org.ict.intelligentclass.lecture.jpa.entity.output.LectureListDto;
 import org.ict.intelligentclass.lecture.jpa.entity.output.LecturePreviewDto;
 import org.ict.intelligentclass.lecture.jpa.entity.output.PackageRatingDto;
+import org.ict.intelligentclass.lecture.model.dto.LectureCommentDto;
 import org.ict.intelligentclass.lecture.model.dto.LectureDto;
 import org.ict.intelligentclass.lecture_packages.jpa.entity.LecturePackageEntity;
 import org.ict.intelligentclass.lecture_packages.jpa.repository.LecturePackageRepository;
@@ -22,6 +25,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -46,25 +50,14 @@ public class LectureService {
         return lecturePackageEntity.get();
     }
 
-    // 강의 목록 페이지
-//    public List<LectureDto> selectAllLecture(Long lecturePackageId) {
-//        List<LectureEntity> lectureEntities = lectureRepository.findByLecturePackageId(lecturePackageId);
-//        List<LectureDto> lectureDtoList = new ArrayList<>();
-//        for (LectureEntity lectureEntity : lectureEntities) {
-//            lectureDtoList.add(lectureEntity.toDto());
-//        }
-//        return lectureDtoList;
-//    } // 패키지 Id 로 강의 목록
-
-    // 실험용 강의 목록 페이지
-    public List<LectureListDto> selectAllLecture() {
-        List<LectureEntity> lectureEntities = lectureRepository.findAll();
+    // 패키지 Id 로 강의 목록 페이지
+    public List<LectureListDto> selectAllLecture(Long lecturePackageId) {
+        List<LectureEntity> lectureEntities = lectureRepository.findByLecturePackageId(lecturePackageId);
         List<LectureReadEntity> lectureReadEntities = lectureReadRepository.findAll();
         List<LectureListDto> lectureListDtos = new ArrayList<>();
         for (LectureEntity lectureEntity : lectureEntities) {
-            // LectureReadEntity를 찾음
             Optional<LectureReadEntity> lectureReadEntity = lectureReadEntities.stream()
-                    .filter(lr -> lr.getLectureId() == lectureEntity.getLectureId())
+                    .filter(lr -> lr.getLectureId() == lectureEntity.getLectureId()) // 여기서 == 연산자를 사용합니다
                     .findFirst();
             lectureReadEntity.ifPresent(lr -> {
                 LectureListDto lectureListDto = new LectureListDto(lectureEntity, lr);
@@ -73,6 +66,7 @@ public class LectureService {
         }
         return lectureListDtos;
     }
+
 
     // 강의 패키지 평균 별점 가져오기
     public PackageRatingDto selectLecturePackageRating(Long lecturePackageId) {
@@ -89,7 +83,8 @@ public class LectureService {
         ratingEntity.setRating(ratingInput.getRating());
         ratingRepository.save(ratingEntity);
     }
-
+    
+    // 강의 미리보기
     public LecturePreviewDto getLecturePreviewById(int lectureId) {
         return lectureRepository.findById(lectureId)
                 .map(LecturePreviewDto::new)
@@ -97,6 +92,14 @@ public class LectureService {
     }
 
     // 강의 읽음 처리
+    public void changeLectureRead(int lectureId, String nickname) {
+        LectureReadEntity lectureReadEntity = lectureReadRepository.findByLectureIdAndNickname(lectureId, nickname)
+                .orElseGet(() -> new LectureReadEntity(lectureId, nickname, "N"));
+
+        lectureReadEntity.setLectureRead("Y");
+        lectureReadRepository.save(lectureReadEntity);
+    }
+
     // 강의 디테일 보기
     public LectureDetailDto getLectureDetailById(int lectureId) {
         return lectureRepository.findById(lectureId)
@@ -118,16 +121,55 @@ public class LectureService {
         lectureRepository.save(lectureEntity);
     }
 
+    // 강의 댓글 목록
+    public List<LectureCommentDto> getLectureComments(int lectureId) {
+        List<LectureCommentEntity> lectureCommentEntities = lectureCommentRepository.findByLectureId(lectureId);
+        List<LectureCommentDto> lectureCommentDtos = new ArrayList<>();
+        for (LectureCommentEntity lectureCommentEntity : lectureCommentEntities) {
+            LectureCommentDto lectureCommentDto = LectureCommentDto.builder()
+                    .lectureCommentId(lectureCommentEntity.getLectureCommentId())
+                    .lectureId(lectureCommentEntity.getLectureId())
+                    .lectureCommentReply(lectureCommentEntity.getLectureCommentReply())
+                    .lectureCommentContent(lectureCommentEntity.getLectureCommentContent())
+                    .lectureCommentDate(lectureCommentEntity.getLectureCommentDate())
+                    .nickname(lectureCommentEntity.getNickname())
+                    .parentCommentId(lectureCommentEntity.getParentCommentId())
+                    .build();
+            lectureCommentDtos.add(lectureCommentDto);
+        }
+        return lectureCommentDtos;
+    }
+
+    // 강의 댓글 추가
+    public void insertLectureComment(CommentInput commentInput) {
+        LectureCommentEntity lectureCommentEntity = new LectureCommentEntity();
+        lectureCommentEntity.setLectureId(commentInput.getLectureId());
+        lectureCommentEntity.setNickname(commentInput.getNickname());
+        lectureCommentEntity.setLectureCommentContent(commentInput.getLectureCommentContent());
+        lectureCommentEntity.setLectureCommentDate(new Date());
+        lectureCommentEntity.setParentCommentId(commentInput.getParentCommentId());
+
+        lectureCommentRepository.save(lectureCommentEntity);
+    }
+
+    // 강의 댓글 수정
+    public void updateLectureComment(int lectureCommentId, String content) {
+        Optional<LectureCommentEntity> lectureCommentEntityOpt = lectureCommentRepository.findByLectureCommentId(lectureCommentId);
+        if (lectureCommentEntityOpt.isPresent()) {
+            LectureCommentEntity lectureCommentEntity = lectureCommentEntityOpt.get();
+            lectureCommentEntity.setLectureCommentContent(content);
+            lectureCommentRepository.save(lectureCommentEntity);
+        }
+    }
+
+    // 강의 댓글 삭제
+    public void deleteLectureComment(int lectureCommentId) {
+        lectureCommentRepository.deleteByLectureCommentId(lectureCommentId);
+    }
+    
     // 강의 수정
     // 강의 삭제
-    // 강의 댓글 목록 가져오기
-    // 강의 댓글 추가
-    // 강의 댓글 수정
-    // 강의 댓글 삭제
     // 강의 댓글 유저 정보 가져오기
-    // 패키지 별점 가져오기
-    // 별점 입력하기
-    // 패키지 제목 가져오기
 
 }
 

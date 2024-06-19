@@ -15,8 +15,8 @@ import java.util.Date;
 public class ChatroomEntity {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "SQ_ANNOUNCEMENT_ID")
-    @SequenceGenerator(name = "SQ_ANNOUNCEMENT_ID", sequenceName = "SQ_ANNOUNCEMENT_ID", allocationSize = 1)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "SQ_ROOM_ID")
+    @SequenceGenerator(name = "SQ_ROOM_ID", sequenceName = "SQ_ROOM_ID", allocationSize = 1)
     @Column(name="ROOM_ID") //채팅방 일련번호
     private Long roomId;
 

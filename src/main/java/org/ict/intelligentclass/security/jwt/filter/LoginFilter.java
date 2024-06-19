@@ -100,22 +100,22 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
         String profileImageUrl = customUserDetails.getProfileImageUrl();
         UserId userId = new UserId(userEmail, provider);
 
-        log.info("successfulAuthentication userEmail : " + userEmail);
-        log.info("successfulAuthentication provider : " + provider);
-        log.info("successfulAuthentication nickname : " + nickname);
-        log.info("successfulAuthentication userId : " + userId);
+//        log.info("successfulAuthentication userEmail : " + userEmail);
+//        log.info("successfulAuthentication provider : " + provider);
+//        log.info("successfulAuthentication nickname : " + nickname);
+//        log.info("successfulAuthentication userId : " + userId);
         // 사용자 이름을 사용하여 JWT를 생성합니다.
-        String access  = jwtTokenUtil.generateToken(userEmail, provider,"access", accessExpiredMs);
-        String refresh  = jwtTokenUtil.generateToken(userEmail, provider,"refresh", refreshExpiredMs);
+        String accessToken  = jwtTokenUtil.generateToken(userEmail, provider,"access", accessExpiredMs);
+        String refreshToken  = jwtTokenUtil.generateToken(userEmail, provider,"refresh", refreshExpiredMs);
         Optional<UserEntity> userOptional = userService.findByUserId(userId);  // 이메일(아이디)를 통해 사용자를 조회함.
-        log.info("successfulAuthentication access : " + access);
-        log.info("successfulAuthentication refresh : " + refresh);
+//        log.info("successfulAuthentication access : " + access);
+//        log.info("successfulAuthentication refresh : " + refresh);
 
         if(userOptional.isPresent()){  // 현재 사용자가 존재하는지 확인.
 
             LoginTokenEntity loginTokenEntity = LoginTokenEntity.builder() // 사용자가 존재하면 User 객체를 가져와 RefreshToken 엔티티를 생성
                     .userId(userId)
-                    .refreshTokenValue(refresh)
+                    .refreshTokenValue(refreshToken)
                     .build();
 
             loginTokenService.save(loginTokenEntity);  // Refresh Token을 데이터베이스에 저장함.
@@ -123,7 +123,7 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
 
 
         // 응답 헤더에 JWT를 'Bearer' 토큰으로 추가합니다. -> 응답 헤더에 Access Token을 추가.
-        response.addHeader("Authorization", "Bearer " + access);
+        response.addHeader("Authorization", "Bearer " + accessToken);
 
         // 클라이언트가 Authorization 헤더를 읽을 수 있도록, 해당 헤더를 노출시킵니다.
         response.setHeader("Access-Control-Expose-Headers", "Authorization");
@@ -138,7 +138,7 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
 
         Map<String, Object> responseBody = new HashMap<>();
 
-        responseBody.put("refresh",refresh);  // refresh토큰
+        responseBody.put("refresh", refreshToken);  // refresh토큰
         responseBody.put("userEmail", userEmail);
         responseBody.put("provider", provider);
         responseBody.put("nickname", nickname);

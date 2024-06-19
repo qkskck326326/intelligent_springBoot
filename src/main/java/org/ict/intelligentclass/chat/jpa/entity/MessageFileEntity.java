@@ -1,9 +1,6 @@
 package org.ict.intelligentclass.chat.jpa.entity;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -16,6 +13,8 @@ import lombok.NoArgsConstructor;
 public class MessageFileEntity {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "SQ_FILE_ID")
+    @SequenceGenerator(name = "SQ_FILE_ID", sequenceName = "SQ_FILE_ID", allocationSize = 1)
     @Column(name="FILE_ID")// 파일 일련번호
     private Long fileId;
 

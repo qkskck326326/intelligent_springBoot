@@ -14,14 +14,16 @@ import org.ict.intelligentclass.user.jpa.repository.UserInterestRepository;
 import org.ict.intelligentclass.user.jpa.repository.UserRepository;
 import org.ict.intelligentclass.user.model.dto.AttendanceDto;
 import org.ict.intelligentclass.user.model.dto.UserDto;
+import org.springframework.data.domain.*;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -187,7 +189,7 @@ public class UserService {
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    @Transactional 
+    @Transactional
     public UserDto insertUser(UserDto userDto /*, List<Integer> interestIdList */ ) { // 일반 회원가입
         // 비밀번호 암호화
         String encodedPassword = passwordEncoder.encode(userDto.getUserPwd());
@@ -212,7 +214,7 @@ public class UserService {
     }
 
     @Transactional
-    public void insertKakaoUser(UserEntity userEntity) { // 카카오 회원가입
+    public void insertSocailLoginUser(UserEntity userEntity) { // 카카오 회원가입
         // UserEntity 저장
         userRepository.save(userEntity);
     }
@@ -262,10 +264,6 @@ public class UserService {
     }
 
 
-
-
-
-
 //    public UserDto authenticate(String email, String rawPassword) {
 //        String provider = "intelliclass";  // 일반 로그인 유저는 항상 "intelliclass"로 설정
 //        Optional<UserEntity> optionalUser = userRepository.findByEmailAndProvider(email, provider);
@@ -290,4 +288,86 @@ public class UserService {
 //        }
 //    }
 
+
+    //허강 시작
+    public List<UserEntity> getPeople(String nickname, int userType, String addingOption, int page) {
+
+        Pageable pageable = PageRequest.of(page -1, 50, Sort.by(Sort.Direction.DESC, "userName"));
+        Page<UserEntity> people = userRepository.findPeople(nickname, addingOption, pageable);
+        return people.getContent();
+    }
+
+    public List<UserEntity> getPeopleWithQuery(String nickname, int userType, String addingOption, int page, String searchQuery) {
+
+        PageRequest pageRequest = PageRequest.of(page - 1, 50);
+        Page<UserEntity> peoplePage = userRepository.findPeopleWithQuery(nickname, addingOption, searchQuery, pageRequest);
+        return peoplePage.getContent();
+    }
+    //허강 끝
+
+    // 시원 시작
+    public Map<String, Long> getUserRegistrationStats(LocalDate startDate, LocalDate endDate) {
+        List<UserEntity> users = userRepository.findAllByRegisterTimeBetween(startDate.atStartOfDay(), endDate.plusDays(1).atStartOfDay());
+
+        // Create a map to hold the results with default 0 values for all dates in the range
+        Map<String, Long> registrationStats = new LinkedHashMap<>();
+        for (LocalDate date = startDate; !date.isAfter(endDate); date = date.plusDays(1)) {
+            registrationStats.put(date.toString(), 0L);
+        }
+
+        // Update the map with actual registration counts
+        Map<String, Long> actualStats = users.stream()
+                .collect(Collectors.groupingBy(
+                        user -> user.getRegisterTime().toLocalDate().toString(),
+                        Collectors.counting()
+                ));
+
+        actualStats.forEach(registrationStats::put);
+
+        // Sort the map by date in descending order
+        return registrationStats.entrySet()
+                .stream()
+                .sorted(Map.Entry.<String, Long>comparingByKey().reversed())
+                .collect(Collectors.toMap(
+                        Map.Entry::getKey,
+                        Map.Entry::getValue,
+                        (e1, e2) -> e1,
+                        LinkedHashMap::new
+                ));
+    }
+
+    public Map<String, Long> getUserRegistrationStatsByMonth(LocalDate startDate, LocalDate endDate) {
+        List<UserEntity> users = userRepository.findAllByRegisterTimeBetween(startDate.atStartOfDay(), endDate.plusDays(1).atStartOfDay());
+
+        // Create a map to hold the results with default 0 values for all months in the range
+        Map<String, Long> registrationStats = new LinkedHashMap<>();
+        for (LocalDate date = startDate.withDayOfMonth(1); !date.isAfter(endDate.withDayOfMonth(1)); date = date.plusMonths(1)) {
+            registrationStats.put(date.format(DateTimeFormatter.ofPattern("yyyy-MM")), 0L);
+        }
+
+        // Update the map with actual registration counts
+        Map<String, Long> actualStats = users.stream()
+                .collect(Collectors.groupingBy(
+                        user -> user.getRegisterTime().format(DateTimeFormatter.ofPattern("yyyy-MM")),
+                        Collectors.counting()
+                ));
+
+        actualStats.forEach(registrationStats::put);
+
+        return registrationStats;
+    }
+
+    public Page<UserDto> getAllUsers(int page, int size, String searchQuery, Integer userType, LocalDate startDate, LocalDate endDate) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by("registerTime").descending());
+        LocalDateTime startDateTime = (startDate != null) ? startDate.atStartOfDay() : null;
+        LocalDateTime endDateTime = (endDate != null) ? endDate.atTime(23, 59, 59) : null;
+        Page<UserEntity> userEntities = userRepository.findAllUsers(searchQuery, userType, startDateTime, endDateTime, pageable);
+        return userEntities.map(UserEntity::toDto);
+    }
+
+
+
+
+
+// 시원 끝
 }
