@@ -85,7 +85,7 @@ public class KakaoController {
             UserEntity userEntity = optionalUser.get();
             userEntity.setSnsAccessToken(kakaoAccessToken);
             UserId userId = userEntity.getUserId();
-            userService.insertSocailLoginUser(userEntity);
+            userService.insertSocialLoginUser(userEntity);
 
             Long accessExpiredMs = 600000L;
             String accessToken = jwtTokenUtil.generateToken(userId.getUserEmail(), "kakao", "access", accessExpiredMs);
@@ -216,7 +216,7 @@ public class KakaoController {
             userDto.setFaceLoginYn('N');
             userDto.setSnsAccessToken(kakaoAccessToken);
 
-            userService.insertSocailLoginUser(userDto.toEntity());
+            userService.insertSocialLoginUser(userDto.toEntity());
             log.info("회원가입 성공: {}, {}}", userDto.getUserEmail(), userDto.getProvider());
 
             String logoutUrl = "https://kapi.kakao.com/v1/user/logout";
