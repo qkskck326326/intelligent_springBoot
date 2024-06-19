@@ -9,4 +9,6 @@ import java.util.List;
 @Repository
 public interface PostFileRepository  extends JpaRepository<FileEntity, Long> {
     List<FileEntity> findByPostId(Long postId);
+
+    void deleteByPostId(Long postId);
 }

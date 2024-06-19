@@ -24,17 +24,16 @@ import org.ict.intelligentclass.user.model.dto.UserDto;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -59,27 +58,87 @@ public class PostService {
     @Autowired
     private FileStorageService fileStorageService;
 
-    public Page<PostDto> getAllPosts(Pageable pageable) {
-        log.info("Fetching all posts with pageable: {}", pageable);
-        Pageable sortedByDateDesc = PageRequest.of(
-                pageable.getPageNumber(),
-                pageable.getPageSize(),
-                Sort.by("postTime").descending()
-        );
-        Page<PostEntity> posts = postRepository.findAll(sortedByDateDesc);
-        return posts.map(post -> {
-            Optional<UserEntity> userOptional = userRepository.findById(new UserId(post.getUserEmail(), post.getProvider()));
-            UserDto userDto = userOptional.map(UserEntity::toDto).orElse(null);
+    // 인기 게시물 가져오기 메서드
+    public List<PostDto> getTop5PopularPosts() {
+        List<PostEntity> posts = postRepository.findAll();
 
-            Optional<SubCategoryEntity> subCategoryOptional = subCategoryRepository.findById(post.getSubCategoryId());
-            String categoryName = subCategoryOptional.map(SubCategoryEntity::getName).orElse("");
-
-            long likeCount = likeRepository.countByPostId(post.getId());
-            long commentCount = commentRepository.countByPostId(post.getId());
-
-            return post.toDto(userDto, categoryName, (int) likeCount,(int) commentCount);
-        });
+        return posts.stream()
+                .map(this::convertToDto)
+                .sorted((post1, post2) -> Long.compare(calculateScore(post2), calculateScore(post1)))
+                .limit(10)
+                .collect(Collectors.toList());
     }
+
+    private long calculateScore(PostDto post) {
+        long viewWeight = 1;
+        long likeWeight = 2;
+        long commentWeight = 3;
+
+        return post.getViewCount() * viewWeight +
+                post.getLikeCount() * likeWeight +
+                post.getCommentCount() * commentWeight;
+    }
+
+    public Page<PostDto> getAllPosts(Pageable pageable, String sort) {
+        log.info("Fetching all posts with pageable: {} and sort: {}", pageable, sort);
+        List<PostEntity> posts = postRepository.findAll();
+        List<PostDto> postDtos = posts.stream().map(this::convertToDto).collect(Collectors.toList());
+        return applySorting(postDtos, pageable, sort);
+    }
+
+    public Page<PostDto> getSearchTitleOrContent(String keyword, Pageable pageable, String sort) {
+        log.info("Fetching posts with keyword: {} and pageable: {} and sort: {}", keyword, pageable, sort);
+        List<PostEntity> posts = postRepository.findByTitleContainingOrContentContaining(keyword, keyword);
+        List<PostDto> postDtos = posts.stream().map(this::convertToDto).collect(Collectors.toList());
+        return applySorting(postDtos, pageable, sort);
+    }
+
+    public Page<PostDto> getSearchlistByCategory(Long categoryId, Pageable pageable, String sort) {
+        log.info("Fetching posts by categoryId: {} and pageable: {} and sort: {}", categoryId, pageable, sort);
+        List<PostEntity> posts = postRepository.findBySubCategoryId(categoryId);
+        List<PostDto> postDtos = posts.stream().map(this::convertToDto).collect(Collectors.toList());
+        return applySorting(postDtos, pageable, sort);
+    }
+
+    private Page<PostDto> applySorting(List<PostDto> postDtos, Pageable pageable, String sort) {
+        Comparator<PostDto> comparator;
+        switch (sort) {
+            case "likes":
+                comparator = Comparator.comparingLong(PostDto::getLikeCount).reversed();
+                break;
+            case "comments":
+                comparator = Comparator.comparingLong(PostDto::getCommentCount).reversed();
+                break;
+            case "views":
+                comparator = Comparator.comparingLong(PostDto::getViewCount).reversed();
+                break;
+            case "latest":
+            default:
+                comparator = Comparator.comparing(PostDto::getPostTime).reversed();
+                break;
+        }
+        postDtos.sort(comparator);
+        int start = (int) pageable.getOffset();
+        int end = Math.min((start + pageable.getPageSize()), postDtos.size());
+        List<PostDto> sortedPosts = postDtos.subList(start, end);
+        return new PageImpl<>(sortedPosts, pageable, postDtos.size());
+    }
+
+    private PostDto convertToDto(PostEntity post) {
+        Optional<UserEntity> userOptional = userRepository.findById(new UserId(post.getUserEmail(), post.getProvider()));
+        UserDto userDto = userOptional.map(UserEntity::toDto).orElse(null);
+
+        Optional<SubCategoryEntity> subCategoryOptional = subCategoryRepository.findById(post.getSubCategoryId());
+        String categoryName = subCategoryOptional.map(SubCategoryEntity::getName).orElse("");
+
+        long likeCount = likeRepository.countByPostId(post.getId());
+        long commentCount = commentRepository.countByPostId(post.getId());
+
+        return post.toDto(userDto, categoryName, (int) likeCount, (int) commentCount);
+    }
+
+
+
     public PostDetailDto getPost(Long postId, String userEmail, String provider, boolean isViewed) {
         log.info("Received request for getPost with postId: {}", postId);
         log.info("isViewed 확인 : " + isViewed);
@@ -117,7 +176,6 @@ public class PostService {
         log.info("Returning post: {}", postDetailDto);
         return postDetailDto;
     }
-
 
 
     @Transactional
@@ -172,4 +230,34 @@ public class PostService {
         commentEntity.setPostId(postId);
         commentRepository.save(commentEntity);
     }
+
+
+
+    public PostEntity updatePost(PostEntity postEntity) {
+        if (postEntity.getPostTime() == null) {
+            postEntity.setPostTime(LocalDateTime.now());
+        }
+        return postRepository.save(postEntity);
+    }
+
+
+    public void upDateComment(CommentEntity commentEntity) {
+        if (commentEntity.getCommentTime() == null) {
+            commentEntity.setCommentTime(LocalDateTime.now());
+        }
+        commentRepository.save(commentEntity);
+    }
+
+    @Transactional
+    public void deletePost(Long postId) {
+        commentRepository.deleteByPostId(postId);
+        fileRepository.deleteByPostId(postId);
+        likeRepository.deleteByPostId(postId);
+        postRepository.deleteById(postId);
+    }
+
+    public void deleteComment(CommentEntity commentEntity) {
+        commentRepository.delete(commentEntity);
+    }
+
 }
