@@ -59,7 +59,6 @@ public class UserController {
     public ResponseEntity<String> checkEmailDuplicate(@PathVariable("email") String email,
                                                       @PathVariable("provider") String provider) {
         log.info("/users/check-email/" + email + "/" + provider + " 이메일 중복 검사 요청");
-
         boolean isDuplicate = userService.checkEmailDuplicate(email, provider);
 
         if (isDuplicate) {
