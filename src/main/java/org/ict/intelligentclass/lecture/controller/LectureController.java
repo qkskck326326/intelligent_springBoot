@@ -14,6 +14,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
+import java.util.Map;
 
 @Slf4j
 @RestController
@@ -125,8 +126,9 @@ public class LectureController {
 
     // 강의 삭제
     @DeleteMapping("/delete")
-    public ResponseEntity<Void> deleteLectures(@RequestBody List<Integer> lectureIds) {
+    public ResponseEntity<Void> deleteLectures(@RequestBody Map<String, List<Integer>> request) {
         try {
+            List<Integer> lectureIds = request.get("lectureIds");
             lectureService.deleteLectures(lectureIds);
             return new ResponseEntity<>(HttpStatus.OK);
         } catch (Exception e) {

@@ -54,7 +54,7 @@ public class LectureService {
 
     // 패키지 Id 로 강의 목록 페이지
     public List<LectureListDto> getLectureList(Long lecturePackageId) {
-        List<LectureEntity> lectureEntities = lectureRepository.findByLecturePackageId(lecturePackageId);
+        List<LectureEntity> lectureEntities = lectureRepository.findByLecturePackageIdOrderByLectureIdAsc(lecturePackageId);
         return lectureEntities.stream()
                 .map(LectureListDto::new)
                 .collect(Collectors.toList());
