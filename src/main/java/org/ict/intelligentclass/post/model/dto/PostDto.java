@@ -40,15 +40,5 @@ public class PostDto {
         return entity;
     }
 
-//    public PostEntity toEntity(User user, SubCategory subCategory) {
-//        PostEntity postEntity = new PostEntity();
-//        postEntity.setTitle(this.title);
-//        postEntity.setContent(this.content);
-//        postEntity.setPostTime(this.postTime);
-//        postEntity.setViewCount(this.postViewCount != null ? this.postViewCount.intValue() : 0);
-//        postEntity.setUser(user);
-//        postEntity.setSubCategory(subCategory);
-//        return postEntity;
-//    }
 
 }

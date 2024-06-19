@@ -82,6 +82,7 @@ public class PostEntity {
         dto.setPostTime(this.postTime);
         dto.setViewCount(this.viewCount);
         dto.setNickname(userDto.getNickname());
+        dto.setProfileImageUrl(userDto.getProfileImageUrl());
         dto.setCategoryName(categoryName);
         dto.setUserLiked(userLiked);
         dto.setLikeCount(likeCount);
@@ -91,16 +92,4 @@ public class PostEntity {
         return dto;
     }
 
-//    public PostDto toDto() {
-//        return new PostDto(
-//                this.title,
-//                this.content,
-//                this.postTime,
-//                this.user.getNickname(),
-//                this.subCategory.getName(),
-//                this.likes != null ? (long) this.likes.size() : 0,
-//                this.comments != null ? (long) this.comments.size() : 0,
-//                (long) this.viewCount
-//        );
-//    }
 }
