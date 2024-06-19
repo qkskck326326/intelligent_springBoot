@@ -22,6 +22,7 @@ public class LecturePackageRegister {
     private int priceKind;
     private int price;
     private String thumbnail;
+    private String backgroundColor;
     private List<Long> packageSubCategoryId = new ArrayList<>(); // 빈 리스트로 초기화
     private List<Long> packageTechStackId = new ArrayList<>();
 

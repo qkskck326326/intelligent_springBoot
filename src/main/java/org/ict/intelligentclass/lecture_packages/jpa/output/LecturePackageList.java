@@ -6,6 +6,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.Date;
+
 
 @Data
 @AllArgsConstructor
@@ -18,6 +20,7 @@ public class LecturePackageList {
     private String title;
     private String thumbnail;
     private int viewCount;
+    private Date registerDate;
     private int ratingId;
     private float rating;
 

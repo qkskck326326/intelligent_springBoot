@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.ict.intelligentclass.lecture.jpa.entity.RatingEntity;
 
 import java.util.Date;
 import java.util.Set;
@@ -50,11 +51,17 @@ public class LecturePackageEntity {
     @Column(name = "VIEW_COUNT", nullable = false, columnDefinition = "int default 0")
     private int viewCount;
 
+    @Column(name = "BACKGROUND_COLOR", nullable = false)
+    private String backgroundColor;
+
     @OneToMany(mappedBy = "lecturePackage")
     private Set<PackageSubCategoryEntity> packageSubCategory;
 
     @OneToMany(mappedBy = "lecturePackage")
     private Set<PackageTechStackEntity> packageTechStack;
+
+//    @OneToMany(mappedBy = "lecturePackage")
+//    private Set<RatingEntity> ratings;
 
     @PrePersist
     protected void onCreate() {
@@ -62,4 +69,20 @@ public class LecturePackageEntity {
             this.registerDate = new Date();
         }
     }
+
+//    public LecturePackageDTO toDTO() {
+//        return LecturePackageDTO.builder()
+//                .lecturePackageId(this.lecturePackageId)
+//                .nickname(this.nickname)
+//                .title(this.title)
+//                .content(this.content)
+//                .packageLevel(this.packageLevel)
+//                .priceKind(this.priceKind)
+//                .price(this.price)
+//                .thumbnail(this.thumbnail)
+//                .registerDate(this.registerDate)
+//                .viewCount(this.viewCount)
+//                .backgroundColor(this.backgroundColor)
+//                .build();
+//    }
 }
