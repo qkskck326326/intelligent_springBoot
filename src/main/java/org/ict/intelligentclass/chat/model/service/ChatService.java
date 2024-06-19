@@ -63,11 +63,11 @@ public class ChatService {
         }
     }
 
-    public ChatroomEntity insertRoom(Map<Integer, String> people, String roomType) {
+    public ChatroomEntity insertRoom(List<String> people, String roomType) {
         log.info("insertRoom people = " + people);
 
-        String roomName = String.join(", ", people.values());
-        String creator = people.get(0);
+        String roomName = String.join(", ", people);
+        String creator = people.get(0); // Assuming the first person in the list is the creator
 
         ChatroomEntity chatroomEntity = new ChatroomEntity();
         chatroomEntity.setRoomName(roomName);
@@ -80,7 +80,7 @@ public class ChatService {
 
         Long roomId = newRoom.getRoomId();
 
-        for (String userId : people.values()) {
+        for (String userId : people) {
             ChatUserCompositeKey key = new ChatUserCompositeKey(userId, roomId);
             ChatUserEntity chatUserEntity = ChatUserEntity.builder()
                     .chatUserCompositeKey(key)
@@ -92,8 +92,39 @@ public class ChatService {
         }
 
         return newRoom;
-
     }
+
+//    public ChatroomEntity insertRoom(Map<Integer, String> people, String roomType) {
+//        log.info("insertRoom people = " + people);
+//
+//        String roomName = String.join(", ", people.values());
+//        String creator = people.get(0);
+//
+//        ChatroomEntity chatroomEntity = new ChatroomEntity();
+//        chatroomEntity.setRoomName(roomName);
+//        chatroomEntity.setRoomType(roomType.equals("groups") ? "group" : "individual");
+//        chatroomEntity.setCreatedAt(new Date());
+//        chatroomEntity.setCreator(creator);
+//
+//        ChatroomEntity newRoom = chatroomRepository.save(chatroomEntity);
+//        log.info(newRoom.toString());
+//
+//        Long roomId = newRoom.getRoomId();
+//
+//        for (String userId : people.values()) {
+//            ChatUserCompositeKey key = new ChatUserCompositeKey(userId, roomId);
+//            ChatUserEntity chatUserEntity = ChatUserEntity.builder()
+//                    .chatUserCompositeKey(key)
+//                    .isMuted(0L)
+//                    .isPinned(0L)
+//                    .build();
+//
+//            chatUserRepository.save(chatUserEntity);
+//        }
+//
+//        return newRoom;
+//
+//    }
 
     public List<ChatroomDetailsDto> getChatrooms(String userId) {
 

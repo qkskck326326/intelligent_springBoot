@@ -9,6 +9,7 @@ import org.ict.intelligentclass.chat.jpa.entity.ChatUserEntity;
 import org.ict.intelligentclass.chat.model.dto.ChatMessagesResponse;
 import org.ict.intelligentclass.chat.model.dto.ChatroomDetailsDto;
 import org.ict.intelligentclass.chat.jpa.entity.ChatroomEntity;
+import org.ict.intelligentclass.chat.model.dto.MakeChatDto;
 import org.ict.intelligentclass.chat.model.service.ChatService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -37,12 +38,20 @@ public class ChatController {
 
     }
 
-    @PostMapping("makechat/{roomType}")
-    public ResponseEntity<ChatroomEntity> makechat (@PathVariable String roomType, @RequestBody Map<Integer, String> people) {
-        log.info("makechat start" + people + roomType);
-        ChatroomEntity entity = chatService.insertRoom(people, roomType);
+    @PostMapping("/makechat/{roomType}")
+    public ResponseEntity<ChatroomEntity> makechat(@PathVariable String roomType, @RequestBody MakeChatDto request) {
+        List<String> names = request.getNames();
+        log.info("makechat start " + names + " " + roomType);
+        ChatroomEntity entity = chatService.insertRoom(names, roomType);
         return new ResponseEntity<>(entity, HttpStatus.CREATED);
     }
+
+//    @PostMapping("makechat/{roomType}")
+//    public ResponseEntity<ChatroomEntity> makechat (@PathVariable String roomType, @RequestBody Map<Integer, String> people) {
+//        log.info("makechat start" + people + roomType);
+//        ChatroomEntity entity = chatService.insertRoom(people, roomType);
+//        return new ResponseEntity<>(entity, HttpStatus.CREATED);
+//    }
 
     @GetMapping("/chatlist")
     public ResponseEntity<List<ChatroomDetailsDto>> listChatroom (@RequestParam String userId) {
