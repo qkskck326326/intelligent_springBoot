@@ -21,7 +21,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -43,15 +45,40 @@ public class PostController {
     private static final Logger logger = LoggerFactory.getLogger(PostService.class);
     @Autowired
     private PostService postService;
-// 게시물 리스트 출력 -----------------------------------------------------------------------------------------
+// GET 요청부 ---------------------------------------------------------------------------------------------------------
+
+
+    @GetMapping("/top10")
+    public ResponseEntity<List<PostDto>> getTop5PopularPosts() {
+        List<PostDto> topPosts = postService.getTop5PopularPosts();
+        return ResponseEntity.ok(topPosts);
+    }
+
+
     @GetMapping("/list")
-    public Page<PostDto> getPosts(Pageable pageable) {
+    public Page<PostDto> getPosts(Pageable pageable, @RequestParam(defaultValue = "latest") String sort) {
         log.info("Received request for getPosts with pageable: {}", pageable);
-        Page<PostDto> response = postService.getAllPosts(pageable);
+        Page<PostDto> response = postService.getAllPosts(pageable, sort);
         log.info("Returning posts: {}", response.getContent());
         return response;
     }
 
+    //게시물 검색 ------------------------------------------------------------
+    @GetMapping("/searchTitleOrContent")
+    public Page<PostDto> getSearchTitleOrContent(@RequestParam String keyword, Pageable pageable, @RequestParam(defaultValue = "latest") String sort) {
+        log.info("Received request for getSearchTitleOrContent with keyword: {}", keyword);
+        Page<PostDto> response = postService.getSearchTitleOrContent(keyword, pageable, sort);
+        log.info("Returning posts: {}", response.getContent());
+        return response;
+    }
+
+    @GetMapping("/searchlistByCategory")
+    public Page<PostDto> getSearchlistByCategory(@RequestParam Long categoryId, Pageable pageable, @RequestParam(defaultValue = "latest") String sort) {
+        log.info("Received request for getSearchlistByCategory with categoryId: {} and sort: {}", categoryId, sort);
+        Page<PostDto> response = postService.getSearchlistByCategory(categoryId, pageable, sort);
+        log.info("Returning posts: {}", response.getContent());
+        return response;
+    }
     //클라이언트에서 받아온 값 쿠키에 삽입 전 값 인코더용 함수
     private String encodeValue(String value) {
         try {
@@ -61,7 +88,12 @@ public class PostController {
         }
     }
 
-    // 게시물 상세페이지 -----------------------------------------------------------------------------------------
+
+
+
+
+
+    // 게시물 상세페이지 ------------------------------------------------------ -----------------------------------
     @GetMapping("/detail/{postId}")
     public ResponseEntity<PostDetailDto> getPost(@PathVariable Long postId, @RequestParam String userEmail,
                                                  @RequestParam String provider, @RequestParam String nickname, HttpServletRequest request,
@@ -91,10 +123,6 @@ public class PostController {
             response.addCookie(viewCookie);
             log.info("Setting cookie: " + viewCookieName);
         }
-
-
-
-
         // 로그 추가
         System.out.println("isViewed 확인 : " + isViewed);
         log.info("Received request for getPost with postId: {}", postId);
@@ -103,8 +131,11 @@ public class PostController {
         return ResponseEntity.ok(responseDto);
     }
 
-    @PostMapping("/{postId}/like")
 
+
+    //POST 요청부 ----------------------------------------------------------------------------------------
+
+    @PostMapping("/{postId}/like")
     public ResponseEntity<Void> likePost(@PathVariable Long postId, @RequestBody LikeEntity likeEntity) {
         logger.info("컨트롤러에서 확인용 Like : " + likeEntity.getUserEmail());
         System.out.println("라이크엔티티확인용" + likeEntity.getUserEmail());
@@ -133,9 +164,6 @@ public class PostController {
         }
         return ResponseEntity.ok().build();
     }
-
-
-
     //게시물 생성 ----------------------------------------------------------------------------------
     @PostMapping("/insert")
     public ResponseEntity<PostEntity> insertPost(@Valid @RequestBody PostDto postDto){
@@ -144,6 +172,44 @@ public class PostController {
         PostEntity postEntity = postService.convertToEntity(postDto);
         PostEntity savedPost = postService.insertPost(postEntity);
         return ResponseEntity.ok(savedPost);
+    }
+
+    //PUT 요청부 ---------------------------------------------------------------------------------------------
+    @PutMapping("/update/{postId}")
+    public ResponseEntity<PostEntity> updatePost(@PathVariable Long postId, @Valid @RequestBody PostDto postDto) {
+        log.info("Update post with id: {}", postId);
+        PostEntity postEntity = postService.convertToEntity(postDto);
+        postEntity.setId(postId); // postId를 엔티티에 설정
+        PostEntity updatedPost = postService.updatePost(postEntity);
+        return ResponseEntity.ok(updatedPost);
+    }
+
+    @PutMapping("/{postId}/UpdateComment/{commentId}")
+    public ResponseEntity<Void> updateComment(@PathVariable Long postId, @PathVariable Long commentId, @RequestBody CommentEntity commentEntity) {
+        commentEntity.setPostId(postId);
+        commentEntity.setId(commentId);
+        postService.upDateComment(commentEntity);
+        return ResponseEntity.ok().build();
+    }
+
+
+
+
+    //DELETE 요청부 --------------------------------------------------------------------------------------------
+
+    @DeleteMapping("/delete/{postId}")
+    public ResponseEntity<Void> deletePost(@PathVariable Long postId) {
+        postService.deletePost(postId);
+        return ResponseEntity.ok().build();
+    }
+
+    @DeleteMapping("/{postId}/deleteComment/{commentId}")
+    public ResponseEntity<Void> deleteComment(@PathVariable Long postId, @PathVariable Long commentId) {
+        CommentEntity commentEntity = new CommentEntity();
+        commentEntity.setPostId(postId);
+        commentEntity.setId(commentId);
+        postService.deleteComment(commentEntity);
+        return ResponseEntity.ok().build();
     }
 
 }

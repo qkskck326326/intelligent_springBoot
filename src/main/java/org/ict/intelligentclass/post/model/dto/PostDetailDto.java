@@ -24,6 +24,7 @@ public class PostDetailDto {
     private LocalDateTime postTime;
     private int viewCount;
     private String nickname;
+    private String profileImageUrl;
     private String categoryName;
     private long commentCount;
     private long likeCount;
