@@ -11,7 +11,7 @@ import java.util.List;
 public interface LectureRepository
     extends JpaRepository<LectureEntity, Integer> {
 
-    List<LectureEntity> findByLecturePackageId(Long lecturePackageId);
+    List<LectureEntity> findByLecturePackageIdOrderByLectureIdAsc(Long lecturePackageId);
 }
 
 
