@@ -1,8 +1,11 @@
 package org.ict.intelligentclass.chat.controller;
 
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.ict.intelligentclass.chat.jpa.entity.ChatMessageEntity;
+import org.ict.intelligentclass.chat.jpa.entity.ChatUserCompositeKey;
+import org.ict.intelligentclass.chat.jpa.entity.ChatUserEntity;
 import org.ict.intelligentclass.chat.model.dto.ChatMessagesResponse;
 import org.ict.intelligentclass.chat.model.dto.ChatroomDetailsDto;
 import org.ict.intelligentclass.chat.jpa.entity.ChatroomEntity;
@@ -12,6 +15,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/chat")
@@ -59,5 +63,67 @@ public class ChatController {
         return ResponseEntity.ok(savedMessage);
     }
 
+    @GetMapping("/chatuserdetail")
+    public ResponseEntity<ChatUserEntity> getChatUserDetail(@RequestParam String userId, @RequestParam Long roomId) {
+        log.info("getChatUserDetail start");
+        ChatUserEntity entity = chatService.getChatUserDetail(userId, roomId);
+        return ResponseEntity.ok(entity);
+    }
+
+    @PutMapping("/changepin")
+    public ResponseEntity<?> changePinStatus(@RequestBody Map<String, Object> request) {
+
+        String userId = (String) request.get("userId");
+        Long roomId = ((Number) request.get("roomId")).longValue();
+        Long isPinned = ((Number) request.get("isPinned")).longValue();
+
+        try {
+            ChatUserEntity updatedChatUser = chatService.changePinStatus(userId, roomId, isPinned);
+            return ResponseEntity.ok(updatedChatUser);
+        } catch (EntityNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        }
+    }
+
+    @PutMapping("/changeroomname")
+    public ResponseEntity<?> changeRoomName(@RequestBody Map<String, Object> request) {
+
+        Long roomId = ((Number) request.get("roomId")).longValue();
+        String roomName = (String) request.get("roomName");
+
+
+        try {
+            ChatroomEntity updatedChatRoom = chatService.changeRoomName(roomId, roomName);
+            return ResponseEntity.ok(updatedChatRoom);
+        } catch (EntityNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        }
+
+    }
+
+    @PutMapping("/announce")
+    public ResponseEntity<ChatMessageEntity> updateAnnouncement(@RequestBody Map<String, Object> request) {
+
+        Long messageId = ((Number) request.get("messageId")).longValue();
+        Long roomId = ((Number) request.get("roomId")).longValue();
+
+        ChatMessageEntity updatedAnnouncement = chatService.updateAnnouncement(roomId, messageId);
+        return ResponseEntity.ok(updatedAnnouncement);
+
+    }
+
+    @DeleteMapping("/leaveroom")
+    public ResponseEntity<?> leaveRoom(@RequestBody Map<String, Object> request) {
+
+        String userId = (String) request.get("userId");
+        Long roomId = ((Number) request.get("roomId")).longValue();
+
+        try {
+            chatService.leaveRoom(userId, roomId);
+            return ResponseEntity.ok("User has left the room");
+        } catch (EntityNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        }
+    }
 
 }
