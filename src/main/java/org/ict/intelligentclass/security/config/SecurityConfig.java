@@ -68,10 +68,21 @@ public class SecurityConfig {
                 .httpBasic(AbstractHttpConfigurer::disable) // 시큐리티 제공 로그인을 사용 못하게 함
                 // HTTP 요청에 대한 접근 권한을 설정함
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/**").permitAll() // 모든 경로에 대해 접근 허용
+                        // .requestMatchers("/**").permitAll() // 모든 경로에 대해 접근 허용
+
 
                         //.requestMatchers(HttpMethod.POST, "/notice").hasRole("ADMIN") // '/notice' 경로에 대한 POST 요청은 ADMIN 역할을 가진 사용자만 가능합니다.
-                        .requestMatchers("/users/user", "/login", "/notice", "/reissue", "/kakao/callback","/kakao/signup/callback","/file/view/*","/file/download/*").permitAll() // 해당 경로들은 인증 없이 접근 가능합니다.
+
+                        // 해당 경로들은 인증 없이 접근 가능합니다.
+                        .requestMatchers("/users/user", "/login", "/logout", "/notice", "/reissue", "/kakao/**", "/naver").permitAll() // 태석
+                        .requestMatchers("/categories/upper", "/packages/upperCategorypackageall", "/packages", "/packages/detail").permitAll() // 채림
+                        .requestMatchers("/posts/top10", "/posts/list", "/posts/searchTitleOrContent", "/posts/searchlistByCategory").permitAll() // 도하
+                        .requestMatchers("/announcement/**").permitAll() // 강
+                        // .requestMatchers("/").permitAll() // 경민
+                        // .requestMatchers("/").permitAll() // 시원
+                        .requestMatchers("/itNewsBoard/**", "/itNewsSite/**").permitAll() // 건우
+                        .requestMatchers("/file/view/*","/file/download/*").permitAll() // 공통?
+
 
                         /* 강사님 코드
                         // '/notice' path로 post 요청에 대해서는 'ADMIN' 롤 정보를 가진 사용자만 가능하다.

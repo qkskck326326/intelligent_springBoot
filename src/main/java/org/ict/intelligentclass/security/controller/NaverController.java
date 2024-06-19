@@ -88,7 +88,7 @@ public class NaverController {
         userDto.setFaceLoginYn('N');
         userDto.setSnsAccessToken(accessToken);
 
-        userService.insertSocailLoginUser(userDto.toEntity());
+        userService.insertSocialLoginUser(userDto.toEntity());
         log.info("회원가입 성공: {}, {}", userDto.getUserEmail(), userDto.getProvider());
 
 

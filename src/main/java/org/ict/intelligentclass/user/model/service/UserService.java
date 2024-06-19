@@ -214,7 +214,7 @@ public class UserService {
     }
 
     @Transactional
-    public void insertSocailLoginUser(UserEntity userEntity) { // 카카오 회원가입
+    public void insertSocialLoginUser(UserEntity userEntity) { // 카카오 회원가입
         // UserEntity 저장
         userRepository.save(userEntity);
     }

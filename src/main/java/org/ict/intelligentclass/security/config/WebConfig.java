@@ -27,7 +27,7 @@ public class WebConfig implements WebMvcConfigurer {  // 상속받음. WebMvcCon
 
                 // 해당 오리진에서 허용할 http 메소드를 지정함.
                 // GET, POST, PUT, DELETE, HEAD, OPTIONS 메소드만 허용함.
-                //.allowedMethods("GET", "POST", "PUT", "DELETE", "HEAD", "OPTIONS")
+                .allowedMethods("GET", "POST", "PUT", "DELETE", "HEAD", "OPTIONS")
 
                 // 모든 HTTP헤더를 요청에서 허용함.
                 .allowedHeaders("*")  // Authorization과 content_type 뿐만이 아니라 모두 허용함.
