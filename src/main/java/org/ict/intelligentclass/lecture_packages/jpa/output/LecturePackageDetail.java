@@ -29,6 +29,7 @@ public class LecturePackageDetail {
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     private Date registerDate;
     private int viewCount;
+    private String backgroundColor;
     private List<Long> subCategoryId;
     private String subCategoryName;
     private List<Long> techStackId;

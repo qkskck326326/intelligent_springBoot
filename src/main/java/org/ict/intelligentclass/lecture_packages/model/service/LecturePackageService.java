@@ -15,6 +15,7 @@ import org.ict.intelligentclass.lecture_packages.jpa.repository.PackageTechStack
 import org.ict.intelligentclass.lecture_packages.jpa.repository.UpperCategoryRepository;
 import org.ict.intelligentclass.user.jpa.entity.UserInterestEntity;
 import org.ict.intelligentclass.user.jpa.repository.UserInterestRepository;
+import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 
 
@@ -37,15 +38,53 @@ public class LecturePackageService {
 
 
     //모든 패키지리스트 조회
+
     @Transactional
-    public List<LecturePackageList> getAllLecturePackages() {
-        List<LecturePackageEntity> lecturePackages = lecturePackageRepository.findAllSort();
-        return lecturePackages.stream().map(this::toLecturePackageList).collect(Collectors.toList());
+    public Page<LecturePackageList> getAllLecturePackages(int page, int size, String sortCriteria, String searchTerm, Long subCategoryId, String searchCriteria) {
+        Pageable pageable = PageRequest.of(page, size, getSort(sortCriteria));
+        Page<LecturePackageEntity> lecturePackageEntities = null;
+
+        if (subCategoryId != null) {
+            if ("rating".equals(sortCriteria)) {
+                lecturePackageEntities = lecturePackageRepository.findBySubCategoryIdOrderByRating(subCategoryId, pageable);
+            } else {
+                lecturePackageEntities = lecturePackageRepository.findBySubCategoryId(subCategoryId, pageable);
+            }
+        } else if ("rating".equals(sortCriteria)) {
+            lecturePackageEntities = lecturePackageRepository.findAllOrderByRating(pageable);
+        } else if (searchCriteria != null){
+            if ("title".equals(searchCriteria)) {
+                lecturePackageEntities = lecturePackageRepository.searchByTitle(searchTerm, pageable);
+            } else if ("nickname".equals(searchCriteria)) {
+                lecturePackageEntities = lecturePackageRepository.searchByInstructor(searchTerm, pageable);
+            }
+
+        }else{
+            lecturePackageEntities = lecturePackageRepository.findAll(pageable);
+        }
+
+        List<LecturePackageList> lecturePackageLists = lecturePackageEntities.stream()
+                .map(this::toLecturePackageList)
+                .collect(Collectors.toList());
+
+        return new PageImpl<>(lecturePackageLists, pageable, lecturePackageEntities.getTotalElements());
+    }
+
+    private Sort getSort(String sortCriteria) {
+        if (sortCriteria == null || sortCriteria.isEmpty()) {
+            return Sort.by("registerDate").descending();
+        }
+        switch (sortCriteria) {
+            case "viewCount":
+                return Sort.by("viewCount").descending();
+            case "latest":
+            default:
+                return Sort.by("registerDate").descending();
+        }
     }
 
 
 
-    //패키지 리스트 조회 시 필요함.
     private LecturePackageList toLecturePackageList(LecturePackageEntity lecturePackage) {
         RatingEntity rating = ratingRepository.findByLecturePackageId(lecturePackage.getLecturePackageId());
 
@@ -55,10 +94,12 @@ public class LecturePackageService {
                 .title(lecturePackage.getTitle())
                 .thumbnail(lecturePackage.getThumbnail())
                 .viewCount(lecturePackage.getViewCount())
+                .registerDate(lecturePackage.getRegisterDate())
                 .ratingId(rating != null ? rating.getRatingId() : 0)
                 .rating(rating != null ? rating.getRating() : 0.0f)
                 .build();
     }
+
 
 
     // 카테고리 별 패키지 리스트 조회하기
@@ -250,6 +291,7 @@ public class LecturePackageService {
                 .thumbnail(lecturePackage.getThumbnail())
                 .registerDate(lecturePackage.getRegisterDate())
                 .viewCount(lecturePackage.getViewCount())
+                .backgroundColor(lecturePackage.getBackgroundColor())
                 .subCategoryId(subCategoryIds)
                 .subCategoryName(subCategoryNames)
                 .techStackId(techStackIds)
@@ -269,6 +311,7 @@ public class LecturePackageService {
                 .priceKind(register.getPriceKind())
                 .price(register.getPrice())
                 .thumbnail(register.getThumbnail())
+                .backgroundColor(register.getBackgroundColor())
                 .build();
 
         LecturePackageEntity savedLecturePackage = lecturePackageRepository.save(lecturePackage);
@@ -315,6 +358,7 @@ public class LecturePackageService {
         existingEntity.setPriceKind(lecturePackageRegister.getPriceKind());
         existingEntity.setPrice(lecturePackageRegister.getPrice());
         existingEntity.setThumbnail(lecturePackageRegister.getThumbnail());
+        existingEntity.setBackgroundColor(lecturePackageRegister.getBackgroundColor());
 
         // 3. 기존 서브카테고리 삭제
         packageSubCategoryRepository.deleteAllByPackageSubCategoryId_LecturePackageId(lecturePackageId);
