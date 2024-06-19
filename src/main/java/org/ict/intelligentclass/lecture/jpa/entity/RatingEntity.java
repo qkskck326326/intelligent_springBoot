@@ -6,8 +6,6 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.ict.intelligentclass.lecture.model.dto.RatingDto;
-import org.ict.intelligentclass.lecture_packages.jpa.entity.LecturePackageEntity;
-import org.ict.intelligentclass.lecture_packages.jpa.entity.SubCategoryEntity;
 
 @Data
 @AllArgsConstructor
@@ -18,7 +16,8 @@ import org.ict.intelligentclass.lecture_packages.jpa.entity.SubCategoryEntity;
 public class RatingEntity {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "rating_seq")
+    @SequenceGenerator(name = "rating_seq", sequenceName = "SQ_RATING_ID", allocationSize = 1)
     @Column(name = "RATING_ID")
     private int ratingId;
 

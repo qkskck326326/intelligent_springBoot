@@ -5,12 +5,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.ict.intelligentclass.lecture.jpa.entity.LectureCommentEntity;
 import org.ict.intelligentclass.lecture.jpa.entity.RatingEntity;
 import org.ict.intelligentclass.lecture.jpa.entity.input.CommentInput;
-import org.ict.intelligentclass.lecture.jpa.entity.output.LectureDetailDto;
-import org.ict.intelligentclass.lecture.jpa.entity.output.LectureListDto;
-import org.ict.intelligentclass.lecture.jpa.entity.output.LecturePreviewDto;
-import org.ict.intelligentclass.lecture.jpa.entity.output.PackageRatingDto;
+import org.ict.intelligentclass.lecture.jpa.entity.input.LectureReadInput;
+import org.ict.intelligentclass.lecture.jpa.entity.output.*;
 import org.ict.intelligentclass.lecture.model.dto.LectureCommentDto;
-import org.ict.intelligentclass.lecture.model.dto.LectureDto;
 import org.ict.intelligentclass.lecture_packages.jpa.entity.LecturePackageEntity;
 import org.ict.intelligentclass.lecture_packages.jpa.repository.LecturePackageRepository;
 import org.ict.intelligentclass.lecture.jpa.entity.LectureEntity;
@@ -23,9 +20,6 @@ import org.ict.intelligentclass.lecture.jpa.entity.input.RatingInput;
 import org.ict.intelligentclass.lecture.jpa.entity.input.LectureInput;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
-
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -50,23 +44,21 @@ public class LectureService {
         return lecturePackageEntity.get();
     }
 
-    // 패키지 Id 로 강의 목록 페이지
-    public List<LectureListDto> selectAllLecture(Long lecturePackageId) {
-        List<LectureEntity> lectureEntities = lectureRepository.findByLecturePackageId(lecturePackageId);
-        List<LectureReadEntity> lectureReadEntities = lectureReadRepository.findAll();
-        List<LectureListDto> lectureListDtos = new ArrayList<>();
-        for (LectureEntity lectureEntity : lectureEntities) {
-            Optional<LectureReadEntity> lectureReadEntity = lectureReadEntities.stream()
-                    .filter(lr -> lr.getLectureId() == lectureEntity.getLectureId()) // 여기서 == 연산자를 사용합니다
-                    .findFirst();
-            lectureReadEntity.ifPresent(lr -> {
-                LectureListDto lectureListDto = new LectureListDto(lectureEntity, lr);
-                lectureListDtos.add(lectureListDto);
-            });
-        }
-        return lectureListDtos;
+    // 강의 패키지 소유자 정보
+    public LectureOwnerDto getLecturePackageOwner(Long lecturePackageId) {
+        LecturePackageEntity lecturePackageEntity = lecturePackageRepository.findById(lecturePackageId)
+                .orElseThrow(() -> new IllegalArgumentException("Invalid lecture package ID"));
+        return new LectureOwnerDto(lecturePackageEntity);
     }
 
+
+    // 패키지 Id 로 강의 목록 페이지
+    public List<LectureListDto> getLectureList(Long lecturePackageId) {
+        List<LectureEntity> lectureEntities = lectureRepository.findByLecturePackageId(lecturePackageId);
+        return lectureEntities.stream()
+                .map(LectureListDto::new)
+                .collect(Collectors.toList());
+    }
 
     // 강의 패키지 평균 별점 가져오기
     public PackageRatingDto selectLecturePackageRating(Long lecturePackageId) {
@@ -77,13 +69,23 @@ public class LectureService {
 
     // 강의 패키지 별점 입력
     public void addRating(RatingInput ratingInput) {
-        RatingEntity ratingEntity = new RatingEntity();
-        ratingEntity.setNickname(ratingInput.getNickname());
-        ratingEntity.setLecturePackageId(ratingInput.getLecturePackageId());
-        ratingEntity.setRating(ratingInput.getRating());
+        if (checkIfAlreadyRated(ratingInput.getLecturePackageId(), ratingInput.getNickname())) {
+            throw new IllegalArgumentException("이미 별점을 등록했습니다.");
+        }
+
+        RatingEntity ratingEntity = RatingEntity.builder()
+                .nickname(ratingInput.getNickname())
+                .lecturePackageId(ratingInput.getLecturePackageId())
+                .rating(ratingInput.getRating())
+                .build();
         ratingRepository.save(ratingEntity);
     }
-    
+
+    // 별점 중복 체크 메서드
+    public boolean checkIfAlreadyRated(Long lecturePackageId, String nickname) {
+        return ratingRepository.existsByLecturePackageIdAndNickname(lecturePackageId, nickname);
+    }
+
     // 강의 미리보기
     public LecturePreviewDto getLecturePreviewById(int lectureId) {
         return lectureRepository.findById(lectureId)
@@ -91,13 +93,47 @@ public class LectureService {
                 .orElse(null);
     }
 
-    // 강의 읽음 처리
-    public void changeLectureRead(int lectureId, String nickname) {
-        LectureReadEntity lectureReadEntity = lectureReadRepository.findByLectureIdAndNickname(lectureId, nickname)
-                .orElseGet(() -> new LectureReadEntity(lectureId, nickname, "N"));
+    // 강의 읽음 가져오기
+    public LectureReadStatusDto getLectureReadStatus(int lectureId, String nickname) {
+        Optional<LectureReadEntity> lectureReadEntityOpt = lectureReadRepository.findByLectureIdAndNickname(lectureId, nickname);
 
-        lectureReadEntity.setLectureRead("Y");
-        lectureReadRepository.save(lectureReadEntity);
+        LectureReadStatusDto lectureReadStatusDto = new LectureReadStatusDto();
+        lectureReadStatusDto.setLectureId(lectureId);
+        lectureReadStatusDto.setNickname(nickname);
+
+        if (lectureReadEntityOpt.isPresent()) {
+            lectureReadStatusDto.setLectureRead(lectureReadEntityOpt.get().getLectureRead());
+        } else {
+            lectureReadStatusDto.setLectureRead("N");
+        }
+
+        return lectureReadStatusDto;
+    }
+
+    // 강의 읽음 추가
+    public void updateLectureReadStatus(LectureReadInput lectureReadInput) {
+        LectureReadEntity existingEntity = lectureReadRepository.findReadByLectureIdAndNickname(lectureReadInput.getLectureId(), lectureReadInput.getNickname());
+        if (existingEntity == null) {
+            LectureReadEntity newEntity = LectureReadEntity.builder()
+                    .lectureId(lectureReadInput.getLectureId())
+                    .nickname(lectureReadInput.getNickname())
+                    .lectureRead(lectureReadInput.getLectureRead())
+                    .build();
+            lectureReadRepository.save(newEntity);
+        } else {
+            existingEntity.setLectureRead(lectureReadInput.getLectureRead());
+            lectureReadRepository.save(existingEntity);
+        }
+    }
+
+    // 강의 조회수 증가
+    public void increaseViewCount(int lectureId) {
+        Optional<LectureEntity> lectureEntityOptional = lectureRepository.findById(lectureId);
+        if (lectureEntityOptional.isPresent()) {
+            LectureEntity lectureEntity = lectureEntityOptional.get();
+            lectureEntity.setLectureViewCount(lectureEntity.getLectureViewCount() + 1);
+            lectureRepository.save(lectureEntity);
+        }
     }
 
     // 강의 디테일 보기
@@ -108,17 +144,22 @@ public class LectureService {
     }
 
     // 강의 추가
-    public void registerLecture(LectureInput lectureInput, Long lecturePackageId, String nickname) {
+    public void registerLecture(LectureInput lectureInput) {
         LectureEntity lectureEntity = LectureEntity.builder()
                 .lectureName(lectureInput.getLectureName())
                 .lectureContent(lectureInput.getLectureContent())
                 .lectureThumbnail(lectureInput.getLectureThumbnail())
                 .streamUrl(lectureInput.getStreamUrl())
-                .lecturePackageId(lecturePackageId)
-                .nickname(nickname)
+                .lecturePackageId(lectureInput.getLecturePackageId()) // lecturePackageId 사용
+                .nickname(lectureInput.getNickname()) // nickname 사용
                 .build();
 
         lectureRepository.save(lectureEntity);
+    }
+
+    // 강의 삭제
+    public void deleteLectures(List<Integer> lectureIds) {
+        lectureRepository.deleteAllById(lectureIds);
     }
 
     // 강의 댓글 목록

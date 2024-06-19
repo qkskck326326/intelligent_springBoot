@@ -14,12 +14,14 @@ import org.springframework.stereotype.Component;
 @Component
 public class LectureReadDto {
 
+    private int lectureReadId;
     private int lectureId;
     private String nickname;
     private String lectureRead;
 
     public LectureReadEntity toEntity() {
         return LectureReadEntity.builder()
+                .lectureReadId(this.lectureReadId)
                 .lectureId(this.lectureId)
                 .nickname(this.nickname)
                 .lectureRead(this.lectureRead)
