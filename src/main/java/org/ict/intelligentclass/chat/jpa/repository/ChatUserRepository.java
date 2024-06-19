@@ -19,4 +19,7 @@ public interface ChatUserRepository extends JpaRepository<ChatUserEntity, ChatUs
     List<Long> findRoomIdsByUserIdOrderByIsPinned(@Param("userId") String userId);
 
     ChatUserEntity findByChatUserCompositeKeyUserIdAndChatUserCompositeKeyRoomId(String userId, Long roomId);
+
+    @Query("SELECT COUNT(c) FROM ChatUserEntity c WHERE c.chatUserCompositeKey.roomId = :roomId")
+    int countByRoomId(@Param("roomId") Long roomId);
 }

@@ -1,5 +1,6 @@
 package org.ict.intelligentclass.chat.model.service;
 
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.ict.intelligentclass.chat.jpa.entity.*;
@@ -105,11 +106,12 @@ public class ChatService {
             ChatUserEntity chatUser = chatUserRepository.findByChatUserCompositeKeyUserIdAndChatUserCompositeKeyRoomId(userId, chatroom.getRoomId());
             ChatMessageEntity latestMessage = chatMessageRepository.findTopByRoomIdOrderByDateSentDesc(chatroom.getRoomId());
             Date latestMessageTimestamp = latestMessage != null ? latestMessage.getDateSent() : null;
+            int totalPeople = chatUserRepository.countByRoomId(chatroom.getRoomId());
             Long totalMessages = chatMessageRepository.countByRoomId(chatroom.getRoomId());
             Long readMessages = messageReadRepository.countByRoomIdAndUserId(chatroom.getRoomId(), userId);
             Long unreadMessageCount = totalMessages - readMessages;
 
-            chatroomDetails.add(new ChatroomDetailsDto(chatroom, chatUser, latestMessage, latestMessageTimestamp, unreadMessageCount));
+            chatroomDetails.add(new ChatroomDetailsDto(chatroom, chatUser, latestMessage, totalPeople, latestMessageTimestamp, unreadMessageCount));
         }
 
         return chatroomDetails.stream()
@@ -133,17 +135,15 @@ public class ChatService {
     }
 
     public ChatMessagesResponse getMessages(String userId, Long roomId, int page) {
-        // Check if there is an announcement message
+
         Optional<ChatMessageEntity> announcementOpt = chatMessageRepository.findFirstByRoomIdAndIsAnnouncement(roomId, 1L);
         ChatMessageDto announcementDto = null;
         if (announcementOpt.isPresent()) {
             announcementDto = convertToDto(announcementOpt.get(), userId, roomId);
         }
 
-        // Fetch messages
         List<ChatMessageEntity> messages = chatMessageRepository.findByRoomId(roomId, PageRequest.of(page - 1, 25, Sort.by("dateSent").descending()));
 
-        // Process messages and mark them as read
         List<ChatMessageDto> messageDtos = messages.stream()
                 .map(message -> {
                     markMessageAsRead(userId, roomId, message);
@@ -236,6 +236,69 @@ public class ChatService {
 
         return savedMessage;
 
+    }
+
+    public ChatUserEntity getChatUserDetail(String userId, Long roomId) {
+        return chatUserRepository.findByChatUserCompositeKeyUserIdAndChatUserCompositeKeyRoomId(userId, roomId);
+    }
+
+    public ChatUserEntity changePinStatus(String userId, Long roomId, Long isPinned) {
+        ChatUserCompositeKey key = new ChatUserCompositeKey(userId, roomId);
+        Optional<ChatUserEntity> optionalChatUser = chatUserRepository.findById(key);
+
+        if (optionalChatUser.isPresent()) {
+            ChatUserEntity chatUser = optionalChatUser.get();
+            chatUser.setIsPinned(isPinned);
+            return chatUserRepository.save(chatUser);
+        } else {
+            throw new EntityNotFoundException("그런 유저 아리마셍");
+        }
+    }
+
+    public void leaveRoom(String userId, Long roomId) {
+        ChatUserCompositeKey key = new ChatUserCompositeKey(userId, roomId);
+        if (chatUserRepository.existsById(key)) {
+            chatUserRepository.deleteById(key);
+
+            //추가적으로 방에 아무도 안 남아있으면
+            //관련 정보가 모두 지워짐
+            if (chatUserRepository.countByRoomId(roomId) == 0) {
+
+                messageReadRepository.deleteByRoomId(roomId);
+                chatMessageRepository.deleteByRoomId(roomId);
+                chatroomRepository.deleteById(roomId);
+            }
+
+        } else {
+            throw new EntityNotFoundException("그런 유저 아리마셍");
+        }
+    }
+
+    public ChatroomEntity changeRoomName(Long roomId, String roomName) {
+        Optional<ChatroomEntity> optionalChatRoom = chatroomRepository.findById(roomId);
+
+        if (optionalChatRoom.isPresent()) {
+            ChatroomEntity chatRoom = optionalChatRoom.get();
+            chatRoom.setRoomName(roomName);
+            return chatroomRepository.save(chatRoom);
+        } else {
+            throw new EntityNotFoundException("그른 방 읍그든여");
+        }
+    }
+
+    public ChatMessageEntity updateAnnouncement(Long roomId, Long messageId) {
+        ChatMessageEntity currentAnnouncement = chatMessageRepository.findAnnouncementByRoomId(roomId);
+
+        if (currentAnnouncement != null) {
+            currentAnnouncement.setIsAnnouncement(0L);
+            chatMessageRepository.save(currentAnnouncement);
+        }
+
+        // Set new announcement
+        Optional<ChatMessageEntity> newAnnouncementOptional = chatMessageRepository.findById(messageId);
+        ChatMessageEntity newAnnouncement = newAnnouncementOptional.orElseThrow(() -> new NoSuchElementException("Message not found"));
+        newAnnouncement.setIsAnnouncement(1L);
+        return chatMessageRepository.save(newAnnouncement);
     }
 }
 
