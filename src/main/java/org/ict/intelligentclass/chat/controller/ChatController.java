@@ -1,22 +1,24 @@
 package org.ict.intelligentclass.chat.controller;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.ict.intelligentclass.chat.jpa.entity.ChatMessageEntity;
-import org.ict.intelligentclass.chat.jpa.entity.ChatUserCompositeKey;
-import org.ict.intelligentclass.chat.jpa.entity.ChatUserEntity;
+import org.ict.intelligentclass.chat.jpa.entity.*;
 import org.ict.intelligentclass.chat.model.dto.ChatMessagesResponse;
+import org.ict.intelligentclass.chat.model.dto.ChatResponse;
 import org.ict.intelligentclass.chat.model.dto.ChatroomDetailsDto;
-import org.ict.intelligentclass.chat.jpa.entity.ChatroomEntity;
 import org.ict.intelligentclass.chat.model.dto.MakeChatDto;
 import org.ict.intelligentclass.chat.model.service.ChatService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import org.springframework.web.multipart.MultipartFile;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 @RestController
 @RequestMapping("/chat")
@@ -46,13 +48,6 @@ public class ChatController {
         return new ResponseEntity<>(entity, HttpStatus.CREATED);
     }
 
-//    @PostMapping("makechat/{roomType}")
-//    public ResponseEntity<ChatroomEntity> makechat (@PathVariable String roomType, @RequestBody Map<Integer, String> people) {
-//        log.info("makechat start" + people + roomType);
-//        ChatroomEntity entity = chatService.insertRoom(people, roomType);
-//        return new ResponseEntity<>(entity, HttpStatus.CREATED);
-//    }
-
     @GetMapping("/chatlist")
     public ResponseEntity<List<ChatroomDetailsDto>> listChatroom (@RequestParam String userId) {
         log.info("listChatroom start");
@@ -66,11 +61,54 @@ public class ChatController {
         return ResponseEntity.ok(response);
     }
 
-    @PostMapping("/sendmessage")
-    public ResponseEntity<ChatMessageEntity> sendMessage(@RequestBody ChatMessageEntity chatMessageEntity) {
+    @PostMapping(value = "/sendmessage")
+    public ResponseEntity<ChatMessageEntity> sendMessage(
+            @RequestBody ChatMessageEntity chatMessageEntity) {
         ChatMessageEntity savedMessage = chatService.saveMessage(chatMessageEntity);
         return ResponseEntity.ok(savedMessage);
     }
+
+    @PostMapping(value = "/uploadfiles/{roomId}/{senderId}/{messageType}/{dateSent}/{isAnnouncement}", consumes = {"multipart/form-data"})
+    public ResponseEntity<?> uploadFiles(
+            @PathVariable Long roomId,
+            @PathVariable String senderId,
+            @PathVariable Long messageType,
+            @PathVariable String dateSent,
+            @PathVariable Long isAnnouncement,
+            @RequestParam(value = "files") List<MultipartFile> files) throws ParseException {
+
+        log.info("uploadFiles start");
+        log.info("roomId: " + roomId);
+        log.info("senderId: " + senderId);
+        log.info("messageType: " + messageType);
+        log.info("dateSent: " + dateSent);
+        log.info("isAnnouncement: " + isAnnouncement);
+        log.info("files: " + files);
+
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSX");
+        sdf.setTimeZone(TimeZone.getTimeZone("Asia/Seoul"));
+        Date parsedDateSent = sdf.parse(dateSent);
+
+        ChatMessageEntity chatMessageEntity = new ChatMessageEntity();
+        chatMessageEntity.setRoomId(roomId);
+        chatMessageEntity.setSenderId(senderId);
+        chatMessageEntity.setMessageType(messageType);
+        chatMessageEntity.setDateSent(parsedDateSent);
+        chatMessageEntity.setIsAnnouncement(isAnnouncement);
+
+        // Save the message first to generate the message ID
+        ChatMessageEntity savedMessage = chatService.saveMessage(chatMessageEntity);
+
+        List<MessageFileEntity> fileEntities = new ArrayList<>();
+        if (files != null && !files.isEmpty()) {
+            log.info("여기 실행 들어옴");
+            fileEntities = chatService.saveFiles(savedMessage, files);
+        }
+
+        ChatResponse response = new ChatResponse(savedMessage, fileEntities);
+        return ResponseEntity.ok(response);
+    }
+
 
     @GetMapping("/chatuserdetail")
     public ResponseEntity<ChatUserEntity> getChatUserDetail(@RequestParam String userId, @RequestParam Long roomId) {
