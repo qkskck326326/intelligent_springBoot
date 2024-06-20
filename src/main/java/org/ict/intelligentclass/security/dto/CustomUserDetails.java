@@ -37,6 +37,7 @@ public class CustomUserDetails implements UserDetails {
         return authorities;
     }
 
+
     // 사용자의 이메일을 반환합니다.
     @Override
     public String getUsername() {

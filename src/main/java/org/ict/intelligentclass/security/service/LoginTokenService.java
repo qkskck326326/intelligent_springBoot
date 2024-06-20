@@ -40,7 +40,6 @@ public class LoginTokenService {
 
 
 
-
     public void save(LoginTokenEntity loginTokenEntity) {
         loginTokenRepository.save(loginTokenEntity); // insert 실행 처리
     }

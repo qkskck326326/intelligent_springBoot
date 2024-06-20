@@ -29,6 +29,7 @@ public class WebConfig implements WebMvcConfigurer {  // 상속받음. WebMvcCon
                 // GET, POST, PUT, DELETE, HEAD, OPTIONS 메소드만 허용함.
                 .allowedMethods("GET", "POST", "PUT", "DELETE", "HEAD", "OPTIONS")
 
+
                 // 모든 HTTP헤더를 요청에서 허용함.
                 .allowedHeaders("*")  // Authorization과 content_type 뿐만이 아니라 모두 허용함.
                 //.allowedHeaders("Authorization", "Content-Type") // 서버가 허용할 헤더를 지정합니다. 여기서는 "Authorization"과 "Content-Type" 헤더를 허용

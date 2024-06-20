@@ -10,6 +10,7 @@ import org.ict.intelligentclass.security.service.LoginTokenService;
 import org.ict.intelligentclass.user.model.service.UserService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -71,13 +72,13 @@ public class SecurityConfig {
                         // .requestMatchers("/**").permitAll() // 모든 경로에 대해 접근 허용
 
 
-                        //.requestMatchers(HttpMethod.POST, "/notice").hasRole("ADMIN") // '/notice' 경로에 대한 POST 요청은 ADMIN 역할을 가진 사용자만 가능합니다.
+                        .requestMatchers(HttpMethod.POST, "/admins/**").hasRole("ADMIN") // '/notice' 경로에 대한 POST 요청은 ADMIN 역할을 가진 사용자만 가능합니다.
 
                         // 해당 경로들은 인증 없이 접근 가능합니다.
-                        .requestMatchers("/users/user", "/login", "/logout", "/notice", "/reissue", "/kakao/**", "/naver").permitAll() // 태석
+                        .requestMatchers("/users/user", "/login", "/logout", "/notice", "/reissue", "/kakao/**", "/naver", "/google").permitAll() // 태석
                         .requestMatchers("/categories/upper", "/packages/upperCategorypackageall", "/packages", "/packages/detail").permitAll() // 채림
                         .requestMatchers("/posts/top10", "/posts/list", "/posts/searchTitleOrContent", "/posts/searchlistByCategory").permitAll() // 도하
-                        .requestMatchers("/announcement/**").permitAll() // 강
+                        .requestMatchers("/announcement/**", "/chat/**", "/users/getpeople").permitAll() // 강
                         // .requestMatchers("/").permitAll() // 경민
                         // .requestMatchers("/").permitAll() // 시원
                         .requestMatchers("/itNewsBoard/**", "/itNewsSite/**").permitAll() // 건우

@@ -189,10 +189,15 @@ public class KakaoController {
 
         String phone = userJson.getJSONObject("kakao_account").has("phone_number") ?
                 userJson.getJSONObject("kakao_account").getString("phone_number") : "휴대폰 번호 정보가 없습니다.";
-        log.info("phone = {}", phone);
+        log.info("phone before= {}", phone);
 
-        String profileImageUrl = userJson.getJSONObject("kakao_account").has("profile_image_url") ?
-                userJson.getJSONObject("kakao_account").getString("profile_image_url") : "https://intelliclassbucket.s3.ap-northeast-2.amazonaws.com/ProfileImages/defaultProfile.png";
+        if (phone.startsWith("+82 ")) {
+            phone = "0" + phone.substring(4); // "+82 "를 "0"으로 바꿈
+        }
+        log.info("phone after= {}", phone);
+
+        String profileImageUrl = userJson.getJSONObject("kakao_account").getJSONObject("profile").has("profile_image_url") ?
+                userJson.getJSONObject("kakao_account").getJSONObject("profile").getString("profile_image_url") : "https://intelliclassbucket.s3.ap-northeast-2.amazonaws.com/ProfileImages/defaultProfile.png";
         log.info("profileImageUrl = {}", profileImageUrl);
 
         Optional<UserEntity> optionalUser = userService.findByUserEmailAndProvider(userEmail, "kakao");

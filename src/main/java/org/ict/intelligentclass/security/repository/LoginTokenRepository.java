@@ -20,3 +20,4 @@ public interface LoginTokenRepository extends JpaRepository<LoginTokenEntity, Us
     @Query("SELECT l FROM LoginTokenEntity l WHERE l.userId.userEmail = :email AND l.userId.provider = :provider")
     Optional<LoginTokenEntity> findByEmailAndIdProvider(@Param("email") String email, @Param("provider") String provider);
 }
+

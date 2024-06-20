@@ -62,6 +62,7 @@ public class NaverController {
         if (optionalUser.isPresent()) { // 유저가 이미 존재하면 로그인 처리
             UserEntity userEntity = optionalUser.get();
             userEntity.setSnsAccessToken(accessToken);
+            userService.insertSocialLoginUser(userEntity);
 
             return handleLogin(userEntity, response);
         } else { // 유저가 존재하지 않으면 회원가입 처리
@@ -81,7 +82,7 @@ public class NaverController {
         userDto.setPhone((String) userInfo.get("mobile"));
         userDto.setNickname("");
         userDto.setRegisterTime(LocalDateTime.now());
-        userDto.setProfileImageUrl("https://intelliclassbucket.s3.ap-northeast-2.amazonaws.com/ProfileImages/defaultProfile.png");
+        userDto.setProfileImageUrl((String) userInfo.get("profile_image"));
         userDto.setUserType(0);
         userDto.setReportCount(0);
         userDto.setLoginOk('Y');

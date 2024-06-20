@@ -86,6 +86,7 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
         }
     }
 
+
     // 로그인 성공 시 실행되는 메소드입니다. 인증된 사용자 정보를 바탕으로 JWT를 생성하고, 이를 응답 헤더에 추가합니다.
     @Override
     protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response,

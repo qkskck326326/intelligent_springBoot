@@ -12,6 +12,7 @@ public class InputUser {
     private String provider;
     private String userPwd;
 
+
     public InputUser(String userEmail) {
         this.userEmail = userEmail;
     }

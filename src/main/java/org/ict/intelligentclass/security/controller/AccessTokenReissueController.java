@@ -40,6 +40,7 @@ public class AccessTokenReissueController {
             return new ResponseEntity<>("refresh token null", HttpStatus.BAD_REQUEST);
         }
 
+
         String refreshTokenValue = authorizationHeader.substring("Bearer ".length());
 
         try {
