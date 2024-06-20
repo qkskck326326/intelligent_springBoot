@@ -19,7 +19,9 @@ public class ChatroomDetailsDto {
     private ChatroomEntity chatroom;
     private ChatUserEntity chatUser;
     private ChatMessageEntity latestMessage;
+    private int totalPeople;
     private Date latestMessageTimestamp;
     private Long unreadMessageCount;
+
 
 }

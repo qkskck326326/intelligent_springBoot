@@ -11,6 +11,8 @@ import org.ict.intelligentclass.lecture_packages.jpa.output.LecturePackageDetail
 import org.ict.intelligentclass.lecture_packages.jpa.output.LecturePackageList;
 
 import org.ict.intelligentclass.lecture_packages.model.service.LecturePackageService;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -31,8 +33,14 @@ public class LecturePackageController {
 
     //패키지리스트 조회
     @GetMapping
-    public ResponseEntity<List<LecturePackageList>> getLecturePackages() {
-        List<LecturePackageList> lecturePackages = lecturePackageService.getAllLecturePackages();
+    public ResponseEntity<Page<LecturePackageList>> getLecturePackages(
+            @RequestParam int page,
+            @RequestParam int size,
+            @RequestParam(required = false) String sortCriteria,
+            @RequestParam(required = false) String searchTerm,
+            @RequestParam(required = false) Long subCategoryId,
+            @RequestParam(required = false) String searchCriteria) {
+        Page<LecturePackageList> lecturePackages = lecturePackageService.getAllLecturePackages(page, size, sortCriteria, searchTerm, subCategoryId, searchCriteria);
         return ResponseEntity.ok(lecturePackages);
     }
 

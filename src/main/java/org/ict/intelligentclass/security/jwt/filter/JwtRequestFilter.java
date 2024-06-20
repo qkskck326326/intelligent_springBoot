@@ -1,5 +1,6 @@
 package org.ict.intelligentclass.security.jwt.filter;
 
+import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -43,6 +44,8 @@ public class JwtRequestFilter extends OncePerRequestFilter {
         }// 토큰 확인이 필요없는 요청 (로그인하지 않고 이용하는 서비스 url)은 그대로 다음 단계로 넘김
 
 
+
+        /*
         // 요청 URI를 가져옴
         if ("/logout".equals(requestURI)) {  // '/logout' 요청은 인증 검사를 하지 않음
             // 찾아갈 uri(대상)으로 그대로 넘김
@@ -50,7 +53,7 @@ public class JwtRequestFilter extends OncePerRequestFilter {
 
             return;
         }
-
+        */
 
         // 토큰확인이 필요없는 요청(로그인하지않아도 이용하는 서비스 url)은 그대로 다음단계로 넘김.
         // 'Authorization'이 해더에 없거나 Bearer 토큰이 아니면 요청을 계속 진행함.
@@ -67,27 +70,42 @@ public class JwtRequestFilter extends OncePerRequestFilter {
         // authorization이 가진 값 : "Bearer 토큰 문자열"
         String tokenValue = authorizationHeader.split(" ")[1]; // authorizationHeader의 첫번째가 토큰임
 
-        //토큰만료 여부확인, 만료시 다음 필터로 넘기지 않음.
-        if(jwtTokenUtil.isTokenExpired(tokenValue)){ // true: 만료
+
+        // 토큰 만료 여부 확인, 만료시 다음 필터로 넘기지 않음
+        try {
+            jwtTokenUtil.isTokenExpired(tokenValue);
+        } catch (ExpiredJwtException e) {
             //response body
             PrintWriter writer = response.getWriter();
-            writer.println("invalid access token : JwtRequestFilter에서 isTokenExpired(tokenValue) 처리함");
-
-            // response status code
-            // 응답코드를 front와 맞추는 부분 401에러 외 다른 상태코드로 맞추면
-            // 리프레시 토큰 발급 체크를 좀 더 빠르게 할 수 있음.
+            writer.print("access token expired");
+            //response status code
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             return;
         }
 
-        // token에서 category 가져오기
+
+
+//        // 토큰만료 여부확인, 만료시 다음 필터로 넘기지 않음.
+//        if(jwtTokenUtil.isTokenExpired(tokenValue)){ // true: 만료
+//            //response body
+//            PrintWriter writer = response.getWriter();
+//            writer.println("invalid access token : JwtRequestFilter에서 isTokenExpired(tokenValue) 처리함");
+//
+//            // response status code
+//            // 응답코드를 front와 맞추는 부분 401에러 외 다른 상태코드로 맞추면
+//            // 리프레시 토큰 발급 체크를 좀 더 빠르게 할 수 있음.
+//            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+//            return;
+//        }
+
+        // token에서 tokenType 가져오기
         String tokenType = jwtTokenUtil.getTokenTypeFromToken(tokenValue);
         // 토큰 category 가 access 가 아니 라면 만료 된 토큰 이라고 판단
         if (!tokenType.equals("access")) {
 
             //response body
             PrintWriter writer = response.getWriter();
-            writer.print("invalid access token : JwtRequestFilter에서 !tokenType.equals(\'access\')처리함");
+            writer.print("invalid access token : refresh 토큰 만료?");
 
             //response status code
             // 응답 코드를 프론트와 맞추는 부분 401 에러 외 다른 코드로 맞춰서
@@ -143,6 +161,7 @@ public class JwtRequestFilter extends OncePerRequestFilter {
 //            }
 //        }
 
+        // 필터 체인을 계속 진행합니다.
         filterChain.doFilter(request, response);
     }
 }

@@ -6,10 +6,10 @@ import org.springframework.stereotype.Repository;
 import java.util.Optional;
 
 @Repository
-public interface LectureReadRepository
-    extends JpaRepository<LectureReadEntity, String> {
+public interface LectureReadRepository extends JpaRepository<LectureReadEntity, Integer> {
 
-    // 강의 읽음 처리
+    LectureReadEntity findReadByLectureIdAndNickname(int lectureId, String nickname);
+
     Optional<LectureReadEntity> findByLectureIdAndNickname(int lectureId, String nickname);
 }
 

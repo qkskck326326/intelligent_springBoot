@@ -3,6 +3,7 @@ package org.ict.intelligentclass.security.jwt.util;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+import lombok.extern.slf4j.Slf4j;
 import org.ict.intelligentclass.user.jpa.entity.UserEntity;
 import org.ict.intelligentclass.user.jpa.entity.id.UserId;
 import org.ict.intelligentclass.user.jpa.repository.UserRepository;
@@ -16,6 +17,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Date;
 import java.util.Optional;
 
+@Slf4j
 @Component
 public class JwtTokenUtil {
 
@@ -43,6 +45,8 @@ public class JwtTokenUtil {
         // 사용자의 유저타입을 확인합니다.
         int userType = userEntity.get().getUserType();
         String nickname = userEntity.get().getNickname();
+
+//        log.info(new Date(System.currentTimeMillis() + expiredMs));
 
         // JWT를 생성합니다. 여기서는 사용자 이메일을 주체(subject)로, 관리자 여부를 클레임으로 추가합니다.
         return Jwts.builder()
@@ -77,7 +81,12 @@ public class JwtTokenUtil {
 
     // JWT의 만료 여부를 검증합니다.
     public boolean isTokenExpired(String tokenValue) {
-        Claims claims = Jwts.parserBuilder().setSigningKey(secretKey).build().parseClaimsJws(tokenValue).getBody();
+        Claims claims = Jwts.parserBuilder()
+                .setSigningKey(secretKey)
+                .setAllowedClockSkewSeconds(10) //  setAllowedClockSkewSeconds(10)를 추가하여 5초의 클럭 스큐를 허용했습니다. 이로 인해 JWT 파싱 시 최대 10초의 시간 차이를 무시할 수 있습니다.
+                .build()
+                .parseClaimsJws(tokenValue)
+                .getBody();
         return claims.getExpiration().before(new Date());
     }
 

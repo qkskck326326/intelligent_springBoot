@@ -10,9 +10,10 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class LectureInput {
-
     private String lectureName;
     private String lectureContent;
     private String lectureThumbnail;
     private String streamUrl;
+    private Long lecturePackageId; // 필드 추가
+    private String nickname; // 필드 추가
 }

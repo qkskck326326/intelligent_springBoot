@@ -16,19 +16,24 @@ import org.ict.intelligentclass.lecture.model.dto.LectureReadDto;
 public class LectureReadEntity {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "LECTURE_ID")
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "lecture_read_seq_generator")
+    @SequenceGenerator(name = "lecture_read_seq_generator", sequenceName = "SQ_LECTURE_READ_ID", allocationSize = 1)
+    @Column(name = "LECTURE_READ_ID")
+    private int lectureReadId;
+
+    @Column(name = "LECTURE_ID", nullable = false)
     private int lectureId;
 
-    @Column(name = "NICKNAME", nullable = false, length = 50)
+    @Column(name = "NICKNAME", nullable = false)
     private String nickname;
 
-    @Column(name = "LECTURE_READ", nullable = false, columnDefinition = "CHAR(1) DEFAULT 'N' CHECK (LECTURE_READ IN ('Y', 'N'))")
+    @Column(name = "LECTURE_READ", columnDefinition = "CHAR(1)")
     private String lectureRead;
 
     // entity -> dto 변환 메서드 추가
     public LectureReadDto toDto() {
         return LectureReadDto.builder()
+                .lectureReadId(lectureReadId)
                 .lectureId(lectureId)
                 .nickname(nickname)
                 .lectureRead(lectureRead)
