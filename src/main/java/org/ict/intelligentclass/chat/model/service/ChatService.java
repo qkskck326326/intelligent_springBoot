@@ -7,6 +7,7 @@ import org.ict.intelligentclass.chat.jpa.entity.*;
 import org.ict.intelligentclass.chat.jpa.repository.*;
 import org.ict.intelligentclass.chat.model.dto.ChatMessageDto;
 import org.ict.intelligentclass.chat.model.dto.ChatroomDetailsDto;
+import org.ict.intelligentclass.chat.model.dto.MessageFileDto;
 import org.ict.intelligentclass.user.jpa.entity.UserEntity;
 import org.ict.intelligentclass.user.jpa.repository.UserRepository;
 import org.springframework.data.domain.PageRequest;
@@ -15,8 +16,13 @@ import org.springframework.data.domain.Sort;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.*;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.stream.Collectors;
 
 @Service
@@ -31,6 +37,7 @@ public class ChatService {
     private final MessageFileRepository messageFileRepository;
     private final MessageReadRepository messageReadRepository;
     private final UserRepository userRepository;
+
 
 
     public Long selectRoomIds(String userId) {
@@ -63,11 +70,11 @@ public class ChatService {
         }
     }
 
-    public ChatroomEntity insertRoom(Map<Integer, String> people, String roomType) {
+    public ChatroomEntity insertRoom(List<String> people, String roomType) {
         log.info("insertRoom people = " + people);
 
-        String roomName = String.join(", ", people.values());
-        String creator = people.get(0);
+        String roomName = String.join(", ", people);
+        String creator = people.get(0); // Assuming the first person in the list is the creator
 
         ChatroomEntity chatroomEntity = new ChatroomEntity();
         chatroomEntity.setRoomName(roomName);
@@ -80,7 +87,7 @@ public class ChatService {
 
         Long roomId = newRoom.getRoomId();
 
-        for (String userId : people.values()) {
+        for (String userId : people) {
             ChatUserCompositeKey key = new ChatUserCompositeKey(userId, roomId);
             ChatUserEntity chatUserEntity = ChatUserEntity.builder()
                     .chatUserCompositeKey(key)
@@ -92,8 +99,8 @@ public class ChatService {
         }
 
         return newRoom;
-
     }
+
 
     public List<ChatroomDetailsDto> getChatrooms(String userId) {
 
@@ -135,28 +142,48 @@ public class ChatService {
     }
 
     public ChatMessagesResponse getMessages(String userId, Long roomId, int page) {
-
+        // Fetch announcement for the room if exists
         Optional<ChatMessageEntity> announcementOpt = chatMessageRepository.findFirstByRoomIdAndIsAnnouncement(roomId, 1L);
         ChatMessageDto announcementDto = null;
         if (announcementOpt.isPresent()) {
             announcementDto = convertToDto(announcementOpt.get(), userId, roomId);
         }
 
+        // Fetch the messages for the room, paginated
         List<ChatMessageEntity> messages = chatMessageRepository.findByRoomId(roomId, PageRequest.of(page - 1, 25, Sort.by("dateSent").descending()));
 
+        // Convert messages to DTOs and fetch associated files if needed
         List<ChatMessageDto> messageDtos = messages.stream()
                 .map(message -> {
                     markMessageAsRead(userId, roomId, message);
-                    return convertToDto(message, userId, roomId);
+                    ChatMessageDto messageDto = convertToDto(message, userId, roomId);
+
+                    if (message.getMessageType() == 1 || message.getMessageType() == 2 || message.getMessageType() == 3) {
+                        List<MessageFileEntity> files = messageFileRepository.findByMessageId(message.getMessageId());
+                        List<MessageFileDto> fileDtos = files.stream()
+                                .map(file -> MessageFileDto.builder()
+                                        .fileId(file.getFileId())
+                                        .messageId(file.getMessageId())
+                                        .senderId(file.getSenderId())
+                                        .fileURL(file.getFileURL())
+                                        .fileSize(file.getFileSize())
+                                        .originalName(file.getOriginalName())
+                                        .renamedName(file.getRenamedName())
+                                        .build())
+                                .collect(Collectors.toList());
+                        messageDto.setFiles(fileDtos);
+                    }
+
+                    return messageDto;
                 })
                 .collect(Collectors.toList());
 
         // Handle no messages scenario
         if (messageDtos.isEmpty() && announcementDto == null) {
-            return new ChatMessagesResponse(List.of(), null);
+            return new ChatMessagesResponse(null, List.of());
         }
 
-        return new ChatMessagesResponse(messageDtos, announcementDto);
+        return new ChatMessagesResponse(announcementDto, messageDtos);
     }
 
     private void markMessageAsRead(String userId, Long roomId, ChatMessageEntity message) {
@@ -199,43 +226,6 @@ public class ChatService {
         }
 
         return dto;
-    }
-
-
-    public ChatMessageEntity saveMessage(ChatMessageEntity chatMessageEntity) {
-
-        chatMessageEntity.setDateSent(new Date());
-
-        switch (chatMessageEntity.getMessageType().intValue()) {
-            case 0: // Text message
-                // Additional logic for text messages if needed
-                break;
-            case 1: // Photo
-                // Additional logic for photos if needed
-                break;
-            case 2: // Video
-                // Additional logic for videos if needed
-                break;
-            case 3: // File
-                // Additional logic for files if needed
-                break;
-            default:
-                throw new IllegalArgumentException("Unsupported message type");
-        }
-
-        ChatMessageEntity savedMessage = chatMessageRepository.save(chatMessageEntity);
-
-        // Mark message as read by sender
-        MessageReadEntity messageReadEntity = new MessageReadEntity();
-        messageReadEntity.setMessageId(savedMessage.getMessageId());
-        messageReadEntity.setUserId(chatMessageEntity.getSenderId());
-        messageReadEntity.setRoomId(chatMessageEntity.getRoomId());
-        messageReadEntity.setReadAt(new Date());
-
-        messageReadRepository.save(messageReadEntity);
-
-        return savedMessage;
-
     }
 
     public ChatUserEntity getChatUserDetail(String userId, Long roomId) {
@@ -299,6 +289,59 @@ public class ChatService {
         ChatMessageEntity newAnnouncement = newAnnouncementOptional.orElseThrow(() -> new NoSuchElementException("Message not found"));
         newAnnouncement.setIsAnnouncement(1L);
         return chatMessageRepository.save(newAnnouncement);
+    }
+
+    public ChatMessageEntity saveMessage(ChatMessageEntity chatMessageEntity) {
+        chatMessageEntity.setDateSent(new Date());
+
+        ChatMessageEntity savedMessage = chatMessageRepository.save(chatMessageEntity);
+
+        // Mark message as read by sender
+        MessageReadEntity messageReadEntity = new MessageReadEntity();
+        messageReadEntity.setMessageId(savedMessage.getMessageId());
+        messageReadEntity.setUserId(chatMessageEntity.getSenderId());
+        messageReadEntity.setRoomId(chatMessageEntity.getRoomId());
+        messageReadEntity.setReadAt(new Date());
+
+        messageReadRepository.save(messageReadEntity);
+
+        return savedMessage;
+    }
+
+    public List<MessageFileEntity> saveFiles(ChatMessageEntity message, List<MultipartFile> files) {
+        log.info("서비스 실행됨");
+        log.info(message.toString());
+        log.info(files.toString());
+
+        List<MessageFileEntity> fileEntities = new ArrayList<>();
+        for (MultipartFile file : files) {
+            String originalFileName = file.getOriginalFilename();
+            String fileExtension = "";
+            int lastIndexOfDot = originalFileName.lastIndexOf('.');
+            if (lastIndexOfDot > 0) {
+                fileExtension = originalFileName.substring(lastIndexOfDot);
+            }
+            String randomString = UUID.randomUUID().toString();
+            String renamedFileName = randomString + "_" + System.currentTimeMillis() + fileExtension;
+            String fileStorageLocation = "src/main/resources/static/uploads" + renamedFileName;
+            Path filePath = Paths.get(fileStorageLocation, renamedFileName);
+            try {
+                Files.write(filePath, file.getBytes());
+
+                MessageFileEntity fileEntity = new MessageFileEntity();
+                fileEntity.setMessageId(message.getMessageId());
+                fileEntity.setSenderId(message.getSenderId());
+                fileEntity.setFileURL(filePath.toString());
+                fileEntity.setFileSize(String.valueOf(file.getSize()));
+                fileEntity.setOriginalName(originalFileName);
+                fileEntity.setRenamedName(renamedFileName);
+
+                fileEntities.add(messageFileRepository.save(fileEntity));
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        return fileEntities;
     }
 }
 

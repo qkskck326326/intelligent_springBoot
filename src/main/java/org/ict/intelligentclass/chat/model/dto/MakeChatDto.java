@@ -4,16 +4,17 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
+@Slf4j
 @Builder
-public class ChatMessagesResponse {
+public class MakeChatDto {
 
-    private ChatMessageDto announcement;
-    private List<ChatMessageDto> messages;
+    private List<String> names;
 
 }
