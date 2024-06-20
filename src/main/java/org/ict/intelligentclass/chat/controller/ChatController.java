@@ -1,6 +1,6 @@
 package org.ict.intelligentclass.chat.controller;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.http.HttpHeaders;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -10,12 +10,15 @@ import org.ict.intelligentclass.chat.model.dto.ChatResponse;
 import org.ict.intelligentclass.chat.model.dto.ChatroomDetailsDto;
 import org.ict.intelligentclass.chat.model.dto.MakeChatDto;
 import org.ict.intelligentclass.chat.model.service.ChatService;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -28,9 +31,10 @@ import java.util.*;
 public class ChatController {
 
     private final ChatService chatService;
+    private final Path fileStorageLocation = Paths.get("src/main/resources/static/uploads").toAbsolutePath().normalize();
 
     @GetMapping("/countunreadall")
-    public ResponseEntity<Long> countUnreadAll (@RequestParam String userId) {
+    public ResponseEntity<Long> countUnreadAll(@RequestParam String userId) {
         log.info("countUnreadAll start");
         Long countTotalUnRead = chatService.selectRoomIds(userId);
 
@@ -49,7 +53,7 @@ public class ChatController {
     }
 
     @GetMapping("/chatlist")
-    public ResponseEntity<List<ChatroomDetailsDto>> listChatroom (@RequestParam String userId) {
+    public ResponseEntity<List<ChatroomDetailsDto>> listChatroom(@RequestParam String userId) {
         log.info("listChatroom start");
         List<ChatroomDetailsDto> chatrooms = chatService.getChatrooms(userId);
         return ResponseEntity.ok(chatrooms);
@@ -173,4 +177,22 @@ public class ChatController {
         }
     }
 
+    @GetMapping("/files/{filename}")
+    public ResponseEntity<Resource> getFile(@PathVariable String filename) {
+        try {
+            Path filePath = fileStorageLocation.resolve(filename).normalize();
+            Resource resource = new UrlResource(filePath.toUri());
+
+            if (!resource.exists()) {
+                return ResponseEntity.notFound().build();
+            }
+
+            return ResponseEntity.ok()
+                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + resource.getFilename() + "\"")
+                    .body(resource);
+        } catch (Exception e) {
+            return ResponseEntity.status(500).build();
+
+        }
+    }
 }

@@ -323,15 +323,17 @@ public class ChatService {
             }
             String randomString = UUID.randomUUID().toString();
             String renamedFileName = randomString + "_" + System.currentTimeMillis() + fileExtension;
-            String fileStorageLocation = "src/main/resources/static/uploads" + renamedFileName;
+            log.info(renamedFileName);
+            String fileStorageLocation = "src/main/resources/static/uploads";
             Path filePath = Paths.get(fileStorageLocation, renamedFileName);
+            log.info(filePath.toString());
             try {
                 Files.write(filePath, file.getBytes());
 
                 MessageFileEntity fileEntity = new MessageFileEntity();
                 fileEntity.setMessageId(message.getMessageId());
                 fileEntity.setSenderId(message.getSenderId());
-                fileEntity.setFileURL(filePath.toString());
+                fileEntity.setFileURL("/chat/files/" + renamedFileName);
                 fileEntity.setFileSize(String.valueOf(file.getSize()));
                 fileEntity.setOriginalName(originalFileName);
                 fileEntity.setRenamedName(renamedFileName);
