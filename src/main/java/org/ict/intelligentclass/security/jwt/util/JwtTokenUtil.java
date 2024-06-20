@@ -97,6 +97,7 @@ public class JwtTokenUtil {
     }
 
 
+
     // JWT에서 토큰의 카테고리를 확인합니다.
     public String getTokenTypeFromToken(String tokenValue) {
         Claims claims = Jwts.parserBuilder().setSigningKey(secretKey).build().parseClaimsJws(tokenValue).getBody();

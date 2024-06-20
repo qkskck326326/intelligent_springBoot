@@ -35,6 +35,7 @@ public class CustomLogoutHandler implements LogoutHandler {
         if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) { // null이 아니거나 Bearer로 시작하는지
             String tokenValue = authorizationHeader.substring(7); // 'Bearer ' 문자 제거
 
+
             try {
                 jwtTokenUtil.isTokenExpired(tokenValue);
             } catch (ExpiredJwtException e) {
