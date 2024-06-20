@@ -5,12 +5,12 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.ict.intelligentclass.report.jpa.entity.ReportEntity;
+
 import org.ict.intelligentclass.user.jpa.entity.id.UserId;
 import org.ict.intelligentclass.user.model.dto.UserDto;
 
 import java.time.LocalDateTime;
-import java.util.List;
+
 
 @Data
 @AllArgsConstructor
@@ -60,11 +60,11 @@ public class UserEntity {
     @Column(name = "sns_access_token", nullable = false)
     private String snsAccessToken;
 
-    @OneToMany(mappedBy = "receiveUser")
-    private List<ReportEntity> receivedReports;
-
-    @OneToMany(mappedBy = "doUser")
-    private List<ReportEntity> reportsMade;
+//    @OneToMany(mappedBy = "receiveUser")
+//    private List<ReportEntity> receivedReports;
+//
+//    @OneToMany(mappedBy = "doUser")
+//    private List<ReportEntity> reportsMade;
 
 
 
