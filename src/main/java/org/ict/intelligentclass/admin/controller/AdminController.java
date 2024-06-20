@@ -2,6 +2,8 @@ package org.ict.intelligentclass.admin.controller;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.ict.intelligentclass.admin.model.dto.BannerDto;
+import org.ict.intelligentclass.admin.model.service.BannerService;
 import org.ict.intelligentclass.user.model.dto.AttendanceDto;
 import org.ict.intelligentclass.user.model.dto.UserDto;
 import org.ict.intelligentclass.user.model.service.UserService;
@@ -22,6 +24,7 @@ import java.util.stream.Collectors;
 @CrossOrigin // 리액트 애플리케이션(포트가 다름)의 자원 요청을 처리하기 위함
 public class AdminController {
     private final UserService userService;
+    private final BannerService bannerService;
 
     @GetMapping
     public ResponseEntity<UserDto> selectAdminByEmail(@RequestParam("email") String email,
@@ -196,6 +199,9 @@ public class AdminController {
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
             @RequestParam int page,
             @RequestParam int size) {
+        log.info("Fetching registration stats with parameters: startDate={}, endDate={}, page={}, size={}",
+                startDate, endDate, page, size);
+
         Map<String, Long> stats = userService.getUserRegistrationStats(startDate, endDate);
         int total = stats.size();
         List<Map<String, Object>> content = new ArrayList<>();
@@ -211,14 +217,6 @@ public class AdminController {
         return new ResponseEntity<>(Map.of("content", pageList, "totalPages", (total + size - 1) / size), HttpStatus.OK);
     }
 
-    @GetMapping("/registration-stats-monthly")
-    public ResponseEntity<Map<String, Long>> getRegistrationStatsMonthly(
-            @RequestParam("startDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
-            @RequestParam("endDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate) {
-        Map<String, Long> registrationStats = userService.getUserRegistrationStatsByMonth(startDate, endDate);
-        return ResponseEntity.ok(registrationStats);
-    }
-
     @GetMapping("/users")
     public ResponseEntity<Map<String, Object>> getAllUsers(
             @RequestParam(defaultValue = "0") int page,
@@ -227,16 +225,59 @@ public class AdminController {
             @RequestParam(required = false) Integer userType,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate) {
+        log.info("Fetching users with parameters: page={}, size={}, searchQuery={}, userType={}, startDate={}, endDate={}",
+                page, size, searchQuery, userType, startDate, endDate);
+
         Page<UserDto> usersPage = userService.getAllUsers(page, size, searchQuery, userType, startDate, endDate);
         Map<String, Object> response = new HashMap<>();
         response.put("content", usersPage.getContent());
         response.put("totalPages", usersPage.getTotalPages());
         response.put("totalElements", usersPage.getTotalElements());
+
+        log.info("Fetched {} users", usersPage.getNumberOfElements());
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
+    @GetMapping("/registration-stats-monthly")
+    public ResponseEntity<Map<String, Long>> getRegistrationStatsMonthly(
+            @RequestParam("startDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+            @RequestParam("endDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate) {
+        Map<String, Long> registrationStats = userService.getUserRegistrationStatsByMonth(startDate, endDate);
+        return ResponseEntity.ok(registrationStats);
+    }
 
-
-
-
+    @PostMapping("/delete-users")
+    public ResponseEntity<Void> deleteSelectedUsers(@RequestBody List<Map<String, String>> users) {
+        for (Map<String, String> user : users) {
+            String email = user.get("email");
+            String provider = user.get("provider");
+            String reason = user.get("reason");  // reason은 클라이언트에서 보내줘야 합니다.
+            userService.deleteUser(email, provider, reason);
+        }
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
+//
+//    @GetMapping
+//    public ResponseEntity<List<BannerDto>> getAllBanners() {
+//        List<BannerDto> banners = bannerService.getAllBanners();
+//        return new ResponseEntity<>(banners, HttpStatus.OK);
+//    }
+//
+//    @PostMapping
+//    public ResponseEntity<BannerDto> createBanner(@RequestBody BannerDto bannerDto) {
+//        BannerDto createdBanner = bannerService.createBanner(bannerDto);
+//        return new ResponseEntity<>(createdBanner, HttpStatus.CREATED);
+//    }
+//
+//    @PutMapping("/{insertBanner}")
+//    public ResponseEntity<BannerDto> updateBanner(@PathVariable int id, @RequestBody BannerDto bannerDto) {
+//        BannerDto updatedBanner = bannerService.updateBanner(id, bannerDto);
+//        return new ResponseEntity<>(updatedBanner, HttpStatus.OK);
+//    }
+//
+//    @DeleteMapping("/{deleteBanner}")
+//    public ResponseEntity<Void> deleteBanner(@PathVariable int id) {
+//        bannerService.deleteBanner(id);
+//        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+//    }
 }

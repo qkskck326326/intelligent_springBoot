@@ -109,7 +109,8 @@ public interface UserRepository extends JpaRepository<UserEntity, UserId> {
             + "(:endDate IS NULL OR u.registerTime <= :endDate)")
     Page<UserEntity> findAllUsers(@Param("searchQuery") String searchQuery,
                                   @Param("userType") Integer userType,
-                                  @Param("startDate") LocalDateTime startDate,
-                                  @Param("endDate") LocalDateTime endDate,
+                                  @Param("startDate") LocalDateTime startDateTime,
+                                  @Param("endDate") LocalDateTime endDateTime,
                                   Pageable pageable);
+
 }

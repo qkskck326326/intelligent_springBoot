@@ -339,13 +339,11 @@ public class UserService {
     public Map<String, Long> getUserRegistrationStatsByMonth(LocalDate startDate, LocalDate endDate) {
         List<UserEntity> users = userRepository.findAllByRegisterTimeBetween(startDate.atStartOfDay(), endDate.plusDays(1).atStartOfDay());
 
-        // Create a map to hold the results with default 0 values for all months in the range
         Map<String, Long> registrationStats = new LinkedHashMap<>();
         for (LocalDate date = startDate.withDayOfMonth(1); !date.isAfter(endDate.withDayOfMonth(1)); date = date.plusMonths(1)) {
             registrationStats.put(date.format(DateTimeFormatter.ofPattern("yyyy-MM")), 0L);
         }
 
-        // Update the map with actual registration counts
         Map<String, Long> actualStats = users.stream()
                 .collect(Collectors.groupingBy(
                         user -> user.getRegisterTime().format(DateTimeFormatter.ofPattern("yyyy-MM")),
@@ -361,13 +359,17 @@ public class UserService {
         Pageable pageable = PageRequest.of(page, size, Sort.by("registerTime").descending());
         LocalDateTime startDateTime = (startDate != null) ? startDate.atStartOfDay() : null;
         LocalDateTime endDateTime = (endDate != null) ? endDate.atTime(23, 59, 59) : null;
+
+        log.info("Fetching users from repository with searchQuery={}, userType={}, startDateTime={}, endDateTime={}",
+                searchQuery, userType, startDateTime, endDateTime);
+
         Page<UserEntity> userEntities = userRepository.findAllUsers(searchQuery, userType, startDateTime, endDateTime, pageable);
+
+        log.info("Fetched {} users from repository", userEntities.getNumberOfElements());
+
         return userEntities.map(UserEntity::toDto);
     }
 
 
 
-
-
-// 시원 끝
 }
