@@ -10,5 +10,5 @@ import java.util.List;
 public interface MessageFileRepository extends JpaRepository<MessageFileEntity, Long> {
 
     List<MessageFileEntity> findByMessageId(Long messageId);
-
+    void deleteByMessageId(Long messageId);
 }
