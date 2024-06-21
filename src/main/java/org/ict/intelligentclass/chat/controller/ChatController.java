@@ -61,8 +61,8 @@ public class ChatController {
 
     @GetMapping("/chatdata")
     public ResponseEntity<ChatMessagesResponse> getMessages(@RequestParam String userId, @RequestParam Long roomId, @RequestParam int page) {
-        ChatMessagesResponse response = chatService.getMessages(userId, roomId, page);
-        return ResponseEntity.ok(response);
+        ChatMessagesResponse res = chatService.getMessages(userId, roomId, page);
+        return ResponseEntity.ok(res);
     }
 
     @PostMapping(value = "/sendmessage")
@@ -166,8 +166,8 @@ public class ChatController {
     @PutMapping("/delete/{messageId}")
     public ResponseEntity<?> deleteMessage(@PathVariable Long messageId) {
 
-        ResponseEntity<ChatMessageEntity> chatMessage = chatService.deleteMessage(messageId);
-        return ResponseEntity.ok(chatMessage);
+        ResponseEntity<ChatMessageEntity> chat = chatService.deleteMessage(messageId);
+        return ResponseEntity.ok(chat);
     }
 
     @DeleteMapping("/leaveroom")
