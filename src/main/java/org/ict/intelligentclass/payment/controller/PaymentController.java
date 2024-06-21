@@ -5,7 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.ict.intelligentclass.lecture_packages.jpa.output.LecturePackageDetail;
 import org.ict.intelligentclass.lecture_packages.model.service.LecturePackageService;
 import org.ict.intelligentclass.payment.jpa.entity.CouponEntity;
-import org.ict.intelligentclass.payment.model.service.PaymentService;
+import org.ict.intelligentclass.payment.model.service.paymentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -23,7 +23,7 @@ public class PaymentController {
     private LecturePackageService lecturePackageService;
 
     @Autowired
-    private PaymentService paymentService;
+    private paymentService paymentService;
 
     @GetMapping("/packages/{lecturePackageId}")
     public ResponseEntity<LecturePackageDetail> getPackage(@PathVariable Long lecturePackageId) {
