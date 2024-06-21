@@ -20,11 +20,10 @@ import org.ict.intelligentclass.lecture.jpa.entity.input.RatingInput;
 import org.ict.intelligentclass.lecture.jpa.entity.input.LectureInput;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
+
+import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Service
 @Slf4j
@@ -160,6 +159,13 @@ public class LectureService {
     // 강의 삭제
     public void deleteLectures(List<Integer> lectureIds) {
         lectureRepository.deleteAllById(lectureIds);
+    }
+
+    public List<String> getFilePathsForLectures(List<Integer> lectureIds) {
+        return lectureRepository.findAllById(lectureIds).stream()
+                .flatMap(lecture -> Stream.of(lecture.getLectureThumbnail(), lecture.getStreamUrl()))
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
     }
 
     // 강의 댓글 목록
