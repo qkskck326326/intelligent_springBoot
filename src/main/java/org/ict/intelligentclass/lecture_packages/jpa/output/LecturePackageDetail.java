@@ -23,7 +23,8 @@ public class LecturePackageDetail {
     private String title;
     private String content;
     private int priceKind;
-    private int price;
+    private int priceMonth;
+    private int priceForever;
     private int packageLevel;
     private String thumbnail;
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")

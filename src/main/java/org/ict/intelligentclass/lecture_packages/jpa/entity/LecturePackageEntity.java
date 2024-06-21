@@ -19,8 +19,8 @@ import java.util.Set;
 public class LecturePackageEntity {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "lecture_package_seq")
-    @SequenceGenerator(name = "lecture_package_seq", sequenceName = "LECTURE_PACKAGE_SEQ", allocationSize = 1)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "SQ_LECTURE_PACKAGE_ID")
+    @SequenceGenerator(name = "SQ_LECTURE_PACKAGE_ID" , sequenceName = "SQ_LECTURE_PACKAGE_ID", allocationSize = 1)
     @Column(name = "LECTURE_PACKAGE_ID")
     private Long lecturePackageId;
 
@@ -39,8 +39,11 @@ public class LecturePackageEntity {
     @Column(name = "PRICE_KIND", nullable = false)
     private int priceKind;
 
-    @Column(name = "PRICE", nullable = false)
-    private int price;
+    @Column(name = "PRICE_MONTH", nullable = false)
+    private int priceMonth;
+
+    @Column(name = "PRICE_FOREVER", nullable = false)
+    private int priceForever;
 
     @Column(name = "THUMBNAIL", nullable = false)
     private String thumbnail;
