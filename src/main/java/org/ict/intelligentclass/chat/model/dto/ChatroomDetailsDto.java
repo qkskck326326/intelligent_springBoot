@@ -8,8 +8,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.ict.intelligentclass.chat.jpa.entity.ChatMessageEntity;
 import org.ict.intelligentclass.chat.jpa.entity.ChatUserEntity;
 import org.ict.intelligentclass.chat.jpa.entity.ChatroomEntity;
+import org.ict.intelligentclass.user.jpa.entity.UserEntity;
 
 import java.util.Date;
+import java.util.List;
 
 @Data
 @AllArgsConstructor
@@ -24,6 +26,6 @@ public class ChatroomDetailsDto {
     private int totalPeople;
     private Date latestMessageTimestamp;
     private Long unreadMessageCount;
-
+    private List<UserEntity> users;
 
 }

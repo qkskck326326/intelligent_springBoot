@@ -106,21 +106,33 @@ public class ChatService {
 
     public List<ChatroomDetailsDto> getChatrooms(String userId) {
 
+        //유저아이디로 채팅방아이디 모두 가져옴
         List<Long> roomIds = chatUserRepository.findRoomIdsByUserIdOrderByIsPinned(userId);
+        //아이디로 방 정보 가져옴
         List<ChatroomEntity> chatrooms = chatroomRepository.findByRoomIdIn(roomIds);
 
         List<ChatroomDetailsDto> chatroomDetails = new ArrayList<>();
 
         for (ChatroomEntity chatroom : chatrooms) {
+            //방정보 하나씩 돌려서 정보 가져옴
             ChatUserEntity chatUser = chatUserRepository.findByChatUserCompositeKeyUserIdAndChatUserCompositeKeyRoomId(userId, chatroom.getRoomId());
             ChatMessageEntity latestMessage = chatMessageRepository.findTopByRoomIdOrderByDateSentDesc(chatroom.getRoomId());
             Date latestMessageTimestamp = latestMessage != null ? latestMessage.getDateSent() : null;
             int totalPeople = chatUserRepository.countByRoomId(chatroom.getRoomId());
+            List<String> userNicknames = chatUserRepository.findUserIdsByRoomId(chatroom.getRoomId());
+            List<UserEntity> users = new ArrayList<>();
+            for(String userNickname : userNicknames) {
+                Optional<UserEntity> user = userRepository.findByNickname(userNickname);
+                if(user.isPresent()) {
+                    UserEntity userEntity = user.get();
+                    users.add(userEntity);
+                }
+            }
             Long totalMessages = chatMessageRepository.countByRoomId(chatroom.getRoomId());
             Long readMessages = messageReadRepository.countByRoomIdAndUserId(chatroom.getRoomId(), userId);
             Long unreadMessageCount = totalMessages - readMessages;
 
-            chatroomDetails.add(new ChatroomDetailsDto(chatroom, chatUser, latestMessage, totalPeople, latestMessageTimestamp, unreadMessageCount));
+            chatroomDetails.add(new ChatroomDetailsDto(chatroom, chatUser, latestMessage, totalPeople, latestMessageTimestamp, unreadMessageCount, users));
         }
 
         return chatroomDetails.stream()
@@ -379,6 +391,20 @@ public class ChatService {
         chatMessageRepository.save(chatMessage);
 
         return ResponseEntity.ok(chatMessage);
+    }
+
+    public List<UserEntity> getPeople(Long roomId) {
+
+        List<String> userNicknames = chatUserRepository.findUserIdsByRoomId(roomId);
+        List<UserEntity> users = new ArrayList<>();
+        for(String userNickname : userNicknames) {
+            Optional<UserEntity> user = userRepository.findByNickname(userNickname);
+            if(user.isPresent()) {
+                UserEntity userEntity = user.get();
+                users.add(userEntity);
+            }
+        }
+        return users;
     }
 }
 

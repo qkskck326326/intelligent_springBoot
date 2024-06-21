@@ -22,4 +22,7 @@ public interface ChatUserRepository extends JpaRepository<ChatUserEntity, ChatUs
 
     @Query("SELECT COUNT(c) FROM ChatUserEntity c WHERE c.chatUserCompositeKey.roomId = :roomId")
     int countByRoomId(@Param("roomId") Long roomId);
+
+    @Query("SELECT c.chatUserCompositeKey.userId FROM ChatUserEntity c WHERE c.chatUserCompositeKey.roomId = :roomId")
+    List<String> findUserIdsByRoomId(@Param("roomId") Long roomId);
 }
