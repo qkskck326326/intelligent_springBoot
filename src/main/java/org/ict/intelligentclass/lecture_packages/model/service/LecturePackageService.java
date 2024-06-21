@@ -289,7 +289,8 @@ public class LecturePackageService {
                 .title(lecturePackage.getTitle())
                 .content(lecturePackage.getContent())
                 .priceKind(lecturePackage.getPriceKind())
-                .price(lecturePackage.getPrice())
+                .priceMonth(lecturePackage.getPriceMonth())
+                .priceForever(lecturePackage.getPriceForever())
                 .packageLevel(lecturePackage.getPackageLevel())
                 .thumbnail(lecturePackage.getThumbnail())
                 .registerDate(lecturePackage.getRegisterDate())
@@ -312,7 +313,8 @@ public class LecturePackageService {
                 .content(register.getContent())
                 .packageLevel(register.getPackageLevel())
                 .priceKind(register.getPriceKind())
-                .price(register.getPrice())
+                .priceMonth(register.getPriceMonth())
+                .priceForever(register.getPriceForever())
                 .thumbnail(register.getThumbnail())
                 .backgroundColor(register.getBackgroundColor())
                 .build();
@@ -359,7 +361,8 @@ public class LecturePackageService {
         existingEntity.setContent(lecturePackageRegister.getContent());
         existingEntity.setPackageLevel(lecturePackageRegister.getPackageLevel());
         existingEntity.setPriceKind(lecturePackageRegister.getPriceKind());
-        existingEntity.setPrice(lecturePackageRegister.getPrice());
+        existingEntity.setPriceMonth(lecturePackageRegister.getPriceMonth());
+        existingEntity.setPriceForever(lecturePackageRegister.getPriceForever());
         existingEntity.setThumbnail(lecturePackageRegister.getThumbnail());
         existingEntity.setBackgroundColor(lecturePackageRegister.getBackgroundColor());
 

@@ -20,7 +20,8 @@ public class LecturePackageRegister {
     private String content;
     private int packageLevel;
     private int priceKind;
-    private int price;
+    private int priceMonth;
+    private int priceForever;
     private String thumbnail;
     private String backgroundColor;
     private List<Long> packageSubCategoryId = new ArrayList<>(); // 빈 리스트로 초기화
@@ -34,7 +35,8 @@ public class LecturePackageRegister {
         this.content = lecturePackageEntity.getContent();
         this.packageLevel = lecturePackageEntity.getPackageLevel();
         this.priceKind = lecturePackageEntity.getPriceKind();
-        this.price = lecturePackageEntity.getPrice();
+        this.priceMonth = lecturePackageEntity.getPriceMonth();
+        this.priceForever = lecturePackageEntity.getPriceForever();
         this.thumbnail = lecturePackageEntity.getThumbnail();
 
     }
