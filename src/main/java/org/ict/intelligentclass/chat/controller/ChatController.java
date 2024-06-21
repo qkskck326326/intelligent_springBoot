@@ -1,5 +1,6 @@
 package org.ict.intelligentclass.chat.controller;
 
+import org.ict.intelligentclass.user.jpa.entity.UserEntity;
 import org.springframework.http.HttpHeaders;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -63,6 +64,12 @@ public class ChatController {
     public ResponseEntity<ChatMessagesResponse> getMessages(@RequestParam String userId, @RequestParam Long roomId, @RequestParam int page) {
         ChatMessagesResponse res = chatService.getMessages(userId, roomId, page);
         return ResponseEntity.ok(res);
+    }
+
+    @GetMapping("/people")
+    public ResponseEntity<List<UserEntity>> getPeople(@RequestParam Long roomId) {
+        List<UserEntity> users = chatService.getPeople(roomId);
+        return ResponseEntity.ok(users);
     }
 
     @PostMapping(value = "/sendmessage")
