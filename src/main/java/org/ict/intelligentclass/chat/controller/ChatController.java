@@ -61,8 +61,8 @@ public class ChatController {
 
     @GetMapping("/chatdata")
     public ResponseEntity<ChatMessagesResponse> getMessages(@RequestParam String userId, @RequestParam Long roomId, @RequestParam int page) {
-        ChatMessagesResponse response = chatService.getMessages(userId, roomId, page);
-        return ResponseEntity.ok(response);
+        ChatMessagesResponse res = chatService.getMessages(userId, roomId, page);
+        return ResponseEntity.ok(res);
     }
 
     @PostMapping(value = "/sendmessage")
