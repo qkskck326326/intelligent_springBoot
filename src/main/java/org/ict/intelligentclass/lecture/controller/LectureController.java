@@ -10,9 +10,11 @@ import org.ict.intelligentclass.lecture.jpa.entity.output.*;
 import org.ict.intelligentclass.lecture.model.dto.LectureCommentDto;
 import org.ict.intelligentclass.lecture.model.service.LectureService;
 import org.ict.intelligentclass.lecture_packages.jpa.entity.LecturePackageEntity;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.client.RestTemplate;
+
 import java.util.List;
 import java.util.Map;
 
@@ -22,6 +24,9 @@ import java.util.Map;
 @RequiredArgsConstructor
 @CrossOrigin(origins = "http://localhost:3000")
 public class LectureController {
+
+    @Value("${lecture.github.token}")
+    private String lectureGitHubToken;
 
     private final LectureService lectureService;
 
@@ -129,11 +134,56 @@ public class LectureController {
     public ResponseEntity<Void> deleteLectures(@RequestBody Map<String, List<Integer>> request) {
         try {
             List<Integer> lectureIds = request.get("lectureIds");
+            List<String> filePaths = lectureService.getFilePathsForLectures(lectureIds);
+
+            // GitHub 파일 삭제
+            for (String filePath : filePaths) {
+                deleteFileFromGitHub(filePath);
+            }
+
+            // Oracle DB에서 강의 삭제
             lectureService.deleteLectures(lectureIds);
+
             return new ResponseEntity<>(HttpStatus.OK);
         } catch (Exception e) {
+            e.printStackTrace();
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
+    }
+
+    private void deleteFileFromGitHub(String fileUrl) {
+        try {
+            RestTemplate restTemplate = new RestTemplate();
+            HttpHeaders headers = new HttpHeaders();
+            headers.set("Authorization", "token " + lectureGitHubToken);
+            headers.set("Accept", "application/vnd.github.v3+json");
+
+            HttpEntity<Void> requestEntity = new HttpEntity<>(headers);
+
+            // GitHub API에서 파일 경로를 추출
+            String filePath = extractFilePath(fileUrl);
+            String url = "https://api.github.com/repos/rudalsdl/lectureSave/contents/" + filePath;
+
+            // SHA 값을 가져오는 요청
+            ResponseEntity<Map> response = restTemplate.exchange(url, HttpMethod.GET, requestEntity, Map.class);
+            String sha = (String) response.getBody().get("sha");
+
+            // 파일 삭제 요청
+            Map<String, String> deleteBody = Map.of(
+                    "message", "Delete file " + filePath,
+                    "sha", sha
+            );
+
+            HttpEntity<Map<String, String>> deleteRequestEntity = new HttpEntity<>(deleteBody, headers);
+            restTemplate.exchange(url, HttpMethod.DELETE, deleteRequestEntity, Map.class);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private String extractFilePath(String fileUrl) {
+        // "https://raw.githubusercontent.com/rudalsdl/lectureSave/main/" 제거
+        return fileUrl.replace("https://raw.githubusercontent.com/rudalsdl/lectureSave/main/", "");
     }
 
     // 강의 댓글 목록
