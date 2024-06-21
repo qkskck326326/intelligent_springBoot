@@ -24,7 +24,7 @@ public class LecturePackageDetail {
     private String content;
     private int priceKind;
     private int price;
-    private String packageLevel;
+    private int packageLevel;
     private String thumbnail;
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     private Date registerDate;

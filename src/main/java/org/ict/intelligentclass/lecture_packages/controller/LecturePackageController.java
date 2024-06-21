@@ -11,6 +11,8 @@ import org.ict.intelligentclass.lecture_packages.jpa.output.LecturePackageDetail
 import org.ict.intelligentclass.lecture_packages.jpa.output.LecturePackageList;
 
 import org.ict.intelligentclass.lecture_packages.model.service.LecturePackageService;
+import org.ict.intelligentclass.user.model.dto.UserDto;
+import org.ict.intelligentclass.user.model.service.UserService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
@@ -28,6 +30,7 @@ import java.util.Map;
 public class LecturePackageController {
 
     private final LecturePackageService lecturePackageService;
+    private final UserService userService;
 
 
 
@@ -111,6 +114,12 @@ public class LecturePackageController {
         return ResponseEntity.ok().build();
     }
 
+
+    @GetMapping("/profile")
+    public ResponseEntity<UserDto> getUserByNickname(@RequestParam String nickname){
+        UserDto user = userService.getUserByNickname(nickname);
+        return ResponseEntity.ok(user);
+    }
 
 
 

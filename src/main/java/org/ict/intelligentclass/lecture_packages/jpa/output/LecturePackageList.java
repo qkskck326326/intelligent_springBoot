@@ -21,6 +21,7 @@ public class LecturePackageList {
     private String thumbnail;
     private int viewCount;
     private Date registerDate;
+    private int packageLevel;
     private int ratingId;
     private float rating;
 

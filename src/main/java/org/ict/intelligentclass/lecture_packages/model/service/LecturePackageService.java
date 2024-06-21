@@ -94,6 +94,7 @@ public class LecturePackageService {
                 .title(lecturePackage.getTitle())
                 .thumbnail(lecturePackage.getThumbnail())
                 .viewCount(lecturePackage.getViewCount())
+                .packageLevel(lecturePackage.getPackageLevel())
                 .registerDate(lecturePackage.getRegisterDate())
                 .ratingId(rating != null ? rating.getRatingId() : 0)
                 .rating(rating != null ? rating.getRating() : 0.0f)
@@ -168,6 +169,7 @@ public class LecturePackageService {
                             .title(packageEntity.getTitle())
                             .thumbnail(packageEntity.getThumbnail())
                             .viewCount(packageEntity.getViewCount())
+                            .packageLevel(packageEntity.getPackageLevel())
                             .rating((float) rating)
                             .build();
                 })
@@ -231,6 +233,7 @@ public class LecturePackageService {
                                 .title(packageEntity.getTitle())
                                 .thumbnail(packageEntity.getThumbnail())
                                 .viewCount(packageEntity.getViewCount())
+                                .packageLevel(packageEntity.getPackageLevel())
                                 .rating((float) rating)
                                 .build();
                     })
