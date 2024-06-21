@@ -374,7 +374,7 @@ public class ChatService {
 
         messageFileRepository.deleteByMessageId(messageId);
 
-        chatMessage.setMessageContent("삭제된 메시지입니다.");
+        chatMessage.setMessageContent("삭제된 메시지입니다․");
         chatMessage.setMessageType(0L);
 
         chatMessageRepository.save(chatMessage);
