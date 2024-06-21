@@ -163,6 +163,13 @@ public class ChatController {
 
     }
 
+    @PutMapping("/delete/{messageId}")
+    public ResponseEntity<?> deleteMessage(@PathVariable Long messageId) {
+
+        ResponseEntity<ChatMessageEntity> chatMessage = chatService.deleteMessage(messageId);
+        return ResponseEntity.ok(chatMessage);
+    }
+
     @DeleteMapping("/leaveroom")
     public ResponseEntity<?> leaveRoom(@RequestBody Map<String, Object> request) {
 
