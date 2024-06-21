@@ -14,12 +14,14 @@ import org.springframework.data.domain.PageRequest;
 import org.ict.intelligentclass.chat.model.dto.ChatMessagesResponse;
 import org.springframework.data.domain.Sort;
 
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.*;
 import java.io.IOException;
+import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -323,15 +325,18 @@ public class ChatService {
             }
             String randomString = UUID.randomUUID().toString();
             String renamedFileName = randomString + "_" + System.currentTimeMillis() + fileExtension;
-            String fileStorageLocation = "src/main/resources/static/uploads" + renamedFileName;
+            log.info(renamedFileName);
+            //TODO 파일경로
+            String fileStorageLocation = "src/main/resources/static/uploads";
             Path filePath = Paths.get(fileStorageLocation, renamedFileName);
+            log.info(filePath.toString());
             try {
                 Files.write(filePath, file.getBytes());
 
                 MessageFileEntity fileEntity = new MessageFileEntity();
                 fileEntity.setMessageId(message.getMessageId());
                 fileEntity.setSenderId(message.getSenderId());
-                fileEntity.setFileURL(filePath.toString());
+                fileEntity.setFileURL("/chat/files/" + renamedFileName);
                 fileEntity.setFileSize(String.valueOf(file.getSize()));
                 fileEntity.setOriginalName(originalFileName);
                 fileEntity.setRenamedName(renamedFileName);
@@ -342,6 +347,38 @@ public class ChatService {
             }
         }
         return fileEntities;
+    }
+
+    public ResponseEntity<ChatMessageEntity> deleteMessage(Long messageId) {
+
+        Optional<ChatMessageEntity> optionalChatMessage = chatMessageRepository.findById(messageId);
+
+        if (!optionalChatMessage.isPresent()) {
+            return ResponseEntity.notFound().build();
+        }
+
+        ChatMessageEntity chatMessage = optionalChatMessage.get();
+
+        List<MessageFileEntity> messageFiles = messageFileRepository.findByMessageId(messageId);
+        if (!messageFiles.isEmpty()) {
+            for (MessageFileEntity fileEntity : messageFiles) {
+                String fileStorageLocation = "src/main/resources/static/uploads/";
+                File file = new File(fileStorageLocation + fileEntity.getRenamedName());
+                log.info(file.toString());
+                if (file.exists()) {
+                    file.delete();
+                }
+            }
+        }
+
+        messageFileRepository.deleteByMessageId(messageId);
+
+        chatMessage.setMessageContent("삭제된 메시지입니다․");
+        chatMessage.setMessageType(0L);
+
+        chatMessageRepository.save(chatMessage);
+
+        return ResponseEntity.ok(chatMessage);
     }
 }
 

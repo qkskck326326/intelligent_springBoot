@@ -34,7 +34,7 @@ public class LecturePackageEntity {
     private String content;
 
     @Column(name = "PACKAGE_LEVEL", nullable = false)
-    private String packageLevel;
+    private int packageLevel;
 
     @Column(name = "PRICE_KIND", nullable = false)
     private int priceKind;
