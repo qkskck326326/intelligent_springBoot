@@ -362,7 +362,6 @@ public class ChatService {
         List<MessageFileEntity> messageFiles = messageFileRepository.findByMessageId(messageId);
         if (!messageFiles.isEmpty()) {
             for (MessageFileEntity fileEntity : messageFiles) {
-                // TODO 안먹힘
                 String fileStorageLocation = "src/main/resources/static/uploads/";
                 File file = new File(fileStorageLocation + fileEntity.getRenamedName());
                 log.info(file.toString());
