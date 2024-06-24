@@ -8,20 +8,27 @@ import org.ict.intelligentclass.admin.model.dto.BannerDto;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "banners")
+@Table(name = "tb_banners")
 @Getter
 @Setter
 public class BannerEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
+    private Long id;
 
     private String title;
+
+    @Column(name = "image_url")
     private String imageUrl;
+
+    @Column(name = "link_url")
     private String linkUrl;
 
+    @Column(name = "created_at")
     private LocalDateTime createdAt;
+
+    @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
     public static BannerEntity fromDto(BannerDto dto) {

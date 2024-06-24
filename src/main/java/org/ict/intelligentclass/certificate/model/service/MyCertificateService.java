@@ -41,17 +41,6 @@ public class MyCertificateService {
 
         return list;
 
-
-
-//        Page<MyCertificateEntity> pages =myCertificateRepository.findByNicknameContaining(nickname, pageable);
-//        ArrayList<MyCertificateDto> list = new ArrayList<>();
-//
-//        for(MyCertificateEntity entity : pages){
-//            MyCertificateDto myCertificateDto = entity.toDto();
-//            list.add(myCertificateDto);
-//        }
-//        return list;
-
     }
 
     public MyCertificateDto addCertificate(MyCertificateDto certificateDTO) {

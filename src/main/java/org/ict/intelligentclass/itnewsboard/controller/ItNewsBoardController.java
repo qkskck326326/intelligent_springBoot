@@ -59,4 +59,6 @@ public class ItNewsBoardController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
+    //
+
 }//

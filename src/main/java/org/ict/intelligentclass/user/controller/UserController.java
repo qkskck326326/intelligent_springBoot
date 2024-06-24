@@ -1,10 +1,9 @@
 package org.ict.intelligentclass.user.controller;
 
+import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-import org.ict.intelligentclass.security.jwt.util.JwtTokenUtil;
-import org.ict.intelligentclass.security.service.LoginTokenService;
 import org.ict.intelligentclass.user.jpa.entity.UserEntity;
 import org.ict.intelligentclass.user.model.dto.AttendanceDto;
 import org.ict.intelligentclass.user.model.dto.UserDto;
@@ -12,12 +11,13 @@ import org.ict.intelligentclass.user.model.service.UserService;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
+import java.util.*;
 
 @Slf4j
 @RestController
@@ -26,14 +26,12 @@ import java.util.List;
 @CrossOrigin     // 리액트 애플리케이션(포트가 다름)의 자원 요청을 처리하기 위함
 public class UserController {
     private final UserService userService;
-    private final LoginTokenService loginTokenService;
-    private final JwtTokenUtil jwtTokenUtil;
-    private final PasswordEncoder passwordEncoder;
+    private final JavaMailSender mailSender;
 
     @GetMapping
     public ResponseEntity<UserDto> selectUserByEmail(@RequestParam("email") String email,
                                                      @RequestParam("provider") String provider) {
-        log.info("/users/email/provider/" + email, provider + " 사용자 정보 조회 요청");
+        log.info("/users : " + email, provider + " 사용자 정보 조회 요청");
         return new ResponseEntity<>(userService.getUserById(email, provider), HttpStatus.OK);
     }
 
@@ -55,11 +53,11 @@ public class UserController {
         return new ResponseEntity<>(userService.getUserByName(name), HttpStatus.OK);
     }
 
-    @GetMapping("/check-email/{email}/{provider}")
-    public ResponseEntity<String> checkEmailDuplicate(@PathVariable("email") String email,
-                                                      @PathVariable("provider") String provider) {
-        log.info("/users/check-email/" + email + "/" + provider + " 이메일 중복 검사 요청");
-        boolean isDuplicate = userService.checkEmailDuplicate(email, provider);
+    @GetMapping("/check-email")
+    public ResponseEntity<String> checkEmailDuplicate(@RequestParam("userEmail") String userEmail,
+                                                      @RequestParam("provider") String provider) {
+        log.info("/users/check-email : " + userEmail + "," + provider + " 이메일 중복 검사 요청");
+        boolean isDuplicate = userService.checkEmailDuplicate(userEmail, provider);
 
         if (isDuplicate) {
             return new ResponseEntity<>("이메일 중복입니다.", HttpStatus.CONFLICT);
@@ -68,8 +66,8 @@ public class UserController {
         }
     }
 
-    @GetMapping("/check-nickname/{nickname}")
-    public ResponseEntity<String> checkNicknameDuplicate(@PathVariable("nickname") String nickname) {
+    @GetMapping("/check-nickname")
+    public ResponseEntity<String> checkNicknameDuplicate(@RequestParam("nickname") String nickname) {
         log.info("/users/check-nickname/" + nickname + " 닉네임 중복 검사 요청");
 
         boolean isDuplicate = userService.checkNicknameDuplicate(nickname);
@@ -131,6 +129,64 @@ public class UserController {
                                                                 @PathVariable("provider") String provider) {
         log.info("/users/select-attendance/" + email + "/" + provider + " 출석일 조회 요청");
         return new ResponseEntity<>(userService.selectAttendance(email, provider), HttpStatus.OK);
+    }
+
+    @PostMapping("/send-verification-code")
+    public ResponseEntity<Map<String, String>> sendVerificationCode(@RequestParam("userEmail") String userEmail) {
+        log.info("/users/send-verification-code : " + userEmail + " 인증 코드 전송 요청");
+
+        Map<String, String> response = new HashMap<>();
+
+        try {
+            String verificationCode = createKey();
+
+            log.info("회원가입 인증코드 : " + verificationCode);
+
+            String subject = "[INTELLICLASS] 인증 코드 발송 안내";
+            String text = String.format(
+                    "안녕하세요, INTELLICLASS입니다.\n\n" +
+                            "회원님의 계정 보안을 위해 아래의 인증 코드를 입력해 주세요.\n\n" +
+                            "[인증 코드: %s]\n\n" +
+                            "본 메일은 회원님의 요청에 의해 발송되었습니다.\n\n"  +
+                            "만약 본인이 요청하지 않은 경우, 즉시 고객센터로 연락해 주시기 바랍니다.\n\n" +
+                            "감사합니다.\n\n" +
+                            "INTELLICLASS 드림\n\n" +
+                            "------------------------------------------------------------------------------------\n" +
+                            "이 메일은 발신 전용입니다. 회신하지 말아 주세요.",
+                    verificationCode
+            );
+
+            MimeMessage m = mailSender.createMimeMessage();
+            MimeMessageHelper h = new MimeMessageHelper(m, "UTF-8");
+            h.setFrom("officialintelliclass@naver.com");
+            h.setTo(userEmail);
+            h.setSubject(subject);
+            h.setText(text);
+            mailSender.send(m);
+
+            response.put("verificationCode", verificationCode); // 인증 코드 포함
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        } catch (Exception e) {
+            log.error("Failed to send verification code", e);
+            response.put("message", "인증 코드 전송에 실패했습니다."); // 오류 메시지 포함
+            return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    // 랜덤 인증코드 생성
+    private String createKey() throws Exception {
+        int length = 6;
+        try {
+            Random random = SecureRandom.getInstanceStrong();
+            StringBuilder builder = new StringBuilder();
+            for (int i = 0; i < length; i++) {
+                builder.append(random.nextInt(10));
+            }
+            return builder.toString();
+        } catch (NoSuchAlgorithmException e) {
+            log.debug("UserController createKey() exception occur");
+            throw new Exception(e.getMessage());
+        }
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
