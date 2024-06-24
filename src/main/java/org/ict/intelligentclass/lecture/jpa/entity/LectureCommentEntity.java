@@ -36,7 +36,7 @@ public class LectureCommentEntity {
     private String nickname;
 
     @Column(name = "PARENT_COMMENT_ID")
-    private int parentCommentId;
+    private Integer parentCommentId;
 
     // entity -> dto 변환 메서드 추가
     public LectureCommentDto toDto() {

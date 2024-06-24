@@ -188,13 +188,13 @@ public class LectureController {
 
     // 강의 댓글 목록
     @GetMapping("/comments/{lectureId}")
-    public ResponseEntity<List<LectureCommentDto>> getLectureComments(@PathVariable("lectureId") int lectureId) {
-        List<LectureCommentDto> lectureComments = lectureService.getLectureComments(lectureId);
+    public ResponseEntity<List<CommentDto>> getLectureComments(@PathVariable("lectureId") int lectureId) {
+        List<CommentDto> lectureComments = lectureService.getLectureComments(lectureId);
         return new ResponseEntity<>(lectureComments, HttpStatus.OK);
     }
 
     // 강의 댓글 추가
-    @PostMapping("/comments/{lectureId}")
+    @PostMapping("/comments")
     public ResponseEntity<String> insertLectureComment(@RequestBody CommentInput commentInput) {
         lectureService.insertLectureComment(commentInput);
         return new ResponseEntity<>("Comment added successfully", HttpStatus.CREATED);
