@@ -22,7 +22,7 @@ public class WebConfig implements WebMvcConfigurer {  // 상속받음. WebMvcCon
         registry.addMapping("/**") // 이 설정은 모든 URL 패턴(/**)에 CORS 정책을 적용하겠다는 의미
                 // 오직 "http://localhost:3000" 이 오리진에서 오는 요청만 허용한다는 의미임.
                 // 개발 단계에서는 프론트엔드 서버의 주소가 됨.
-                .allowedOrigins("http://localhost:3000")
+                .allowedOriginPatterns("http://localhost:3000")
                 //.allowedOrigins("*") // 모든 도메인에서의 요청을 허용
 
                 // 해당 오리진에서 허용할 http 메소드를 지정함.
