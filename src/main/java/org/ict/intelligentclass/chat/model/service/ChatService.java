@@ -3,6 +3,7 @@ package org.ict.intelligentclass.chat.model.service;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.ict.intelligentclass.chat.controller.ChatWebSocketController;
 import org.ict.intelligentclass.chat.jpa.entity.*;
 import org.ict.intelligentclass.chat.jpa.repository.*;
 import org.ict.intelligentclass.chat.model.dto.ChatMessageDto;
@@ -39,6 +40,7 @@ public class ChatService {
     private final MessageFileRepository messageFileRepository;
     private final MessageReadRepository messageReadRepository;
     private final UserRepository userRepository;
+    private final WebSocketService webSocketService;
 
 
 
@@ -306,9 +308,14 @@ public class ChatService {
     }
 
     public ChatMessageEntity saveMessage(ChatMessageEntity chatMessageEntity) {
+        log.info("Saving message: {}", chatMessageEntity);
         chatMessageEntity.setDateSent(new Date());
-
         ChatMessageEntity savedMessage = chatMessageRepository.save(chatMessageEntity);
+        log.info("Message saved: {}", savedMessage);
+
+        //변경점
+        webSocketService.sendToSpecificRoom(chatMessageEntity.getRoomId(), savedMessage);
+        log.info("Message sent to WebSocket: {}", savedMessage);
 
         // Mark message as read by sender
         MessageReadEntity messageReadEntity = new MessageReadEntity();
@@ -317,7 +324,16 @@ public class ChatService {
         messageReadEntity.setRoomId(chatMessageEntity.getRoomId());
         messageReadEntity.setReadAt(new Date());
 
+        //변경점이 있음
+//        MessageReadEntity messageReadEntity = new MessageReadEntity();
+//        messageReadEntity.setMessageId(savedMessage.getMessageId());
+//        messageReadEntity.setUserId(chatMessageEntity.getSenderId());
+//        messageReadEntity.setRoomId(chatMessageEntity.getRoomId());
+//        messageReadRepository.save(messageReadEntity);
+
+
         messageReadRepository.save(messageReadEntity);
+        log.info("Message read entry saved: {}", messageReadEntity);
 
         return savedMessage;
     }

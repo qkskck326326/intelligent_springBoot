@@ -15,6 +15,7 @@ import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -33,6 +34,7 @@ public class ChatController {
 
     private final ChatService chatService;
     private final Path fileStorageLocation = Paths.get("src/main/resources/static/uploads").toAbsolutePath().normalize();
+    private final SimpMessagingTemplate template;
 
     @GetMapping("/countunreadall")
     public ResponseEntity<Long> countUnreadAll(@RequestParam String userId) {
@@ -75,7 +77,9 @@ public class ChatController {
     @PostMapping(value = "/sendmessage")
     public ResponseEntity<ChatMessageEntity> sendMessage(
             @RequestBody ChatMessageEntity chatMessageEntity) {
+        log.info("Received message to send: {}", chatMessageEntity);
         ChatMessageEntity savedMessage = chatService.saveMessage(chatMessageEntity);
+        log.info("Saved message: {}", savedMessage);
         return ResponseEntity.ok(savedMessage);
     }
 
@@ -87,14 +91,6 @@ public class ChatController {
             @PathVariable String dateSent,
             @PathVariable Long isAnnouncement,
             @RequestParam(value = "files") List<MultipartFile> files) throws ParseException {
-
-        log.info("uploadFiles start");
-        log.info("roomId: " + roomId);
-        log.info("senderId: " + senderId);
-        log.info("messageType: " + messageType);
-        log.info("dateSent: " + dateSent);
-        log.info("isAnnouncement: " + isAnnouncement);
-        log.info("files: " + files);
 
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSX");
         sdf.setTimeZone(TimeZone.getTimeZone("Asia/Seoul"));
