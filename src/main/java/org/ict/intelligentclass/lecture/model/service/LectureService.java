@@ -172,7 +172,7 @@ public class LectureService {
 
     // 강의 댓글 목록
     public List<CommentDto> getLectureComments(int lectureId) {
-        List<LectureCommentEntity> lectureCommentEntities = lectureCommentRepository.findByLectureId(lectureId);
+        List<LectureCommentEntity> lectureCommentEntities = lectureCommentRepository.findByLectureIdOrderByLectureCommentDateDesc(lectureId);
         List<CommentDto> lectureCommentDtos = new ArrayList<>();
         for (LectureCommentEntity lectureCommentEntity : lectureCommentEntities) {
             UserEntity userEntity = userRepository.findByNickname(lectureCommentEntity.getNickname()).orElse(null);
@@ -191,18 +191,17 @@ public class LectureService {
         lectureCommentEntity.setNickname(commentInput.getNickname());
         lectureCommentEntity.setLectureCommentContent(commentInput.getLectureCommentContent());
         lectureCommentEntity.setLectureCommentDate(new Date());
-        lectureCommentEntity.setParentCommentId(commentInput.getParentCommentId() != null ? commentInput.getParentCommentId() : null);
-        lectureCommentEntity.setLectureCommentReply(commentInput.getParentCommentId() != null ? "Y" : "N");
+        lectureCommentEntity.setParentCommentId(commentInput.getParentCommentId());
 
         lectureCommentRepository.save(lectureCommentEntity);
     }
 
     // 강의 댓글 수정
-    public void updateLectureComment(int lectureCommentId, String content) {
+    public void updateLectureComment(int lectureCommentId, String lectureCommentContent) {
         Optional<LectureCommentEntity> lectureCommentEntityOpt = lectureCommentRepository.findByLectureCommentId(lectureCommentId);
         if (lectureCommentEntityOpt.isPresent()) {
             LectureCommentEntity lectureCommentEntity = lectureCommentEntityOpt.get();
-            lectureCommentEntity.setLectureCommentContent(content);
+            lectureCommentEntity.setLectureCommentContent(lectureCommentContent);
             lectureCommentRepository.save(lectureCommentEntity);
         }
     }

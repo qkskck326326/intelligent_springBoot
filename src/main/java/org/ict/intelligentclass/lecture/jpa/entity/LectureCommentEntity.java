@@ -15,7 +15,8 @@ import java.util.Date;
 public class LectureCommentEntity {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "lecture_comment_seq_generator")
+    @SequenceGenerator(name = "lecture_comment_seq_generator", sequenceName = "SQ_LECTURE_COMMENT_ID", allocationSize = 1)
     @Column(name = "LECTURE_COMMENT_ID")
     private int lectureCommentId;
 

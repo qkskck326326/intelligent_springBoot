@@ -11,7 +11,7 @@ import java.util.Optional;
 public interface LectureCommentRepository
     extends JpaRepository<LectureCommentEntity, String> {
 
-    List<LectureCommentEntity> findByLectureId(int lectureId);
+    List<LectureCommentEntity> findByLectureIdOrderByLectureCommentDateDesc(int lectureId);
 
     Optional<LectureCommentEntity> findByLectureCommentId(int lectureCommentId);
 
