@@ -1,5 +1,6 @@
 package org.ict.intelligentclass.lecture_packages.model.service;
 
+
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -17,6 +18,7 @@ import org.ict.intelligentclass.user.jpa.entity.UserInterestEntity;
 import org.ict.intelligentclass.user.jpa.repository.UserInterestRepository;
 import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
+
 
 
 import java.util.*;
@@ -409,19 +411,32 @@ public class LecturePackageService {
     }
 
 
-    //조회수 +1증가처리
+
+
+    //조회수
     @Transactional
-    public void incrementViewCount(Long lecturePackageId) {
-        Optional<LecturePackageEntity> lecturePackageOpt = lecturePackageRepository.findById(lecturePackageId);
-        if (lecturePackageOpt.isPresent()) {
-            LecturePackageEntity lecturePackage = lecturePackageOpt.get();
+    public void increaseViewCount(Long lecturePackageId) {
+        Optional<LecturePackageEntity> optionalLecturePackage = lecturePackageRepository.findById(lecturePackageId);
+        if (optionalLecturePackage.isPresent()) {
+            LecturePackageEntity lecturePackage = optionalLecturePackage.get();
             lecturePackage.setViewCount(lecturePackage.getViewCount() + 1);
             lecturePackageRepository.save(lecturePackage);
+            System.out.println("View count increased: " + lecturePackage.getViewCount());
+        } else {
+            System.out.println("Lecture package not found with ID: " + lecturePackageId);
+            throw new IllegalArgumentException("Invalid lecture package ID: " + lecturePackageId);
         }
     }
 
-
-
+    public String getAuthorNickname(Long lecturePackageId) {
+        Optional<LecturePackageEntity> optionalLecturePackage = lecturePackageRepository.findById(lecturePackageId);
+        if (optionalLecturePackage.isPresent()) {
+            return optionalLecturePackage.get().getNickname();
+        } else {
+            System.out.println("Lecture package not found with ID: " + lecturePackageId);
+            throw new IllegalArgumentException("Invalid lecture package ID: " + lecturePackageId);
+        }
+    }
 
 
 

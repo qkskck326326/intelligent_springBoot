@@ -1,6 +1,9 @@
 package org.ict.intelligentclass.lecture_packages.controller;
 
 
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -18,6 +21,10 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -107,11 +114,59 @@ public class LecturePackageController {
         return ResponseEntity.noContent().build();
     }
 
+
+
+    //쿠키에 삽입전 인코더
+    private String encodeValue(String value) {
+        try {
+            return URLEncoder.encode(value, "UTF-8").replace("+", "%20");
+        } catch (UnsupportedEncodingException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+
+
+
     //패키지조회수 1 올리기
     @PutMapping("/view/{lecturePackageId}")
-    public ResponseEntity<Void> incrementViewCount(@PathVariable Long lecturePackageId) {
-        lecturePackageService.incrementViewCount(lecturePackageId);
-        return ResponseEntity.ok().build();
+    public void increaseViewCount(@PathVariable Long lecturePackageId, @RequestParam String nickname, HttpServletRequest request, HttpServletResponse response) {
+        System.out.println("increaseViewCount called with lecturePackageId: " + lecturePackageId + " and nickname: " + nickname);
+
+        String encodedNickname = encodeValue(nickname);
+        String viewCookieName = "packageViewed_" + lecturePackageId + "_" + encodedNickname;
+
+        Cookie[] cookies = request.getCookies();
+        boolean isViewed = false;
+
+        if (cookies != null) {
+            for (Cookie cookie : cookies) {
+                if (viewCookieName.equals(cookie.getName())) {
+                    isViewed = true;
+                    break;
+                }
+            }
+        }
+
+        String authorNickname = lecturePackageService.getAuthorNickname(lecturePackageId);
+        System.out.println("Author nickname: " + authorNickname);
+
+        if (nickname.equals(authorNickname)) {
+            if (!isViewed) {
+                Cookie viewCookie = new Cookie(viewCookieName, "true");
+                viewCookie.setPath("/");
+                viewCookie.setMaxAge(60 * 60 * 24); // 쿠키 유효 기간을 1일로 설정
+                viewCookie.setHttpOnly(false); // 클라이언트 측에서 쿠키를 접근할 수 있도록 설정
+                response.addCookie(viewCookie);
+                lecturePackageService.increaseViewCount(lecturePackageId);
+                System.out.println("View count increased for author.");
+            } else {
+                System.out.println("Author has already viewed this today.");
+            }
+        } else {
+            lecturePackageService.increaseViewCount(lecturePackageId);
+            System.out.println("View count increased for non-author.");
+        }
     }
 
 
@@ -120,11 +175,4 @@ public class LecturePackageController {
         UserDto user = userService.getUserByNickname(nickname);
         return ResponseEntity.ok(user);
     }
-
-
-
-
-
-
-
 }
