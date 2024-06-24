@@ -67,22 +67,28 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .formLogin(AbstractHttpConfigurer::disable) // form 태그로 submit 해서 오는 로그인 사용 못 하게 함
                 .httpBasic(AbstractHttpConfigurer::disable) // 시큐리티 제공 로그인을 사용 못하게 함
+
                 // HTTP 요청에 대한 접근 권한을 설정함
                 .authorizeHttpRequests(auth -> auth
                         // .requestMatchers("/**").permitAll() // 모든 경로에 대해 접근 허용
 
-
                         .requestMatchers(HttpMethod.POST, "/admins/**").hasRole("ADMIN") // '/notice' 경로에 대한 POST 요청은 ADMIN 역할을 가진 사용자만 가능합니다.
+                        .requestMatchers(HttpMethod.GET, "/admins/banners/**").hasRole("ADMIN") // GET 요청은 ADMIN 역할을 가진 사용자만 접근 가능합니다.
+                        .requestMatchers(HttpMethod.POST, "/admins/banners/**").hasRole("ADMIN") // POST 요청은 ADMIN 역할을 가진 사용자만 접근 가능합니다.
+                        .requestMatchers(HttpMethod.PUT, "/admins/banners/**").hasRole("ADMIN") // PUT 요청은 ADMIN 역할을 가진 사용자만 접근 가능합니다.
+                        .requestMatchers(HttpMethod.DELETE, "/admins/banners/**").hasRole("ADMIN") // DELETE 요청은 ADMIN 역할을 가진 사용자만 접근 가능합니다.
 
                         // 해당 경로들은 인증 없이 접근 가능합니다.
-                        .requestMatchers("/users/user", "/login", "/logout", "/notice", "/reissue", "/kakao/**", "/naver", "/google").permitAll() // 태석
+                        .requestMatchers("/users/user", "/users/check-email", "/users/send-verification-code", "/users/check-nickname", "/login", "/logout", "/reissue", "/kakao/**", "/naver", "/google").permitAll() // 태석
                         .requestMatchers("/categories/upper", "/packages/upperCategorypackageall", "/packages", "/packages/detail").permitAll() // 채림
                         .requestMatchers("/posts/top10", "/posts/list", "/posts/searchTitleOrContent", "/posts/searchlistByCategory", "/api/files/**").permitAll() // 도하
-                        .requestMatchers("/announcement/**", "/chat/**", "/users/getpeople").permitAll() // 강
+                        .requestMatchers("/announcement/**", "/chat/**", "/users/getpeople", "/ws/**").permitAll() // 강
                         // .requestMatchers("/").permitAll() // 경민
+
                         // .requestMatchers("/").permitAll() // 시원
                         .requestMatchers("/itNewsBoard/**", "/itNewsSite/**").permitAll() // 건우
                         .requestMatchers("/file/view/*","/file/download/*").permitAll() // 공통?
+
 
 
                         /* 강사님 코드
