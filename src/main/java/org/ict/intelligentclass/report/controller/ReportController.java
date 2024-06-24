@@ -18,17 +18,34 @@ public class ReportController {
 
     private final ReportService reportService;
 
+    //리스트 조회
     @GetMapping
     public ResponseEntity<List<ReportEntity>> getReportListAll(){
         List<ReportEntity> reportList = reportService.getReportListAll();
         return ResponseEntity.ok(reportList);
     }
 
+    //신고클릭시 추가
     @PostMapping
     public ResponseEntity<ReportEntity> postReport(@RequestBody ReportEntity reportEntity){
         ReportEntity report = reportService.insertReport();
         return ResponseEntity.ok(report);
     }
+
+    //승인 처리 -> user테이블에 reportCount 수정
+    @PostMapping("/increment")
+    public ResponseEntity<ReportEntity> incrementReportCount(@RequestParam String nickname, @RequestParam Long reportId) {
+        reportService.incrementReportCount(nickname, reportId);
+        return ResponseEntity.ok().build();
+    }
+
+    //삭제 처리
+    @DeleteMapping
+    public ResponseEntity<ReportEntity> deleteReport(@RequestParam Long reportId) {
+        reportService.deleteReport(reportId);
+        return ResponseEntity.ok().build();
+    }
+
 
 
 
