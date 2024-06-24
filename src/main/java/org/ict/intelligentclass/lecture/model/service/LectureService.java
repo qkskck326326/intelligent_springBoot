@@ -7,7 +7,6 @@ import org.ict.intelligentclass.lecture.jpa.entity.RatingEntity;
 import org.ict.intelligentclass.lecture.jpa.entity.input.CommentInput;
 import org.ict.intelligentclass.lecture.jpa.entity.input.LectureReadInput;
 import org.ict.intelligentclass.lecture.jpa.entity.output.*;
-import org.ict.intelligentclass.lecture.model.dto.LectureCommentDto;
 import org.ict.intelligentclass.lecture_packages.jpa.entity.LecturePackageEntity;
 import org.ict.intelligentclass.lecture_packages.jpa.repository.LecturePackageRepository;
 import org.ict.intelligentclass.lecture.jpa.entity.LectureEntity;
@@ -18,6 +17,8 @@ import org.ict.intelligentclass.lecture.jpa.repository.LectureRepository;
 import org.ict.intelligentclass.lecture.jpa.repository.RatingRepository;
 import org.ict.intelligentclass.lecture.jpa.entity.input.RatingInput;
 import org.ict.intelligentclass.lecture.jpa.entity.input.LectureInput;
+import org.ict.intelligentclass.user.jpa.entity.UserEntity;
+import org.ict.intelligentclass.user.jpa.repository.UserRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -36,6 +37,7 @@ public class LectureService {
     private final LectureCommentRepository lectureCommentRepository;
     private final LectureReadRepository lectureReadRepository;
     private final RatingRepository ratingRepository;
+    private final UserRepository userRepository;
 
     // 강의 패키지 타이틀 가져오기
     public LecturePackageEntity selectLecturePackageTitle(Long lecturePackageId) {
@@ -169,20 +171,15 @@ public class LectureService {
     }
 
     // 강의 댓글 목록
-    public List<LectureCommentDto> getLectureComments(int lectureId) {
-        List<LectureCommentEntity> lectureCommentEntities = lectureCommentRepository.findByLectureId(lectureId);
-        List<LectureCommentDto> lectureCommentDtos = new ArrayList<>();
+    public List<CommentDto> getLectureComments(int lectureId) {
+        List<LectureCommentEntity> lectureCommentEntities = lectureCommentRepository.findByLectureIdOrderByLectureCommentDateDesc(lectureId);
+        List<CommentDto> lectureCommentDtos = new ArrayList<>();
         for (LectureCommentEntity lectureCommentEntity : lectureCommentEntities) {
-            LectureCommentDto lectureCommentDto = LectureCommentDto.builder()
-                    .lectureCommentId(lectureCommentEntity.getLectureCommentId())
-                    .lectureId(lectureCommentEntity.getLectureId())
-                    .lectureCommentReply(lectureCommentEntity.getLectureCommentReply())
-                    .lectureCommentContent(lectureCommentEntity.getLectureCommentContent())
-                    .lectureCommentDate(lectureCommentEntity.getLectureCommentDate())
-                    .nickname(lectureCommentEntity.getNickname())
-                    .parentCommentId(lectureCommentEntity.getParentCommentId())
-                    .build();
-            lectureCommentDtos.add(lectureCommentDto);
+            UserEntity userEntity = userRepository.findByNickname(lectureCommentEntity.getNickname()).orElse(null);
+            if (userEntity != null) {
+                CommentDto lectureCommentDto = new CommentDto(lectureCommentEntity, userEntity);
+                lectureCommentDtos.add(lectureCommentDto);
+            }
         }
         return lectureCommentDtos;
     }
@@ -200,11 +197,11 @@ public class LectureService {
     }
 
     // 강의 댓글 수정
-    public void updateLectureComment(int lectureCommentId, String content) {
+    public void updateLectureComment(int lectureCommentId, String lectureCommentContent) {
         Optional<LectureCommentEntity> lectureCommentEntityOpt = lectureCommentRepository.findByLectureCommentId(lectureCommentId);
         if (lectureCommentEntityOpt.isPresent()) {
             LectureCommentEntity lectureCommentEntity = lectureCommentEntityOpt.get();
-            lectureCommentEntity.setLectureCommentContent(content);
+            lectureCommentEntity.setLectureCommentContent(lectureCommentContent);
             lectureCommentRepository.save(lectureCommentEntity);
         }
     }
@@ -214,8 +211,8 @@ public class LectureService {
         lectureCommentRepository.deleteByLectureCommentId(lectureCommentId);
     }
     
-    // 강의 수정
-    // 강의 삭제
+
+
     // 강의 댓글 유저 정보 가져오기
 
 }

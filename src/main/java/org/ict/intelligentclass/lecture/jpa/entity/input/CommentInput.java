@@ -14,5 +14,5 @@ public class CommentInput {
     private int lectureId;
     private String nickname;
     private String lectureCommentContent;
-    private int parentCommentId;
+    private Integer parentCommentId;
 }
