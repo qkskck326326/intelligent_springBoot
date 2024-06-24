@@ -2,17 +2,25 @@ package org.ict.intelligentclass.admin.controller;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.ict.intelligentclass.admin.jpa.entity.BannerEntity;
+import org.ict.intelligentclass.admin.jpa.repository.BannerRepository;
 import org.ict.intelligentclass.admin.model.dto.BannerDto;
 import org.ict.intelligentclass.admin.model.service.BannerService;
 import org.ict.intelligentclass.user.model.dto.AttendanceDto;
 import org.ict.intelligentclass.user.model.dto.UserDto;
 import org.ict.intelligentclass.user.model.service.UserService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -20,11 +28,15 @@ import java.util.stream.Collectors;
 @Slf4j
 @RestController
 @RequestMapping("/admins")
-@RequiredArgsConstructor
 @CrossOrigin // 리액트 애플리케이션(포트가 다름)의 자원 요청을 처리하기 위함
 public class AdminController {
     private final UserService userService;
     private final BannerService bannerService;
+
+    public AdminController(UserService userService, BannerService bannerService) {
+        this.userService = userService;
+        this.bannerService = bannerService;
+    }
 
     @GetMapping
     public ResponseEntity<UserDto> selectAdminByEmail(@RequestParam("email") String email,
@@ -256,28 +268,60 @@ public class AdminController {
         }
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
-//
-//    @GetMapping
-//    public ResponseEntity<List<BannerDto>> getAllBanners() {
-//        List<BannerDto> banners = bannerService.getAllBanners();
-//        return new ResponseEntity<>(banners, HttpStatus.OK);
-//    }
-//
-//    @PostMapping
-//    public ResponseEntity<BannerDto> createBanner(@RequestBody BannerDto bannerDto) {
-//        BannerDto createdBanner = bannerService.createBanner(bannerDto);
-//        return new ResponseEntity<>(createdBanner, HttpStatus.CREATED);
-//    }
-//
-//    @PutMapping("/{insertBanner}")
-//    public ResponseEntity<BannerDto> updateBanner(@PathVariable int id, @RequestBody BannerDto bannerDto) {
-//        BannerDto updatedBanner = bannerService.updateBanner(id, bannerDto);
-//        return new ResponseEntity<>(updatedBanner, HttpStatus.OK);
-//    }
-//
-//    @DeleteMapping("/{deleteBanner}")
-//    public ResponseEntity<Void> deleteBanner(@PathVariable int id) {
-//        bannerService.deleteBanner(id);
-//        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-//    }
+
+
+
+
+
+    @GetMapping("/banners")
+    public ResponseEntity<List<BannerDto>> getAllBanners() {
+        List<BannerDto> banners = bannerService.getAllBanners()
+                .stream()
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(banners);
+    }
+
+    @PostMapping("/banners")
+    public ResponseEntity<BannerDto> createBanner(@RequestParam("title") String title,
+                                                  @RequestParam("linkUrl") String linkUrl,
+                                                  @RequestParam("imageFile") MultipartFile imageFile) throws IOException {
+        BannerDto bannerDto = new BannerDto();
+        bannerDto.setTitle(title);
+        bannerDto.setLinkUrl(linkUrl);
+        bannerDto.setImageUrl(bannerService.storeImage(imageFile));
+        BannerEntity savedBanner = bannerService.saveBanner(BannerEntity.fromDto(bannerDto));
+        return ResponseEntity.ok(savedBanner.toDto());
+    }
+
+    @PutMapping("/banners/{id}")
+    public ResponseEntity<BannerDto> updateBanner(@PathVariable Long id,
+                                                  @RequestParam("title") String title,
+                                                  @RequestParam("linkUrl") String linkUrl,
+                                                  @RequestParam(value = "imageFile", required = false) MultipartFile imageFile) throws IOException {
+        BannerEntity banner = bannerService.getBannerEntityById(id);
+        BannerDto bannerDto = new BannerDto();
+        bannerDto.setTitle(title);
+        bannerDto.setLinkUrl(linkUrl);
+        if (imageFile != null) {
+            bannerDto.setImageUrl(bannerService.storeImage(imageFile));
+        }
+        banner.updateFromDto(bannerDto);
+        BannerEntity updatedBanner = bannerService.saveBanner(banner);
+        return ResponseEntity.ok(updatedBanner.toDto());
+    }
+
+    @DeleteMapping("/banners/{id}")
+    public ResponseEntity<Void> deleteBanner(@PathVariable Long id) {
+        bannerService.deleteBanner(id);
+        return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/banners/latest")
+    public ResponseEntity<BannerDto> getLatestBanner() {
+        BannerDto latestBanner = bannerService.getLatestBanner();
+        if (latestBanner == null) {
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok(latestBanner);
+    }
 }
