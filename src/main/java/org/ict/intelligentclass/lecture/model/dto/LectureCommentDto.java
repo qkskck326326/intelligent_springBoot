@@ -21,7 +21,7 @@ public class LectureCommentDto {
     private String lectureCommentContent;
     private Date lectureCommentDate;
     private String nickname;
-    private int parentCommentId;
+    private Integer parentCommentId;
 
     // 엔티티로 변환하는 메서드
     public LectureCommentEntity toEntity() {
