@@ -38,7 +38,7 @@ public class MyCertificateService {
             MyCertificateDto myCertificateDto = entity.toDto();
             list.add(myCertificateDto);
         }
-
+        log.info("list : ", list);
         return list;
 
     }

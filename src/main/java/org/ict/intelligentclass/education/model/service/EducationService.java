@@ -23,8 +23,14 @@ public class EducationService {
     //닉네임으로 조회.
     public List<EducationEntity> getAllEducations(String nickname) {
         List<EducationEntity> educations = educationRepository.findByNickname(nickname);
-
+        log.info("getAllEducations: " + educations);
         return educations;
+    }
+
+    public EducationEntity getDetaill(Long educationId) {
+        EducationEntity education = educationRepository.findById(educationId).get();
+
+        return education;
     }
 
 
@@ -36,12 +42,14 @@ public class EducationService {
 
 
 
-    public EducationEntity updateEducationByNickname(Long educationId, EducationEntity updatedEducation) {
-        Optional<EducationEntity> educationEntityOptional = educationRepository.findById(educationId);
+    public EducationEntity updateEducationByNickname(EducationEntity updatedEducation) {
+        Optional<EducationEntity> educationEntityOptional = educationRepository.findById(updatedEducation.getEducationId());
 
         if (educationEntityOptional.isPresent()) {
             EducationEntity educationEntity = educationEntityOptional.get();
 
+            educationEntity.setEducationId(updatedEducation.getEducationId());
+            educationEntity.setNickname(updatedEducation.getNickname());
             educationEntity.setEducationLevel(updatedEducation.getEducationLevel());
             educationEntity.setSchoolName(updatedEducation.getSchoolName());
             educationEntity.setEducationStatus(updatedEducation.getEducationStatus());

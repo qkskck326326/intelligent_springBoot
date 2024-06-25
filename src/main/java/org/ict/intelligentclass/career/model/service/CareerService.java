@@ -32,12 +32,14 @@ public class CareerService {
 
 
 
-    public CareerEntity updateCareerById(Long careerId, CareerEntity updatedCareer) {
-        Optional<CareerEntity> careerEntityOptional = careerRepository.findById(careerId);
+    public CareerEntity updateCareerById(CareerEntity updatedCareer) {
+        Optional<CareerEntity> careerEntityOptional = careerRepository.findById(updatedCareer.getCareerId());
 
         if (careerEntityOptional.isPresent()) {
             CareerEntity careerEntity = careerEntityOptional.get();
 
+            careerEntity.setCareerId(updatedCareer.getCareerId());
+            careerEntity.setNickname(updatedCareer.getNickname());
             careerEntity.setInstitutionName(updatedCareer.getInstitutionName());
             careerEntity.setDepartment(updatedCareer.getDepartment());
             careerEntity.setPosition(updatedCareer.getPosition());
