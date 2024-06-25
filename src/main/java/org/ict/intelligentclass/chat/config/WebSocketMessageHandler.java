@@ -33,12 +33,12 @@ public class WebSocketMessageHandler extends TextWebSocketHandler {
     @Override
     public void afterConnectionEstablished(WebSocketSession session) throws Exception {
         sessions.add(session);
-        log.info("웹소켓 연결 설정됨: " + session.getId());
+        log.info("웹소켓 연결 설정 됨: " + session.getId());
     }
 
     @Override
     protected void handleTextMessage(WebSocketSession session, TextMessage message) throws Exception {
-        log.info("웹소켓이 받은 메시지: " + message.getPayload());
+        log.info("웹소켓이 받은 메시 지: " + message.getPayload());
 
         ChatMessageDto chatMessageDto = objectMapper.readValue(message.getPayload(), ChatMessageDto.class);
 
