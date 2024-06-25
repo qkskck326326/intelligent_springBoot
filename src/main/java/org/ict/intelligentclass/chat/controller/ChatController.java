@@ -1,5 +1,6 @@
 package org.ict.intelligentclass.chat.controller;
 
+import org.ict.intelligentclass.chat.model.dto.*;
 import org.ict.intelligentclass.chat.model.service.WebSocketService;
 import org.ict.intelligentclass.user.jpa.entity.UserEntity;
 import org.springframework.http.HttpHeaders;
@@ -7,10 +8,6 @@ import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.ict.intelligentclass.chat.jpa.entity.*;
-import org.ict.intelligentclass.chat.model.dto.ChatMessagesResponse;
-import org.ict.intelligentclass.chat.model.dto.ChatResponse;
-import org.ict.intelligentclass.chat.model.dto.ChatroomDetailsDto;
-import org.ict.intelligentclass.chat.model.dto.MakeChatDto;
 import org.ict.intelligentclass.chat.model.service.ChatService;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
@@ -19,7 +16,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-import org.ict.intelligentclass.chat.model.dto.ChatMessageDto;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -163,6 +159,10 @@ public class ChatController {
 
         try {
             ChatroomEntity updatedChatRoom = chatService.changeRoomName(roomId, roomName);
+
+            RoomNameChangeDto roomNameChangeDto = new RoomNameChangeDto(roomId, roomName);
+            webSocketService.sendRoomNameChange(roomId, roomNameChangeDto);
+
             return ResponseEntity.ok(updatedChatRoom);
         } catch (EntityNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
@@ -183,9 +183,10 @@ public class ChatController {
 
     @PutMapping("/delete/{messageId}")
     public ResponseEntity<?> deleteMessage(@PathVariable Long messageId) {
-
-        ResponseEntity<ChatMessageEntity> chat = chatService.deleteMessage(messageId);
-        return ResponseEntity.ok(chat);
+        ChatMessageEntity deletedMessage = chatService.deleteMessage(messageId);
+        ChatMessageDto messageDto = chatService.convertToDto(deletedMessage);
+        webSocketService.sendToSpecificRoom(deletedMessage.getRoomId(), messageDto);
+        return ResponseEntity.ok(deletedMessage);
     }
 
     @DeleteMapping("/leaveroom")

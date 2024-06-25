@@ -366,12 +366,12 @@ public class ChatService {
         return fileEntities;
     }
 
-    public ResponseEntity<ChatMessageEntity> deleteMessage(Long messageId) {
+    public ChatMessageEntity deleteMessage(Long messageId) {
 
         Optional<ChatMessageEntity> optionalChatMessage = chatMessageRepository.findById(messageId);
 
         if (!optionalChatMessage.isPresent()) {
-            return ResponseEntity.notFound().build();
+            throw new EntityNotFoundException("Message not found");
         }
 
         ChatMessageEntity chatMessage = optionalChatMessage.get();
@@ -393,9 +393,7 @@ public class ChatService {
         chatMessage.setMessageContent("삭제된 메시지입니다․");
         chatMessage.setMessageType(0L);
 
-        chatMessageRepository.save(chatMessage);
-
-        return ResponseEntity.ok(chatMessage);
+        return chatMessageRepository.save(chatMessage);
     }
 
     public List<UserEntity> getPeople(Long roomId) {
