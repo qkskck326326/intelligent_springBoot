@@ -1,15 +1,13 @@
 package org.ict.intelligentclass.chat.controller;
 
+import org.ict.intelligentclass.chat.model.dto.*;
+import org.ict.intelligentclass.chat.model.service.WebSocketService;
 import org.ict.intelligentclass.user.jpa.entity.UserEntity;
 import org.springframework.http.HttpHeaders;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.ict.intelligentclass.chat.jpa.entity.*;
-import org.ict.intelligentclass.chat.model.dto.ChatMessagesResponse;
-import org.ict.intelligentclass.chat.model.dto.ChatResponse;
-import org.ict.intelligentclass.chat.model.dto.ChatroomDetailsDto;
-import org.ict.intelligentclass.chat.model.dto.MakeChatDto;
 import org.ict.intelligentclass.chat.model.service.ChatService;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
@@ -35,6 +33,7 @@ public class ChatController {
     private final ChatService chatService;
     private final Path fileStorageLocation = Paths.get("src/main/resources/static/uploads").toAbsolutePath().normalize();
     private final SimpMessagingTemplate template;
+    private final WebSocketService webSocketService;
 
     @GetMapping("/countunreadall")
     public ResponseEntity<Long> countUnreadAll(@RequestParam String userId) {
@@ -75,12 +74,21 @@ public class ChatController {
     }
 
     @PostMapping(value = "/sendmessage")
-    public ResponseEntity<ChatMessageEntity> sendMessage(
+    public ResponseEntity<ChatMessageDto> sendMessage(
             @RequestBody ChatMessageEntity chatMessageEntity) {
         log.info("Received message to send: {}", chatMessageEntity);
+
         ChatMessageEntity savedMessage = chatService.saveMessage(chatMessageEntity);
+
         log.info("Saved message: {}", savedMessage);
-        return ResponseEntity.ok(savedMessage);
+
+        ChatMessageDto messageDto = chatService.convertToDto(savedMessage);
+
+        log.info("converted messageDto: {}", messageDto);
+
+        webSocketService.sendToSpecificRoom(savedMessage.getRoomId(), messageDto);
+
+        return ResponseEntity.ok(messageDto);
     }
 
     @PostMapping(value = "/uploadfiles/{roomId}/{senderId}/{messageType}/{dateSent}/{isAnnouncement}", consumes = {"multipart/form-data"})
@@ -108,11 +116,16 @@ public class ChatController {
 
         List<MessageFileEntity> fileEntities = new ArrayList<>();
         if (files != null && !files.isEmpty()) {
-            log.info("여기 실행 들어옴");
+            log.info("파일 프로세싱");
             fileEntities = chatService.saveFiles(savedMessage, files);
         }
 
         ChatResponse response = new ChatResponse(savedMessage, fileEntities);
+
+        ChatMessageDto messageDto = chatService.convertToDto(savedMessage);
+
+        webSocketService.sendToSpecificRoom(roomId, messageDto);
+
         return ResponseEntity.ok(response);
     }
 
@@ -148,6 +161,10 @@ public class ChatController {
 
         try {
             ChatroomEntity updatedChatRoom = chatService.changeRoomName(roomId, roomName);
+
+            RoomNameChangeDto roomNameChangeDto = new RoomNameChangeDto(roomId, roomName);
+            webSocketService.sendRoomNameChange(roomId, roomNameChangeDto);
+
             return ResponseEntity.ok(updatedChatRoom);
         } catch (EntityNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
@@ -157,20 +174,21 @@ public class ChatController {
 
     @PutMapping("/announce")
     public ResponseEntity<ChatMessageEntity> updateAnnouncement(@RequestBody Map<String, Object> request) {
-
         Long messageId = ((Number) request.get("messageId")).longValue();
         Long roomId = ((Number) request.get("roomId")).longValue();
 
         ChatMessageEntity updatedAnnouncement = chatService.updateAnnouncement(roomId, messageId);
+        ChatMessageDto messageDto = chatService.convertToDto(updatedAnnouncement);
+        webSocketService.sendToSpecificRoom(roomId, messageDto);
         return ResponseEntity.ok(updatedAnnouncement);
-
     }
 
     @PutMapping("/delete/{messageId}")
     public ResponseEntity<?> deleteMessage(@PathVariable Long messageId) {
-
-        ResponseEntity<ChatMessageEntity> chat = chatService.deleteMessage(messageId);
-        return ResponseEntity.ok(chat);
+        ChatMessageEntity deletedMessage = chatService.deleteMessage(messageId);
+        ChatMessageDto messageDto = chatService.convertToDto(deletedMessage);
+        webSocketService.sendToSpecificRoom(deletedMessage.getRoomId(), messageDto);
+        return ResponseEntity.ok(deletedMessage);
     }
 
     @DeleteMapping("/leaveroom")
