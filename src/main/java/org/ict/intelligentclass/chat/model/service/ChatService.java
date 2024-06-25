@@ -15,7 +15,6 @@ import org.springframework.data.domain.PageRequest;
 import org.ict.intelligentclass.chat.model.dto.ChatMessagesResponse;
 import org.springframework.data.domain.Sort;
 
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -180,6 +179,7 @@ public class ChatService {
                                         .fileId(file.getFileId())
                                         .messageId(file.getMessageId())
                                         .senderId(file.getSenderId())
+                                        .roomId(file.getRoomId())
                                         .fileURL(file.getFileURL())
                                         .fileSize(file.getFileSize())
                                         .originalName(file.getOriginalName())
@@ -263,15 +263,31 @@ public class ChatService {
     public void leaveRoom(String userId, Long roomId) {
         ChatUserCompositeKey key = new ChatUserCompositeKey(userId, roomId);
         if (chatUserRepository.existsById(key)) {
+            log.info("여기 실행1");
             chatUserRepository.deleteById(key);
 
             //추가적으로 방에 아무도 안 남아있으면
             //관련 정보가 모두 지워짐
             if (chatUserRepository.countByRoomId(roomId) == 0) {
-
+                log.info("여기 실행2");
                 messageReadRepository.deleteByRoomId(roomId);
+                log.info("파일 삭제 실행");
+
+                List<MessageFileEntity> messageFiles = messageFileRepository.findByRoomId(roomId);
+                for (MessageFileEntity fileEntity : messageFiles) {
+                    String fileStorageLocation = "src/main/resources/static/uploads/";
+                    File file = new File(fileStorageLocation + fileEntity.getRenamedName());
+                    log.info(file.toString());
+                    if (file.exists()) {
+                        file.delete();
+                    }
+                }
+                messageFileRepository.deleteByRoomId(roomId);
+                log.info("여기 실행3");
                 chatMessageRepository.deleteByRoomId(roomId);
+                log.info("여기 실행4");
                 chatroomRepository.deleteById(roomId);
+                log.info("여기 실행5");
             }
 
         } else {
@@ -349,6 +365,7 @@ public class ChatService {
                 MessageFileEntity fileEntity = new MessageFileEntity();
                 fileEntity.setMessageId(message.getMessageId());
                 fileEntity.setSenderId(message.getSenderId());
+                fileEntity.setRoomId(message.getRoomId());
                 fileEntity.setFileURL("/chat/files/" + renamedFileName);
                 fileEntity.setFileSize(String.valueOf(file.getSize()));
                 fileEntity.setOriginalName(originalFileName);
@@ -413,7 +430,7 @@ public class ChatService {
         List<MessageFileEntity> files = messageFileRepository.findByMessageId(message.getMessageId());
 
         List<MessageFileDto> fileDtos = files.stream()
-                .map(file -> new MessageFileDto(file.getFileId(), file.getMessageId(), file.getSenderId(),
+                .map(file -> new MessageFileDto(file.getFileId(), file.getMessageId(), file.getSenderId(), file.getRoomId(),
                         file.getFileURL(), file.getFileSize(), file.getOriginalName(), file.getRenamedName()))
                 .collect(Collectors.toList());
 
@@ -421,6 +438,7 @@ public class ChatService {
                 .messageId(message.getMessageId())
                 .roomId(message.getRoomId())
                 .senderId(message.getSenderId())
+                .roomId(message.getRoomId())
                 .senderEmail(sender.getUserId().getUserEmail())
                 .senderProfileImageUrl(sender.getProfileImageUrl())
                 .messageContent(message.getMessageContent())

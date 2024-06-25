@@ -11,4 +11,8 @@ public interface MessageFileRepository extends JpaRepository<MessageFileEntity, 
 
     List<MessageFileEntity> findByMessageId(Long messageId);
     void deleteByMessageId(Long messageId);
+
+    void deleteByRoomId(Long roomId);
+
+    List<MessageFileEntity> findByRoomId(Long roomId);
 }
