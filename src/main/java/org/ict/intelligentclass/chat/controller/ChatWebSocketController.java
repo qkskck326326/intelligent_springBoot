@@ -1,5 +1,6 @@
 package org.ict.intelligentclass.chat.controller;
 
+import org.ict.intelligentclass.chat.model.dto.ChatMessageDto;
 import org.ict.intelligentclass.chat.model.service.WebSocketService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.ict.intelligentclass.chat.jpa.entity.ChatMessageEntity;
@@ -41,7 +42,7 @@ public class ChatWebSocketController {
         return message;
     }
 
-    public void sendToSpecificRoom(Long roomId, ChatMessageEntity message) {
-        webSocketService.sendToSpecificRoom(roomId, message);
+    public void sendToSpecificRoom(Long roomId, ChatMessageDto messageDto) {
+        webSocketService.sendToSpecificRoom(roomId, messageDto);
     }
 }
