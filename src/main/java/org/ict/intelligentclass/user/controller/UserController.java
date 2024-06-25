@@ -5,8 +5,11 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import org.ict.intelligentclass.user.jpa.entity.UserEntity;
+import org.ict.intelligentclass.user.jpa.entity.UserInterestEntity;
 import org.ict.intelligentclass.user.model.dto.AttendanceDto;
 import org.ict.intelligentclass.user.model.dto.UserDto;
+import org.ict.intelligentclass.user.model.dto.UserInterestDto;
+import org.ict.intelligentclass.user.model.dto.enrollForm;
 import org.ict.intelligentclass.user.model.service.UserService;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
@@ -18,6 +21,7 @@ import org.springframework.web.bind.annotation.*;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Slf4j
 @RestController
@@ -191,10 +195,10 @@ public class UserController {
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    // 회원 가입
+    // 간단 회원 가입
     @PostMapping("/user")
-    public ResponseEntity<?> insertUser(@RequestBody UserDto userDto /*, @RequestParam List<Integer> interestIdList*/) {
-        log.info("/users/user/" + userDto.getUserEmail() + "/" + userDto.getProvider() + " 유저 회원가입 요청");
+    public ResponseEntity<?> simpleInsertUser(@RequestBody UserDto userDto /*, @RequestParam List<Integer> interestIdList*/) {
+        log.info("/users/user : " + userDto.getUserEmail() + "/" + userDto.getProvider() + " 유저 회원가입 요청");
 
         try {
             // 기본 프로필 이미지 URL 설정
@@ -205,30 +209,60 @@ public class UserController {
                 userDto.setProfileImageUrl(defaultProfileImageUrl);
             }
 
-            UserDto createdUser = userService.insertUser(userDto /*, interestIdList*/);
+            UserDto createdUser = userService.insertSimpleUser(userDto /*, interestIdList*/);
             return new ResponseEntity<>(createdUser, HttpStatus.CREATED);
         } catch (Exception e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
-//    // 로그인
-//    @PostMapping("/auth/login") // 로그인은 보안상 get매핑이 아니고, post매핑을 사용함
-//    public ResponseEntity<Map<String, String>> login(@RequestBody UserDto userDto) {
-//        UserDto user = userService.getUserById(userDto.getUserEmail(), userDto.getProvider());
-//        Map<String, String> token = new HashMap<>();
-//
-//        if (userService.matches(userDto.getUserPwd(), user.getUserPwd())) {
-//            String accessToken = jwtTokenUtil.generateToken(user.getUserEmail() , "access", 3600000L);
-//            String refreshToken = jwtTokenUtil.generateToken(user.getUserEmail(), "refresh", 1209600000L);
-//            token.put("access_token", accessToken);
-//            token.put("refresh_token", refreshToken);
-//            loginTokenService.createOrUpdateToken(user.getUserEmail(), user.getProvider(), accessToken, refreshToken);
-//        } else {
-//            throw new InvalidPasswordException("Invalid password");
-//        }
-//        return ResponseEntity.ok().body(token);
-//    }
+    // 찐 회원 가입
+    @PostMapping("/insertuser")
+    public ResponseEntity<?> insertUser(@RequestBody enrollForm enrollForm) {
+        log.info("/users/user/ " + enrollForm.getUserEmail() + "/" + enrollForm.getUserType() + " 유저 회원가입 요청");
+
+        try {
+            UserDto userDto = UserDto.builder()
+                    .userEmail(enrollForm.getUserEmail())
+                    .provider(enrollForm.getProvider())
+                    .userName(enrollForm.getUserName())
+                    .userPwd(enrollForm.getUserPwd())
+                    .nickname(enrollForm.getNickname())
+                    .registerTime(enrollForm.getRegisterTime())
+                    .profileImageUrl(enrollForm.getProfileImageUrl())
+                    .userType(enrollForm.getUserType())
+                    .reportCount(enrollForm.getReportCount())
+                    .loginOk(enrollForm.getLoginOk())
+                    .faceLoginYn(enrollForm.getFaceLoginYn())
+                    .snsAccessToken(enrollForm.getSnsAccessToken())
+                    .build();
+
+            // UserEntity 생성
+            UserEntity userEntity = userService.insertUser(userDto);
+
+            // interests를 UserInterestDto로 변환
+            List<UserInterestDto> userInterestDtos = enrollForm.getInterests().stream()
+                    .map(interestId -> UserInterestDto.builder()
+                            .userEmail(enrollForm.getUserEmail())
+                            .provider(enrollForm.getProvider())
+                            .subCategoryId(interestId)
+                            .build())
+                    .collect(Collectors.toList());
+
+            // UserInterestDto를 UserInterestEntity로 변환하고 저장
+            List<UserInterestEntity> userInterestEntities = userInterestDtos.stream()
+                    .map(dto -> dto.toEntity(userEntity))
+                    .collect(Collectors.toList());
+
+            // 저장 로직
+            userService.saveAllUserInterests(userInterestEntities);
+
+            return new ResponseEntity<>(userDto, HttpStatus.CREATED);
+        } catch (Exception e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
 
     // 사용자 탈퇴
     @DeleteMapping("/deleteuser/{email}/{provider}")
@@ -240,14 +274,6 @@ public class UserController {
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
-//    // 로그아웃
-//    @PostMapping("/auth/logout")
-//    public ResponseEntity<Void> logout(@RequestBody UserDto userDto) {
-//        loginTokenService.deleteTokensByEmail(userDto.getUserEmail(), userDto.getProvider());
-//        return new ResponseEntity<>(HttpStatus.OK);
-//    }
-
-    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     // 얼굴 등록 여부 변경
     @PutMapping("/faceloginyn/{email}/{provider}")
