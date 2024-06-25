@@ -146,7 +146,7 @@ public class AdminController {
             }
 
             adminDto.setUserType(2); // 관리자 타입 설정
-            UserDto createdUser = userService.insertUser(adminDto);
+            UserDto createdUser = userService.insertSimpleUser(adminDto);
             return new ResponseEntity<>(createdUser, HttpStatus.CREATED);
         } catch (Exception e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
