@@ -210,10 +210,13 @@ public class LectureService {
     public void deleteLectureComment(int lectureCommentId) {
         lectureCommentRepository.deleteByLectureCommentId(lectureCommentId);
     }
-    
-
 
     // 강의 댓글 유저 정보 가져오기
+    public UserProfileDto getUserProfileByNickname(String nickname) {
+        UserEntity userEntity = userRepository.findByNickname(nickname)
+                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+        return new UserProfileDto(userEntity);
+    }
 
 }
 

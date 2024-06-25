@@ -5,7 +5,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.ict.intelligentclass.lecture.jpa.entity.RatingEntity;
 
-// 실험용
 @Data
 @AllArgsConstructor
 @NoArgsConstructor

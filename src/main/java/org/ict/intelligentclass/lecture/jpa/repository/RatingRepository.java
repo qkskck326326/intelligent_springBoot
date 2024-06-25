@@ -25,7 +25,6 @@ public interface RatingRepository
     @Query("SELECT r FROM RatingEntity r WHERE r.lecturePackageId IN :lecturePackageIds")
     List<RatingEntity> findByLecturePackageIdIn(@Param("lecturePackageIds") List<Long> lecturePackageIds);
 
-
 }
 
 
