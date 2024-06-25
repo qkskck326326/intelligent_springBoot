@@ -26,6 +26,12 @@ public class EducationController {
         return ResponseEntity.ok(educations);
     }
 
+    @GetMapping("/detail")
+    public ResponseEntity<EducationEntity> getDetailducationId(@RequestParam Long educationId) {
+        EducationEntity education = educationService.getDetaill(educationId);
+        return ResponseEntity.ok(education);
+    }
+
     @PostMapping
     public ResponseEntity<EducationEntity> createEducation(@RequestBody EducationEntity education) {
         EducationEntity educationEntity = educationService.createEducation(education);
@@ -33,9 +39,9 @@ public class EducationController {
         return ResponseEntity.ok(educationEntity);
     }
 
-    @PutMapping("/{educationId}")
-    public ResponseEntity<EducationEntity> updateEducation(@PathVariable Long educationId, @RequestBody EducationEntity education) {
-        EducationEntity updatedEducation = educationService.updateEducationByNickname(educationId, education);
+    @PutMapping
+    public ResponseEntity<EducationEntity> updateEducation(@RequestBody EducationEntity education) {
+        EducationEntity updatedEducation = educationService.updateEducationByNickname(education);
         if (updatedEducation != null) {
             return ResponseEntity.ok(updatedEducation);
         }

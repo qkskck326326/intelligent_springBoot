@@ -32,16 +32,16 @@ public class careerController {
         return ResponseEntity.ok(careerEntity);
     }
 
-    @PutMapping("/{educationId}")
-    public ResponseEntity<CareerEntity> updateEducation(@PathVariable Long careerId, @RequestBody CareerEntity education) {
-        CareerEntity updatedCareer = careerService.updateCareerById(careerId, education);
+    @PutMapping
+    public ResponseEntity<CareerEntity> updateEducation(@RequestBody CareerEntity career) {
+        CareerEntity updatedCareer = careerService.updateCareerById(career);
         if (updatedCareer != null) {
             return ResponseEntity.ok(updatedCareer);
         }
         return ResponseEntity.notFound().build();
     }
 
-    @DeleteMapping("/{educationId}")
+    @DeleteMapping("/{careerId}")
     public ResponseEntity<Void> deleteCareerId(@PathVariable Long careerId) {
         careerService.deleteCareerById(careerId);
         return ResponseEntity.noContent().build();

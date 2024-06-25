@@ -26,8 +26,8 @@ public class ReportService {
         return reportRepository.findAll();
     }
 
-    public ReportEntity insertReport(){
-        return reportRepository.save(ReportEntity.builder().build());
+    public ReportEntity insertReport(ReportEntity reportEntity){
+        return reportRepository.save(reportEntity);
     }
 
 
