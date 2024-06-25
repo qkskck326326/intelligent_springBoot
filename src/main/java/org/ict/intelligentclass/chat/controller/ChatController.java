@@ -1,5 +1,6 @@
 package org.ict.intelligentclass.chat.controller;
 
+import org.ict.intelligentclass.chat.model.service.WebSocketService;
 import org.ict.intelligentclass.user.jpa.entity.UserEntity;
 import org.springframework.http.HttpHeaders;
 import jakarta.persistence.EntityNotFoundException;
@@ -18,6 +19,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import org.ict.intelligentclass.chat.model.dto.ChatMessageDto;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -35,6 +37,7 @@ public class ChatController {
     private final ChatService chatService;
     private final Path fileStorageLocation = Paths.get("src/main/resources/static/uploads").toAbsolutePath().normalize();
     private final SimpMessagingTemplate template;
+    private final WebSocketService webSocketService;
 
     @GetMapping("/countunreadall")
     public ResponseEntity<Long> countUnreadAll(@RequestParam String userId) {
@@ -75,12 +78,19 @@ public class ChatController {
     }
 
     @PostMapping(value = "/sendmessage")
-    public ResponseEntity<ChatMessageEntity> sendMessage(
+    public ResponseEntity<ChatMessageDto> sendMessage(
             @RequestBody ChatMessageEntity chatMessageEntity) {
         log.info("Received message to send: {}", chatMessageEntity);
+
         ChatMessageEntity savedMessage = chatService.saveMessage(chatMessageEntity);
+
         log.info("Saved message: {}", savedMessage);
-        return ResponseEntity.ok(savedMessage);
+
+        ChatMessageDto messageDto = chatService.convertToDto(savedMessage);
+
+        webSocketService.sendToSpecificRoom(savedMessage.getRoomId(), messageDto);
+
+        return ResponseEntity.ok(messageDto);
     }
 
     @PostMapping(value = "/uploadfiles/{roomId}/{senderId}/{messageType}/{dateSent}/{isAnnouncement}", consumes = {"multipart/form-data"})
@@ -108,11 +118,16 @@ public class ChatController {
 
         List<MessageFileEntity> fileEntities = new ArrayList<>();
         if (files != null && !files.isEmpty()) {
-            log.info("여기 실행 들어옴");
+            log.info("파일 프로세싱");
             fileEntities = chatService.saveFiles(savedMessage, files);
         }
 
         ChatResponse response = new ChatResponse(savedMessage, fileEntities);
+
+        ChatMessageDto messageDto = chatService.convertToDto(savedMessage);
+
+        webSocketService.sendToSpecificRoom(roomId, messageDto);
+
         return ResponseEntity.ok(response);
     }
 

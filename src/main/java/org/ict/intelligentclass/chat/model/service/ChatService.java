@@ -16,6 +16,7 @@ import org.ict.intelligentclass.chat.model.dto.ChatMessagesResponse;
 import org.springframework.data.domain.Sort;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -40,8 +41,6 @@ public class ChatService {
     private final MessageFileRepository messageFileRepository;
     private final MessageReadRepository messageReadRepository;
     private final UserRepository userRepository;
-    private final WebSocketService webSocketService;
-
 
 
     public Long selectRoomIds(String userId) {
@@ -314,8 +313,8 @@ public class ChatService {
         log.info("Message saved: {}", savedMessage);
 
         //변경점
-        webSocketService.sendToSpecificRoom(chatMessageEntity.getRoomId(), savedMessage);
-        log.info("Message sent to WebSocket: {}", savedMessage);
+//        webSocketService.sendToSpecificRoom(chatMessageEntity.getRoomId(), savedMessage);
+//        log.info("Message sent to WebSocket: {}", savedMessage);
 
         // Mark message as read by sender
         MessageReadEntity messageReadEntity = new MessageReadEntity();
@@ -323,14 +322,6 @@ public class ChatService {
         messageReadEntity.setUserId(chatMessageEntity.getSenderId());
         messageReadEntity.setRoomId(chatMessageEntity.getRoomId());
         messageReadEntity.setReadAt(new Date());
-
-        //변경점이 있음
-//        MessageReadEntity messageReadEntity = new MessageReadEntity();
-//        messageReadEntity.setMessageId(savedMessage.getMessageId());
-//        messageReadEntity.setUserId(chatMessageEntity.getSenderId());
-//        messageReadEntity.setRoomId(chatMessageEntity.getRoomId());
-//        messageReadRepository.save(messageReadEntity);
-
 
         messageReadRepository.save(messageReadEntity);
         log.info("Message read entry saved: {}", messageReadEntity);
@@ -340,8 +331,6 @@ public class ChatService {
 
     public List<MessageFileEntity> saveFiles(ChatMessageEntity message, List<MultipartFile> files) {
         log.info("서비스 실행됨");
-        log.info(message.toString());
-        log.info(files.toString());
 
         List<MessageFileEntity> fileEntities = new ArrayList<>();
         for (MultipartFile file : files) {
@@ -354,7 +343,7 @@ public class ChatService {
             String randomString = UUID.randomUUID().toString();
             String renamedFileName = randomString + "_" + System.currentTimeMillis() + fileExtension;
             log.info(renamedFileName);
-            //TODO 파일경로
+
             String fileStorageLocation = "src/main/resources/static/uploads";
             Path filePath = Paths.get(fileStorageLocation, renamedFileName);
             log.info(filePath.toString());
@@ -421,6 +410,34 @@ public class ChatService {
             }
         }
         return users;
+    }
+
+
+    public ChatMessageDto convertToDto(ChatMessageEntity message) {
+        UserEntity sender = userRepository.findByNickname(message.getSenderId())
+                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+        List<MessageFileEntity> files = messageFileRepository.findByMessageId(message.getMessageId());
+
+        List<MessageFileDto> fileDtos = files.stream()
+                .map(file -> new MessageFileDto(file.getFileId(), file.getMessageId(), file.getSenderId(),
+                        file.getFileURL(), file.getFileSize(), file.getOriginalName(), file.getRenamedName()))
+                .collect(Collectors.toList());
+
+        return ChatMessageDto.builder()
+                .messageId(message.getMessageId())
+                .roomId(message.getRoomId())
+                .senderId(message.getSenderId())
+                .senderEmail(sender.getUserId().getUserEmail())
+                .senderProfileImageUrl(sender.getProfileImageUrl())
+                .messageContent(message.getMessageContent())
+                .messageType(message.getMessageType())
+                .dateSent(message.getDateSent())
+                .isAnnouncement(message.getIsAnnouncement() == 1)
+                .readCount(0) // Initialize with 0, update as needed
+                .isReadByCurrentUser(false) // Initialize with false, update as needed
+                .userType(sender.getUserType())
+                .files(fileDtos)
+                .build();
     }
 }
 
