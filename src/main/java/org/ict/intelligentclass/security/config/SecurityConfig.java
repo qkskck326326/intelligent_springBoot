@@ -79,7 +79,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.DELETE, "/admins/banners/**").hasRole("ADMIN") // DELETE 요청은 ADMIN 역할을 가진 사용자만 접근 가능합니다.
 
                         // 해당 경로들은 인증 없이 접근 가능합니다.
-                        .requestMatchers("/users/user", "/users/check-email", "/users/send-verification-code", "/users/check-nickname", "/login", "/logout", "/reissue", "/kakao/**", "/naver", "/google").permitAll() // 태석
+                        .requestMatchers("/users/user", "/users/check-email", "/users/send-verification-code", "/users/check-nickname", "/categories/sub", "/login", "/logout", "/reissue", "/kakao/**", "/naver", "/google").permitAll() // 태석
                         .requestMatchers("/categories/upper", "/packages/upperCategorypackageall", "/packages", "/packages/detail").permitAll() // 채림
                         .requestMatchers("/posts/top10", "/posts/list", "/posts/searchTitleOrContent", "/posts/searchlistByCategory", "/api/files/**").permitAll() // 도하
                         .requestMatchers("/announcement/**", "/chat/**", "/users/getpeople", "/ws/**").permitAll() // 강
