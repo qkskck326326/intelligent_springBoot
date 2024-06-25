@@ -84,6 +84,8 @@ public class ChatController {
 
         ChatMessageDto messageDto = chatService.convertToDto(savedMessage);
 
+        log.info("converted messageDto: {}", messageDto);
+
         webSocketService.sendToSpecificRoom(savedMessage.getRoomId(), messageDto);
 
         return ResponseEntity.ok(messageDto);
