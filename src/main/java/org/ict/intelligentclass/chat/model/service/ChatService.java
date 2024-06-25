@@ -312,10 +312,6 @@ public class ChatService {
         ChatMessageEntity savedMessage = chatMessageRepository.save(chatMessageEntity);
         log.info("Message saved: {}", savedMessage);
 
-        //변경점
-//        webSocketService.sendToSpecificRoom(chatMessageEntity.getRoomId(), savedMessage);
-//        log.info("Message sent to WebSocket: {}", savedMessage);
-
         // Mark message as read by sender
         MessageReadEntity messageReadEntity = new MessageReadEntity();
         messageReadEntity.setMessageId(savedMessage.getMessageId());

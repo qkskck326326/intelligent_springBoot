@@ -172,13 +172,13 @@ public class ChatController {
 
     @PutMapping("/announce")
     public ResponseEntity<ChatMessageEntity> updateAnnouncement(@RequestBody Map<String, Object> request) {
-
         Long messageId = ((Number) request.get("messageId")).longValue();
         Long roomId = ((Number) request.get("roomId")).longValue();
 
         ChatMessageEntity updatedAnnouncement = chatService.updateAnnouncement(roomId, messageId);
+        ChatMessageDto messageDto = chatService.convertToDto(updatedAnnouncement);
+        webSocketService.sendToSpecificRoom(roomId, messageDto);
         return ResponseEntity.ok(updatedAnnouncement);
-
     }
 
     @PutMapping("/delete/{messageId}")
