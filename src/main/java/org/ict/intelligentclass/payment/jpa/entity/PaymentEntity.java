@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.sql.Timestamp;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "TB_TRANSACTION_HISTORY")
@@ -30,7 +31,7 @@ public class PaymentEntity {
     private Long lecturePackageId;
 
     @Column(name = "PAYMENT_TYPE", nullable = false)
-    private char paymentType;
+    private String paymentType;
 
     @Column(name = "COUPON_ID")
     private Long couponId;
@@ -39,14 +40,14 @@ public class PaymentEntity {
     private Double finalPrice;
 
     @Column(name = "TRANSACTION_DATE", nullable = false)
-    private Timestamp transactionDate;
+    private LocalDateTime transactionDate;
 
     @Column(name = "SUBSCRIPTION_END_DATE")
-    private Timestamp subscriptionEndDate;
+    private LocalDateTime subscriptionEndDate;
 
     @Column(name = "LECTURE_PACKAGE_KIND_PRICE", nullable = false)
-    private char lecturePackageKindPrice;
+    private String lecturePackageKindPrice;
 
     @Column(name = "PAYMENT_CONFIRMATION", nullable = false)
-    private char paymentConfirmation;
+    private String paymentConfirmation;
 }
