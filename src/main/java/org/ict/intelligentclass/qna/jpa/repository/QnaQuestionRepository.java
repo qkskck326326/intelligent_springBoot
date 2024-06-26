@@ -6,11 +6,14 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface QnaQuestionRepository extends JpaRepository<QnaQuestionEntity, String> {
 
     Page<QnaQuestionEntity> findByNicknameAndQuestionCheck(String nickname, String questionCheck, Pageable pageable);
 
+    Optional<QnaQuestionEntity> findByQuestionId(int questionId);
+
+    Page<QnaQuestionEntity> findByQuestionCheckOrderByQuestionDateAsc(String checkStatus, Pageable pageable);
 }
