@@ -39,11 +39,10 @@ public class ChatController {
 
     @GetMapping("/countunreadall")
     public ResponseEntity<Long> countUnreadAll(@RequestParam String userId) {
+
         log.info("countUnreadAll start");
         Long countTotalUnRead = chatService.selectRoomIds(userId);
-
-        log.info(countTotalUnRead.toString());
-
+        log.info("countUnreadAll end" + countTotalUnRead);
         return ResponseEntity.ok(countTotalUnRead);
 
     }
