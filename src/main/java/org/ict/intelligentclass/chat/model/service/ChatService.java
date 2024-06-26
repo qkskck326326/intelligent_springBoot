@@ -75,12 +75,22 @@ public class ChatService {
     public ChatroomEntity insertRoom(List<String> people, String roomType) {
         log.info("insertRoom people = " + people);
 
-        String roomName = String.join(", ", people);
+        String roomName = (roomType.equals("inquiries")) ? "문의" : String.join(", ", people);
         String creator = people.get(0); // Assuming the first person in the list is the creator
 
         ChatroomEntity chatroomEntity = new ChatroomEntity();
         chatroomEntity.setRoomName(roomName);
-        chatroomEntity.setRoomType(roomType.equals("groups") ? "group" : "individual");
+        switch (roomType) {
+            case "groups":
+                chatroomEntity.setRoomType("group");
+                break;
+            case "inquiries":
+                chatroomEntity.setRoomType("inquiries");
+                break;
+            default:
+                chatroomEntity.setRoomType("individual");
+                break;
+        }
         chatroomEntity.setCreatedAt(new Date());
         chatroomEntity.setCreator(creator);
 
