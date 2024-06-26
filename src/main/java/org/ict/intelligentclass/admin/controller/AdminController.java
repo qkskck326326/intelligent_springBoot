@@ -3,9 +3,11 @@ package org.ict.intelligentclass.admin.controller;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.ict.intelligentclass.admin.jpa.entity.BannerEntity;
+import org.ict.intelligentclass.admin.jpa.entity.VisitCountEntity;
 import org.ict.intelligentclass.admin.jpa.repository.BannerRepository;
 import org.ict.intelligentclass.admin.model.dto.BannerDto;
 import org.ict.intelligentclass.admin.model.service.BannerService;
+import org.ict.intelligentclass.admin.model.service.VisitCountService;
 import org.ict.intelligentclass.user.model.dto.AttendanceDto;
 import org.ict.intelligentclass.user.model.dto.UserDto;
 import org.ict.intelligentclass.user.model.service.UserService;
@@ -32,10 +34,12 @@ import java.util.stream.Collectors;
 public class AdminController {
     private final UserService userService;
     private final BannerService bannerService;
+    private final VisitCountService visitCountService;
 
-    public AdminController(UserService userService, BannerService bannerService) {
+    public AdminController(UserService userService, BannerService bannerService, VisitCountService visitCountService) {
         this.userService = userService;
         this.bannerService = bannerService;
+        this.visitCountService = visitCountService;
     }
 
     @GetMapping
@@ -323,5 +327,21 @@ public class AdminController {
             return ResponseEntity.notFound().build();
         }
         return ResponseEntity.ok(latestBanner);
+    }
+
+    // 방문자수 기록하는 로직
+
+    @PostMapping("/record-visit")
+    public ResponseEntity<Void> recordVisit(@RequestParam String userEmail) {
+        visitCountService.recordVisit(userEmail);
+        return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/visit-counts")
+    public ResponseEntity<List<VisitCountEntity>> getVisitCounts(
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate) {
+        List<VisitCountEntity> visitCounts = visitCountService.getDistinctVisitorCountByDateRange(startDate, endDate);
+        return ResponseEntity.ok(visitCounts);
     }
 }
