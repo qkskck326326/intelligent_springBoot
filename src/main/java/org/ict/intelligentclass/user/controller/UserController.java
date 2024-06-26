@@ -227,6 +227,7 @@ public class UserController {
                     .provider(enrollForm.getProvider())
                     .userName(enrollForm.getUserName())
                     .userPwd(enrollForm.getUserPwd())
+                    .phone(enrollForm.getPhone())
                     .nickname(enrollForm.getNickname())
                     .registerTime(enrollForm.getRegisterTime())
                     .profileImageUrl(enrollForm.getProfileImageUrl())
@@ -236,6 +237,8 @@ public class UserController {
                     .faceLoginYn(enrollForm.getFaceLoginYn())
                     .snsAccessToken(enrollForm.getSnsAccessToken())
                     .build();
+
+            log.info(userDto.toString());
 
             // UserEntity 생성
             UserEntity userEntity = userService.insertUser(userDto);

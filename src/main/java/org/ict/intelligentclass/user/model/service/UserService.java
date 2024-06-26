@@ -294,6 +294,10 @@ public class UserService {
         userRepository.updateUserPwd(email, provider, encodedPassword);
     }
 
+    public String generateNickname(String userName) {
+        int count = userRepository.countByNicknameStartingWith(userName);
+        return userName + "#" + (count + 1);
+    }
 
 //    public UserDto authenticate(String email, String rawPassword) {
 //        String provider = "intelliclass";  // 일반 로그인 유저는 항상 "intelliclass"로 설정
@@ -334,6 +338,11 @@ public class UserService {
         Page<UserEntity> peoplePage = userRepository.findPeopleWithQuery(nickname, addingOption, searchQuery, pageRequest);
         return peoplePage.getContent();
     }
+
+    public List<String> getAdmins(int userType) {
+        return userRepository.findNicknamesByUserType(userType);
+    }
+
     //허강 끝
 
     // 시원 시작
@@ -400,7 +409,4 @@ public class UserService {
 
         return userEntities.map(UserEntity::toDto);
     }
-
-
-
 }
