@@ -7,14 +7,11 @@ import org.ict.intelligentclass.lecture.jpa.entity.RatingEntity;
 import org.ict.intelligentclass.lecture.jpa.entity.input.CommentInput;
 import org.ict.intelligentclass.lecture.jpa.entity.input.LectureReadInput;
 import org.ict.intelligentclass.lecture.jpa.entity.output.*;
+import org.ict.intelligentclass.lecture.jpa.repository.*;
 import org.ict.intelligentclass.lecture_packages.jpa.entity.LecturePackageEntity;
 import org.ict.intelligentclass.lecture_packages.jpa.repository.LecturePackageRepository;
 import org.ict.intelligentclass.lecture.jpa.entity.LectureEntity;
 import org.ict.intelligentclass.lecture.jpa.entity.LectureReadEntity;
-import org.ict.intelligentclass.lecture.jpa.repository.LectureCommentRepository;
-import org.ict.intelligentclass.lecture.jpa.repository.LectureReadRepository;
-import org.ict.intelligentclass.lecture.jpa.repository.LectureRepository;
-import org.ict.intelligentclass.lecture.jpa.repository.RatingRepository;
 import org.ict.intelligentclass.lecture.jpa.entity.input.RatingInput;
 import org.ict.intelligentclass.lecture.jpa.entity.input.LectureInput;
 import org.ict.intelligentclass.user.jpa.entity.UserEntity;
@@ -38,6 +35,10 @@ public class LectureService {
     private final LectureReadRepository lectureReadRepository;
     private final RatingRepository ratingRepository;
     private final UserRepository userRepository;
+    private final UserProfileRepository userProfileRepository;
+    private final ProfileEducationRepository profileEducationRepository;
+    private final ProfileCertifiRepository profileCertifiRepository;
+    private final ProfileCareerRepository profileCareerRepository;
 
     // 강의 패키지 타이틀 가져오기
     public LecturePackageEntity selectLecturePackageTitle(Long lecturePackageId) {
@@ -214,8 +215,21 @@ public class LectureService {
     // 강의 댓글 유저 정보 가져오기
     public UserProfileDto getUserProfileByNickname(String nickname) {
         UserEntity userEntity = userRepository.findByNickname(nickname)
-                .orElseThrow(() -> new IllegalArgumentException("User not found"));
-        return new UserProfileDto(userEntity);
+                .orElseThrow(() -> new IllegalArgumentException("유저를 찾을수 없습니다."));
+
+        List<UserProfileEduDto> educationList = profileEducationRepository.findByNickname(nickname).stream()
+                .map(UserProfileEduDto::new)
+                .collect(Collectors.toList());
+
+        List<UserProfileCareerDto> careerList = profileCareerRepository.findByNickname(nickname).stream()
+                .map(UserProfileCareerDto::new)
+                .collect(Collectors.toList());
+
+        List<UserProfileCertifiDto> certificateList = profileCertifiRepository.findByNickname(nickname).stream()
+                .map(UserProfileCertifiDto::new)
+                .collect(Collectors.toList());
+
+        return new UserProfileDto(userEntity, educationList, careerList, certificateList);
     }
 
 }

@@ -19,11 +19,11 @@ public class AnswerDto {
     private String nickname;
     private Date answerDate;
 
-    public AnswerDto(QnaAnswerEntity qnaAnswerEntity, UserEntity userEntity) {
+    public AnswerDto(QnaAnswerEntity qnaAnswerEntity) {
         this.answerId = qnaAnswerEntity.getAnswerId();
         this.questionId = qnaAnswerEntity.getQuestionId();
         this.answerContent = qnaAnswerEntity.getAnswerContent();
-        this.nickname = userEntity.getNickname();
+        this.nickname = qnaAnswerEntity.getNickname();
         this.answerDate = qnaAnswerEntity.getAnswerDate();
     }
 }
