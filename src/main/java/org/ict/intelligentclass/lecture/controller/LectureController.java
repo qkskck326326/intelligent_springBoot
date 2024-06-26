@@ -2,19 +2,14 @@ package org.ict.intelligentclass.lecture.controller;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.ict.intelligentclass.lecture.jpa.entity.input.CommentInput;
-import org.ict.intelligentclass.lecture.jpa.entity.input.LectureInput;
-import org.ict.intelligentclass.lecture.jpa.entity.input.LectureReadInput;
-import org.ict.intelligentclass.lecture.jpa.entity.input.RatingInput;
+import org.ict.intelligentclass.lecture.jpa.entity.input.*;
 import org.ict.intelligentclass.lecture.jpa.entity.output.*;
-import org.ict.intelligentclass.lecture.model.dto.LectureCommentDto;
 import org.ict.intelligentclass.lecture.model.service.LectureService;
 import org.ict.intelligentclass.lecture_packages.jpa.entity.LecturePackageEntity;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
-
 import java.util.List;
 import java.util.Map;
 
@@ -202,10 +197,12 @@ public class LectureController {
 
     // 강의 댓글 수정
     @PutMapping("/comments/{lectureCommentId}")
-    public ResponseEntity<String> updateLectureComment(@PathVariable("lectureCommentId") int lectureCommentId, @RequestBody String lectureCommentContent) {
+    public ResponseEntity<String> updateLectureComment(@PathVariable("lectureCommentId") int lectureCommentId, @RequestBody Map<String, String> payload) {
+        String lectureCommentContent = payload.get("lectureCommentContent");
         lectureService.updateLectureComment(lectureCommentId, lectureCommentContent);
         return new ResponseEntity<>("Comment updated successfully", HttpStatus.OK);
     }
+
 
     // 강의 댓글 삭제
     @DeleteMapping("/comments/{lectureCommentId}")
@@ -214,6 +211,11 @@ public class LectureController {
         return new ResponseEntity<>("Comment deleted successfully", HttpStatus.OK);
     }
 
-
+    // 댓글 유저 상세보기
+    @GetMapping("/profile/{nickname}")
+    public ResponseEntity<UserProfileDto> getUserProfile(@PathVariable String nickname) {
+        UserProfileDto userProfile = lectureService.getUserProfileByNickname(nickname);
+        return new ResponseEntity<>(userProfile, HttpStatus.OK);
+    }
 
 }

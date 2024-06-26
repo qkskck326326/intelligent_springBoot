@@ -24,6 +24,9 @@ public class MessageFileEntity {
     @Column(name="SENDER_ID", nullable = false)//송신자
     private String senderId;
 
+    @Column(name="ROOM_ID", nullable = false)//채팅방 일련번호
+    private Long roomId;
+
     @Column(name="FILE_URL", nullable = false)//파일 주소
     private String fileURL;
 

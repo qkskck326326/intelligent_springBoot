@@ -28,7 +28,7 @@ public class ReportController {
     //신고클릭시 추가
     @PostMapping
     public ResponseEntity<ReportEntity> postReport(@RequestBody ReportEntity reportEntity){
-        ReportEntity report = reportService.insertReport();
+        ReportEntity report = reportService.insertReport(reportEntity);
         return ResponseEntity.ok(report);
     }
 

@@ -22,7 +22,7 @@ public class BannerService {
     private final BannerRepository bannerRepository;
 
     // 이미지 저장 경로 설정
-    private final Path imageStorageLocation = Paths.get("D:/intell_boot/uploads");
+    private final Path imageStorageLocation = Paths.get("D:/intell2/public/images/banner");
 
     public List<BannerDto> getAllBanners() {
         return bannerRepository.findAll().stream()
@@ -59,7 +59,6 @@ public class BannerService {
         String fileName = imageFile.getOriginalFilename();
         Path targetLocation = imageStorageLocation.resolve(fileName);
 
-        // 파일이 이미 존재하는 경우 덮어쓰지 않도록 새 이름을 생성합니다.
         int counter = 1;
         String newFileName = fileName;
         while (Files.exists(targetLocation)) {
@@ -73,8 +72,7 @@ public class BannerService {
 
         Files.copy(imageFile.getInputStream(), targetLocation);
 
-        // Assuming your images are accessible via /images/{fileName} URL
-        return "/images/" + newFileName;
+        return "/images/banner/" + newFileName;
     }
 
     public BannerDto convertToDto(BannerEntity bannerEntity) {

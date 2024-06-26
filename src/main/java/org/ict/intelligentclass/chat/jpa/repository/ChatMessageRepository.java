@@ -29,4 +29,6 @@ public interface ChatMessageRepository extends JpaRepository<ChatMessageEntity, 
 
     @Query("SELECT m FROM ChatMessageEntity m WHERE m.roomId = :roomId AND m.isAnnouncement = 1")
     ChatMessageEntity findAnnouncementByRoomId(Long roomId);
+
+    List<Long> findMessageIdsByRoomId(Long roomId);
 }

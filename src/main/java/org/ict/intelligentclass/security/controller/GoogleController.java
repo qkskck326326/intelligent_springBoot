@@ -118,21 +118,21 @@ public class GoogleController {
         log.info("회원가입 성공: {}, {}", userDto.getUserEmail(), userDto.getProvider());
 
 
-        String logoutUrl = "https://accounts.google.com/o/oauth2/revoke?token=" + userDto.getSnsAccessToken();
-
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
-
-        HttpEntity<String> requestEntity = new HttpEntity<>(headers);
-        RestTemplate restTemplate = new RestTemplate();
-        ResponseEntity<String> responseGoogle;
-        try {
-            responseGoogle = restTemplate.exchange(logoutUrl, HttpMethod.POST, requestEntity, String.class);
-            log.info("Google logout response: {}", responseGoogle.getBody());
-        } catch (HttpClientErrorException e) {
-            log.error("Google logout failed: {}", e.getMessage());
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Google logout failed");
-        }
+//        String logoutUrl = "https://accounts.google.com/o/oauth2/revoke?token=" + userDto.getSnsAccessToken();
+//
+//        HttpHeaders headers = new HttpHeaders();
+//        headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
+//
+//        HttpEntity<String> requestEntity = new HttpEntity<>(headers);
+//        RestTemplate restTemplate = new RestTemplate();
+//        ResponseEntity<String> responseGoogle;
+//        try {
+//            responseGoogle = restTemplate.exchange(logoutUrl, HttpMethod.POST, requestEntity, String.class);
+//            log.info("Google logout response: {}", responseGoogle.getBody());
+//        } catch (HttpClientErrorException e) {
+//            log.error("Google logout failed: {}", e.getMessage());
+//            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Google logout failed");
+//        }
 
 
         return ResponseEntity.ok("User registered successfully");

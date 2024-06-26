@@ -15,6 +15,7 @@ public class MessageFileDto {
     private Long fileId;
     private Long messageId;
     private String senderId;
+    private Long roomId;
     private String fileURL;
     private String fileSize;
     private String originalName;

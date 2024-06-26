@@ -7,6 +7,7 @@ import org.ict.intelligentclass.security.config.SecurityConfig;
 import org.ict.intelligentclass.user.jpa.entity.ArchivedUserEntity;
 import org.ict.intelligentclass.user.jpa.entity.AttendanceEntity;
 import org.ict.intelligentclass.user.jpa.entity.UserEntity;
+import org.ict.intelligentclass.user.jpa.entity.UserInterestEntity;
 import org.ict.intelligentclass.user.jpa.entity.id.UserId;
 import org.ict.intelligentclass.user.jpa.repository.ArchivedUserRepository;
 import org.ict.intelligentclass.user.jpa.repository.AttendanceRepository;
@@ -190,7 +191,7 @@ public class UserService {
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     @Transactional
-    public UserDto insertUser(UserDto userDto /*, List<Integer> interestIdList */ ) { // 일반 회원가입
+    public UserDto insertSimpleUser(UserDto userDto /*, List<Integer> interestIdList */ ) { // 일반 회원가입
         // 비밀번호 암호화
         String encodedPassword = passwordEncoder.encode(userDto.getUserPwd());
         userDto.setUserPwd(encodedPassword);
@@ -211,6 +212,36 @@ public class UserService {
 //        userInterestRepository.saveAll(userInterests);
 
         return userEntity.toDto();
+    }
+
+    @Transactional
+    public UserEntity insertUser(UserDto userDto /*, List<Integer> interestIdList */ ) { // 일반 회원가입
+        // 비밀번호 암호화
+        String encodedPassword = passwordEncoder.encode(userDto.getUserPwd());
+        userDto.setUserPwd(encodedPassword);
+
+        // UserEntity 저장
+        UserEntity userEntity = userDto.toEntity();
+        userRepository.save(userEntity);
+
+
+
+        // UserInterestEntity 저장
+//        List<UserInterestEntity> userInterests = interestIdList.stream()
+//                .map(subCategoryId -> UserInterestEntity.builder()
+//                        .interestId(new UserInterestId(userDto.getUserEmail(), userDto.getProvider(), subCategoryId))
+//                        .user(userEntity)
+//                        .build())
+//                .collect(Collectors.toList());
+//        userInterestRepository.saveAll(userInterests);
+
+        return userEntity;
+    }
+
+    @Transactional
+    public void saveAllUserInterests(List<UserInterestEntity> userInterestEntities) {
+        // UserInterestEntity 저장 로직 예시 (repository 사용)
+        userInterestRepository.saveAll(userInterestEntities);
     }
 
     @Transactional

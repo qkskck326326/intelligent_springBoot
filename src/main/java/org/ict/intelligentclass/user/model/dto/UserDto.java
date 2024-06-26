@@ -30,8 +30,6 @@ public class UserDto {
     private char faceLoginYn;
     private String snsAccessToken;
 
-
-
     // dto -> entity method
     public UserEntity toEntity() {
         UserId userId = new UserId(this.userEmail, this.provider);
@@ -50,6 +48,4 @@ public class UserDto {
                 .snsAccessToken(this.snsAccessToken)
                 .build();
     }
-    // 시원 관리자페이지
-
 }
