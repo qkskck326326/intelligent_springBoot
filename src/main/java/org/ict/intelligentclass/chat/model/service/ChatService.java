@@ -114,12 +114,18 @@ public class ChatService {
     }
 
 
-    public List<ChatroomDetailsDto> getChatrooms(String userId) {
+    public List<ChatroomDetailsDto> getChatrooms(String userId, boolean isChats) {
 
         //유저아이디로 채팅방아이디 모두 가져옴
         List<Long> roomIds = chatUserRepository.findRoomIdsByUserIdOrderByIsPinned(userId);
-        //아이디로 방 정보 가져옴
-        List<ChatroomEntity> chatrooms = chatroomRepository.findByRoomIdIn(roomIds);
+
+        List<ChatroomEntity> chatrooms = new ArrayList<>();
+        //아이디와 정보로 방 가져옴
+        if (isChats) {
+            chatrooms = chatroomRepository.findChatsByRoomIds(roomIds);
+        } else {
+            chatrooms = chatroomRepository.findInquiriesByRoomIds(roomIds);
+        }
 
         List<ChatroomDetailsDto> chatroomDetails = new ArrayList<>();
 

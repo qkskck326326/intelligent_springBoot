@@ -57,9 +57,9 @@ public class ChatController {
     }
 
     @GetMapping("/chatlist")
-    public ResponseEntity<List<ChatroomDetailsDto>> listChatroom(@RequestParam String userId) {
+    public ResponseEntity<List<ChatroomDetailsDto>> listChatroom(@RequestParam String userId, @RequestParam boolean isChats) {
         log.info("listChatroom start");
-        List<ChatroomDetailsDto> chatrooms = chatService.getChatrooms(userId);
+        List<ChatroomDetailsDto> chatrooms = chatService.getChatrooms(userId, isChats);
         return ResponseEntity.ok(chatrooms);
     }
 
