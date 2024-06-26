@@ -105,7 +105,8 @@ public class GoogleController {
         userDto.setUserName(userInfo.get("name"));
         userDto.setUserPwd("");
         userDto.setPhone("");
-        userDto.setNickname("");
+        String nickname = userService.generateNickname(userInfo.get("name"));
+        userDto.setNickname(nickname);
         userDto.setRegisterTime(LocalDateTime.now());
         userDto.setProfileImageUrl((String) userInfo.get("picture"));
         userDto.setUserType(0);

@@ -8,7 +8,6 @@ import org.ict.intelligentclass.security.jwt.util.JwtTokenUtil;
 import org.ict.intelligentclass.security.service.LoginTokenService;
 import org.ict.intelligentclass.user.jpa.entity.UserEntity;
 import org.ict.intelligentclass.user.jpa.entity.id.UserId;
-import org.ict.intelligentclass.user.jpa.repository.UserRepository;
 import org.ict.intelligentclass.user.model.dto.UserDto;
 import org.ict.intelligentclass.user.model.service.UserService;
 import org.springframework.beans.factory.annotation.Value;
@@ -55,9 +54,7 @@ public class NaverController {
         }
 
         String userEmail = (String) userInfo.get("email");
-//        Optional<UserEntity> existingUser = userRepository.findByEmailAndProvider(userEmail, "naver");
         Optional<UserEntity> optionalUser = userService.findByUserEmailAndProvider(userEmail, "naver");
-
 
         if (optionalUser.isPresent()) { // 유저가 이미 존재하면 로그인 처리
             UserEntity userEntity = optionalUser.get();
@@ -66,21 +63,28 @@ public class NaverController {
 
             return handleLogin(userEntity, response);
         } else { // 유저가 존재하지 않으면 회원가입 처리
-
             return handleSignUp(userInfo, accessToken);
         }
     }
 
     private ResponseEntity<?> handleSignUp(Map<String, Object> userInfo, String accessToken) {
+        String userEmail = (String) userInfo.get("email");
         String userName = decodeUnicodeString((String) userInfo.get("name"));
 
+        // 중복 확인
+        Optional<UserEntity> optionalUser = userService.findByUserEmailAndProvider(userEmail, "naver");
+        if (optionalUser.isPresent()) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body("User already exists");
+        }
+
         UserDto userDto = new UserDto();
-        userDto.setUserEmail((String) userInfo.get("email"));
+        userDto.setUserEmail(userEmail);
         userDto.setProvider("naver");
         userDto.setUserName(userName);
         userDto.setUserPwd("");
         userDto.setPhone((String) userInfo.get("mobile"));
-        userDto.setNickname("");
+        String nickname = userService.generateNickname(userName);
+        userDto.setNickname(nickname);
         userDto.setRegisterTime(LocalDateTime.now());
         userDto.setProfileImageUrl((String) userInfo.get("profile_image"));
         userDto.setUserType(0);
@@ -91,7 +95,6 @@ public class NaverController {
 
         userService.insertSocialLoginUser(userDto.toEntity());
         log.info("회원가입 성공: {}, {}", userDto.getUserEmail(), userDto.getProvider());
-
 
         String logoutUrl = String.format(
                 "https://nid.naver.com/oauth2.0/token?grant_type=delete&client_id=%s&client_secret=%s&access_token=%s&service_provider=%s",
@@ -112,12 +115,10 @@ public class NaverController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Naver logout failed");
         }
 
-
         return ResponseEntity.ok("User registered successfully");
     }
 
     private ResponseEntity<?> handleLogin(UserEntity userEntity, HttpServletResponse response) {
-
         UserId userId = userEntity.getUserId();
 
         Long accessExpiredMs = 600000L;
@@ -140,8 +141,6 @@ public class NaverController {
         boolean isAdmin = userEntity.getUserType() == 2;
 
         Map<String, Object> responseBody = new HashMap<>();
-
-//        responseBody.put("authorization", tokens.get("authorization"));
         responseBody.put("refresh", refreshToken);
         responseBody.put("isStudent", isStudent);
         responseBody.put("isTeacher", isTeacher);
