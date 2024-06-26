@@ -42,12 +42,15 @@ public class PaymentEntity {
     @Column(name = "TRANSACTION_DATE", nullable = false)
     private LocalDateTime transactionDate;
 
-    @Column(name = "SUBSCRIPTION_END_DATE")
-    private LocalDateTime subscriptionEndDate;
-
-    @Column(name = "LECTURE_PACKAGE_KIND_PRICE", nullable = false)
-    private String lecturePackageKindPrice;
+//    @Column(name = "SUBSCRIPTION_END_DATE")
+//    private LocalDateTime subscriptionEndDate;
+//
+//    @Column(name = "LECTURE_PACKAGE_KIND_PRICE", nullable = false)
+//    private String lecturePackageKindPrice;
 
     @Column(name = "PAYMENT_CONFIRMATION", nullable = false)
     private String paymentConfirmation;
+
+    @Column(name = "ORDERID", nullable = false)
+    private String orderId;
 }
