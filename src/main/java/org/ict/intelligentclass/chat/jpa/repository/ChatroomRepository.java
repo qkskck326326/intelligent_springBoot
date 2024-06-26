@@ -11,8 +11,13 @@ import java.util.List;
 @Repository
 public interface ChatroomRepository extends JpaRepository<ChatroomEntity, Long> {
 
-    List<ChatroomEntity> findByRoomIdIn(List<Long> roomIds);
-
     @Query("SELECT COUNT(cu) FROM ChatUserEntity cu WHERE cu.chatUserCompositeKey.roomId = :roomId")
     int countUsersInRoom(@Param("roomId") Long roomId);
+
+    @Query("SELECT c FROM ChatroomEntity c WHERE c.roomId IN :roomIds AND c.roomType != 'inquiries' ORDER BY c.createdAt")
+    List<ChatroomEntity> findChatsByRoomIds(List<Long> roomIds);
+
+    @Query("SELECT c FROM ChatroomEntity c WHERE c.roomId IN :roomIds AND c.roomType = 'inquiries' ORDER BY c.createdAt")
+    List<ChatroomEntity> findInquiriesByRoomIds(List<Long> roomIds);
+
 }

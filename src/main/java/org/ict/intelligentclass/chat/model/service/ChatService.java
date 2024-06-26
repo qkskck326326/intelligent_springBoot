@@ -59,14 +59,11 @@ public class ChatService {
             long sum = 0;
             for (Long chatroomId : chatroomIds) {
 
-                //전체 메시지 갯수
-                long eachTotalMessageCount = chatMessageRepository.countByRoomId(chatroomId);
+                Long totalMessages = chatMessageRepository.countByRoomId(chatroomId);
+                Long readMessages = messageReadRepository.countByRoomIdAndUserId(chatroomId, userId);
+                Long unreadMessageCount = totalMessages - readMessages;
 
-                //읽음 메시지 확인
-                long eachTotalReadMessageCount = messageReadRepository.countByRoomId(chatroomId);
-
-                long UnreadMessageCount = eachTotalMessageCount - eachTotalReadMessageCount;
-                sum += UnreadMessageCount;
+                sum += unreadMessageCount;
             }
             return sum;
         }
@@ -75,12 +72,22 @@ public class ChatService {
     public ChatroomEntity insertRoom(List<String> people, String roomType) {
         log.info("insertRoom people = " + people);
 
-        String roomName = String.join(", ", people);
+        String roomName = (roomType.equals("inquiries")) ? "문의" : String.join(", ", people);
         String creator = people.get(0); // Assuming the first person in the list is the creator
 
         ChatroomEntity chatroomEntity = new ChatroomEntity();
         chatroomEntity.setRoomName(roomName);
-        chatroomEntity.setRoomType(roomType.equals("groups") ? "group" : "individual");
+        switch (roomType) {
+            case "groups":
+                chatroomEntity.setRoomType("group");
+                break;
+            case "inquiries":
+                chatroomEntity.setRoomType("inquiries");
+                break;
+            default:
+                chatroomEntity.setRoomType("individual");
+                break;
+        }
         chatroomEntity.setCreatedAt(new Date());
         chatroomEntity.setCreator(creator);
 
@@ -104,12 +111,18 @@ public class ChatService {
     }
 
 
-    public List<ChatroomDetailsDto> getChatrooms(String userId) {
+    public List<ChatroomDetailsDto> getChatrooms(String userId, boolean isChats) {
 
         //유저아이디로 채팅방아이디 모두 가져옴
         List<Long> roomIds = chatUserRepository.findRoomIdsByUserIdOrderByIsPinned(userId);
-        //아이디로 방 정보 가져옴
-        List<ChatroomEntity> chatrooms = chatroomRepository.findByRoomIdIn(roomIds);
+
+        List<ChatroomEntity> chatrooms = new ArrayList<>();
+        //아이디와 정보로 방 가져옴
+        if (isChats) {
+            chatrooms = chatroomRepository.findChatsByRoomIds(roomIds);
+        } else {
+            chatrooms = chatroomRepository.findInquiriesByRoomIds(roomIds);
+        }
 
         List<ChatroomDetailsDto> chatroomDetails = new ArrayList<>();
 
@@ -193,14 +206,16 @@ public class ChatService {
                 })
                 .collect(Collectors.toList());
 
-        // Handle no messages scenario
+        //혹시 아무 값도 없다면
         if (messageDtos.isEmpty() && announcementDto == null) {
             return new ChatMessagesResponse(null, List.of());
         }
 
         return new ChatMessagesResponse(announcementDto, messageDtos);
     }
-
+    /**
+     * 채팅읽음 처리
+     * */
     private void markMessageAsRead(String userId, Long roomId, ChatMessageEntity message) {
         boolean isRead = messageReadRepository.existsByMessageIdAndUserId(message.getMessageId(), userId);
         if (!isRead) {
@@ -259,19 +274,28 @@ public class ChatService {
             throw new EntityNotFoundException("그런 유저 아리마셍");
         }
     }
-
+    /**
+     * 방을 나가는 로직<br>
+     * 1. 유저닉네임과 채팅방 일련번호를 받아<br>
+     * 2. 채팅유저 테이블에서 그 유저닉네임과 채팅방에 해당하는 것을 삭제<br>
+     * 3. 채팅방 나가기 처리<br>
+     * 3-1. 내가 나감으로써 채팅방에 아무도 남아있지 않으면<br>
+     * 3-2. 채팅방 내 사진 전부 삭제<br>
+     * 3.3. 파일 테이블, 채팅메시지 테이블, 채팅테이블에서 채팅방 번호로 모두 찾아 삭제후 삭제처리
+     * @Param userId: 유저닉네임(String)
+     * @Param roomId: 채팅방 일련번호(Long)
+     * */
     public void leaveRoom(String userId, Long roomId) {
+
         ChatUserCompositeKey key = new ChatUserCompositeKey(userId, roomId);
+
         if (chatUserRepository.existsById(key)) {
-            log.info("여기 실행1");
             chatUserRepository.deleteById(key);
 
             //추가적으로 방에 아무도 안 남아있으면
             //관련 정보가 모두 지워짐
             if (chatUserRepository.countByRoomId(roomId) == 0) {
-                log.info("여기 실행2");
                 messageReadRepository.deleteByRoomId(roomId);
-                log.info("파일 삭제 실행");
 
                 List<MessageFileEntity> messageFiles = messageFileRepository.findByRoomId(roomId);
                 for (MessageFileEntity fileEntity : messageFiles) {
@@ -283,18 +307,22 @@ public class ChatService {
                     }
                 }
                 messageFileRepository.deleteByRoomId(roomId);
-                log.info("여기 실행3");
                 chatMessageRepository.deleteByRoomId(roomId);
-                log.info("여기 실행4");
                 chatroomRepository.deleteById(roomId);
-                log.info("여기 실행5");
             }
 
         } else {
             throw new EntityNotFoundException("그런 유저 아리마셍");
         }
     }
-
+    /**
+     * 방제목 바꾸는 로직<br>
+     * 1. 수정할 방제목과 채팅방 일련번호를 받아 <br>
+     * 2. 해당하는 채팅방의 입력받은 방제목으로 변경 <br>
+     * 2-1. 혹시나 해당하는 방이 없으면 error처리
+     * @Param roomId: 채팅방 일련번호
+     * @Param roomName: 채팅방 제목
+     * */
     public ChatroomEntity changeRoomName(Long roomId, String roomName) {
         Optional<ChatroomEntity> optionalChatRoom = chatroomRepository.findById(roomId);
 
@@ -306,7 +334,11 @@ public class ChatService {
             throw new EntityNotFoundException("그른 방 읍그든여");
         }
     }
-
+    /**
+     * 채팅방 공지사항 변경<br>
+     * @Param roomId: 채팅방 일련번호
+     * @Param messageId: 채팅 일련번호
+     * */
     public ChatMessageEntity updateAnnouncement(Long roomId, Long messageId) {
         ChatMessageEntity currentAnnouncement = chatMessageRepository.findAnnouncementByRoomId(roomId);
 
