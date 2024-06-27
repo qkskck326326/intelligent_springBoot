@@ -13,6 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RequestMapping("/cart")
 @Slf4j
@@ -42,6 +43,21 @@ public class CartController {
 //        return ResponseEntity.ok(cart);
 //    }
 
+    @PostMapping("/add/{userEmail}/{provider}/{lecturePackageId}")
+    public ResponseEntity<String> addPackageToCart(@PathVariable String userEmail, @PathVariable String provider, @PathVariable long lecturePackageId) {
+        try {
+            String result = cartService.addPackageToCart(userEmail, provider, lecturePackageId);
+            if ("EXISTS".equals(result)) {
+                return ResponseEntity.status(HttpStatus.CONFLICT).body("Package already in cart.");
+            } else {
+                return ResponseEntity.ok("Package added to cart successfully.");
+            }
+        } catch (Exception e) {
+            log.error("Error adding package to cart", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error adding package to cart.");
+        }
+    }
+
     @GetMapping("/{userEmail}/{provider}")
     public ResponseEntity<List<CartItemDto>> getCartItems(@PathVariable String userEmail, @PathVariable String provider) {
         CartEntity cart = cartService.getOrCreateCart(userEmail, provider);
@@ -49,11 +65,35 @@ public class CartController {
         return ResponseEntity.ok(cartItems);
     }
 
-    @DeleteMapping
-    public ResponseEntity<?> deleteCartItems(@RequestBody List<Long> ids) {
-        cartService.deleteCartItems(ids);
-        return ResponseEntity.ok().build();
+    @PostMapping("/delete")
+    public ResponseEntity<?> deleteCartItems(@RequestBody Map<String, Object> requestBody) {
+        String userEmail = (String) requestBody.get("userEmail");
+        List<Long> ids = (List<Long>) requestBody.get("ids");
+        String provider = (String) requestBody.get("provider");
+        log.info("Delete request received for cart items: {}", ids); // 디버깅 로그
+        try {
+            CartEntity cart = cartService.getOrCreateCart(userEmail, provider);
+            cartService.deleteCartItems(cart.getCartId(), ids);
+            log.info("Cart items deleted successfully"); // 디버깅 로그
+            return ResponseEntity.ok().build();
+        } catch (Exception e) {
+            log.error("Error deleting cart items", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error deleting cart items.");
+        }
     }
+
+
+
+//    @DeleteMapping
+//    public ResponseEntity<?> deleteCartItems(@RequestBody List<Long> ids) {
+//        try {
+//            cartService.deleteCartItems(ids);
+//            return ResponseEntity.ok().build();
+//        } catch (Exception e) {
+//            log.error("Error deleting cart items", e);
+//            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error deleting cart items.");
+//        }
+//    }
 
 //    @DeleteMapping("/items")
 //    public ResponseEntity<?> deleteCartItems(@RequestBody List<Long> itemIds) {
