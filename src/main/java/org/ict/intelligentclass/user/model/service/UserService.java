@@ -36,7 +36,7 @@ public class UserService {
     private final ArchivedUserRepository archivedUserRepository;
     private final UserInterestRepository userInterestRepository;
     private final AttendanceRepository attendanceRepository;
-    private final PasswordEncoder passwordEncoder;  // 주입받지 않도록 수정
+    private final PasswordEncoder passwordEncoder;
 
     // 생성자를 통해 PasswordEncoder를 받도록 수정
     private PasswordEncoder getPasswordEncoder() {
@@ -191,7 +191,7 @@ public class UserService {
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     @Transactional
-    public UserDto insertSimpleUser(UserDto userDto /*, List<Integer> interestIdList */ ) { // 일반 회원가입
+    public UserDto insertSimpleUser(UserDto userDto /*, List<Integer> interestIdList */ ) { // 간단 회원가입
         // 비밀번호 암호화
         String encodedPassword = passwordEncoder.encode(userDto.getUserPwd());
         userDto.setUserPwd(encodedPassword);
@@ -251,6 +251,22 @@ public class UserService {
     }
 
 
+    @Transactional
+    public void updateUserProfile(UserDto userDto) {
+        UserEntity userEntity = userRepository.findByEmailAndProvider(userDto.getUserEmail(), userDto.getProvider())
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        if (userDto.getUserPwd() != null && !userDto.getUserPwd().isEmpty()) {
+            // 비밀번호 암호화
+            userEntity.setUserPwd(passwordEncoder.encode(userDto.getUserPwd()));
+        }
+
+        userEntity.setNickname(userDto.getNickname());
+        userEntity.setPhone(userDto.getPhone());
+        userEntity.setProfileImageUrl(userDto.getProfileImageUrl());
+
+        userRepository.save(userEntity);
+    }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 

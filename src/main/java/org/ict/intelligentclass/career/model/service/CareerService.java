@@ -57,4 +57,8 @@ public class CareerService {
     public void deleteCareerById(Long careerId) {
         careerRepository.deleteById(careerId);
     }
+
+    public void saveAllCareers(List<CareerEntity> careers) {
+        careerRepository.saveAll(careers);
+    }
 }
