@@ -58,6 +58,7 @@ public class EducationService {
             educationEntity.setGraduationDate(updatedEducation.getGraduationDate());
             educationEntity.setHomeAndTransfer(updatedEducation.getHomeAndTransfer());
             educationEntity.setPassDate(updatedEducation.getPassDate());
+            educationEntity.setUniversityLevel(updatedEducation.getUniversityLevel());
 
             educationRepository.save(educationEntity);
             return educationEntity;

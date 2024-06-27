@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import static org.json.XMLTokener.entity;
 
@@ -48,6 +49,28 @@ public class MyCertificateService {
         MyCertificateEntity savedEntity = myCertificateRepository.save(entity);
         return MyCertificateDto.fromEntity(savedEntity);
     }
+
+
+    public MyCertificateDto updateCertificate(MyCertificateDto certificateDTO) {
+        Optional<MyCertificateEntity> existingEntityOpt = myCertificateRepository.findById(certificateDTO.getCertificateNumber());
+
+        if (existingEntityOpt.isPresent()) {
+            MyCertificateEntity existingEntity = existingEntityOpt.get();
+            existingEntity.setPdfFile(certificateDTO.getPdfFile());
+            existingEntity.setKind(certificateDTO.getKind());
+            existingEntity.setPassDate(certificateDTO.getPassDate());
+            existingEntity.setIssuePlace(certificateDTO.getIssuePlace());
+
+            MyCertificateEntity updatedEntity = myCertificateRepository.save(existingEntity);
+            return MyCertificateDto.fromEntity(updatedEntity);
+        } else {
+
+            throw new RuntimeException("Certificate not found");
+        }
+    }
+
+
+
 
     public void deleteCertificate(String certificateNumber) {
         myCertificateRepository.deleteById(certificateNumber);

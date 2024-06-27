@@ -20,7 +20,8 @@ public class UpperCategoryEntity {
 
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "SQ_UPPER_CATEGORY_ID")
+    @SequenceGenerator(name = "SQ_UPPER_CATEGORY_ID" , sequenceName = "SQ_UPPER_CATEGORY_ID", allocationSize = 1)
     @Column(name = "UPPER_CATEGORY_ID")
     private Long id;
 

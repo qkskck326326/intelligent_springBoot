@@ -19,7 +19,8 @@ public class SubCategoryEntity {
 
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "SQ_SUB_CATEGORY_ID")
+    @SequenceGenerator(name = "SQ_SUB_CATEGORY_ID" , sequenceName = "SQ_SUB_CATEGORY_ID", allocationSize = 1)
     @Column(name = "SUB_CATEGORY_ID")
     private Long id;
 

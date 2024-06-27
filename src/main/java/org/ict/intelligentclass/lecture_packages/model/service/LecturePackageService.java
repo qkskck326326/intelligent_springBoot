@@ -41,30 +41,147 @@ public class LecturePackageService {
 
     //모든 패키지리스트 조회
 
+//    @Transactional
+//    public Page<LecturePackageList> getAllLecturePackages(int page, int size, String sortCriteria, String searchTerm, Long subCategoryId, String searchCriteria) {
+//        Pageable pageable = PageRequest.of(page, size, getSort(sortCriteria));
+//        Page<LecturePackageEntity> lecturePackageEntities = null;
+//
+//        //서브카테고리 선택 시
+//        if (subCategoryId != null) {
+//            if ("rating".equals(sortCriteria)) { //그리고 별점순일때
+//                lecturePackageEntities = lecturePackageRepository.findBySubCategoryIdOrderByRating(subCategoryId, pageable);
+//            } else { //별점순이 아닐때
+//                lecturePackageEntities = lecturePackageRepository.findBySubCategoryId(subCategoryId, pageable);
+//            }
+//        } else if ("rating".equals(sortCriteria)) { //서브카테고리가 선택x. 별점순일때
+//            lecturePackageEntities = lecturePackageRepository.findAllOrderByRating(pageable);
+//            if("title".equals(searchCriteria)){
+//                lecturePackageEntities = lecturePackageRepository.searchByTitleByRating(searchTerm, pageable);
+//            }
+//        } else if (searchCriteria != null){ //검색어가 있을때
+//
+//            if ("title".equals(searchCriteria)) {
+//                if ("rating".equals(sortCriteria)) {
+//                    lecturePackageEntities = lecturePackageRepository.searchByTitleByRating(searchTerm, pageable);
+//                }else{ //별점순 X, 검색어가 TITLE일때
+//                    lecturePackageEntities = lecturePackageRepository.searchByTitle(searchTerm, pageable);
+//                }
+//
+//
+//            } else if ("nickname".equals(searchCriteria)) {
+//                lecturePackageEntities = lecturePackageRepository.searchByInstructor(searchTerm, pageable);
+//            }
+//
+//        }else{
+//            lecturePackageEntities = lecturePackageRepository.findAll(pageable);
+//        }
+//
+//        List<LecturePackageList> lecturePackageLists = lecturePackageEntities.stream()
+//                .map(this::toLecturePackageList)
+//                .collect(Collectors.toList());
+//
+//        return new PageImpl<>(lecturePackageLists, pageable, lecturePackageEntities.getTotalElements());
+//    }
+//
+//    private Sort getSort(String sortCriteria) {
+//        if (sortCriteria == null || sortCriteria.isEmpty()) {
+//            return Sort.by("registerDate").descending();
+//        }
+//        switch (sortCriteria) {
+//            case "viewCount":
+//                return Sort.by("viewCount").descending();
+//            case "latest":
+//            default:
+//                return Sort.by("registerDate").descending();
+//        }
+//    }
+
+
     @Transactional
-    public Page<LecturePackageList> getAllLecturePackages(int page, int size, String sortCriteria, String searchTerm, Long subCategoryId, String searchCriteria) {
+    public Page<LecturePackageList> getLecturePackagesBySubCategory(int page, int size, String sortCriteria, Long subCategoryId) {
         Pageable pageable = PageRequest.of(page, size, getSort(sortCriteria));
         Page<LecturePackageEntity> lecturePackageEntities = null;
 
-        if (subCategoryId != null) {
-            if ("rating".equals(sortCriteria)) {
+        switch (sortCriteria) {
+            case "rating":
                 lecturePackageEntities = lecturePackageRepository.findBySubCategoryIdOrderByRating(subCategoryId, pageable);
-            } else {
-                lecturePackageEntities = lecturePackageRepository.findBySubCategoryId(subCategoryId, pageable);
-            }
-        } else if ("rating".equals(sortCriteria)) {
-            lecturePackageEntities = lecturePackageRepository.findAllOrderByRating(pageable);
-        } else if (searchCriteria != null){
-            if ("title".equals(searchCriteria)) {
-                lecturePackageEntities = lecturePackageRepository.searchByTitle(searchTerm, pageable);
-            } else if ("nickname".equals(searchCriteria)) {
-                lecturePackageEntities = lecturePackageRepository.searchByInstructor(searchTerm, pageable);
-            }
-
-        }else{
-            lecturePackageEntities = lecturePackageRepository.findAll(pageable);
+                break;
+            case "viewCount":
+                lecturePackageEntities = lecturePackageRepository.findBySubCategoryIdOrderByViewCount(subCategoryId, pageable);
+                break;
+            case "latest":
+                lecturePackageEntities = lecturePackageRepository.findBySubCategoryIdOrderByLatest(subCategoryId, pageable);
+                break;
+            default:
+//                lecturePackageEntities = lecturePackageRepository.findBySubCategoryIdOrderByLatest(subCategoryId, pageable);
+                break;
         }
 
+        return toLecturePackageListPage(lecturePackageEntities, pageable);
+    }
+
+    @Transactional
+    public Page<LecturePackageList> getLecturePackagesBySearch(int page, int size, String sortCriteria, String searchTerm, String searchCriteria) {
+        Pageable pageable = PageRequest.of(page, size, getSort(sortCriteria));
+        Page<LecturePackageEntity> lecturePackageEntities = null;
+
+        if ("title".equals(searchCriteria)) {
+            switch (sortCriteria) {
+                case "rating":
+                    lecturePackageEntities = lecturePackageRepository.searchByTitleByRating(searchTerm, pageable);
+                    break;
+                case "viewCount":
+                    lecturePackageEntities = lecturePackageRepository.searchByTitleByViewCount(searchTerm, pageable);
+                    break;
+                case "latest":
+                    lecturePackageEntities = lecturePackageRepository.searchByTitleRegister(searchTerm, pageable);
+                    break;
+                default:
+//                    lecturePackageEntities = lecturePackageRepository.searchByTitleRegister(searchTerm, pageable);
+                    break;
+            }
+        } else if ("nickname".equals(searchCriteria)) {
+            switch (sortCriteria) {
+                case "rating":
+                    lecturePackageEntities = lecturePackageRepository.searchByInstructorByRating(searchTerm, pageable);
+                    break;
+                case "viewCount":
+                    lecturePackageEntities = lecturePackageRepository.searchByInstructorByViewCount(searchTerm, pageable);
+                    break;
+                case "latest":
+                    lecturePackageEntities = lecturePackageRepository.searchByInstructorRegister(searchTerm, pageable);
+                    break;
+                default:
+//                    lecturePackageEntities = lecturePackageRepository.searchByInstructorRegister(searchTerm, pageable);
+                    break;
+            }
+        }
+
+        return toLecturePackageListPage(lecturePackageEntities, pageable);
+    }
+
+    @Transactional
+    public Page<LecturePackageList> getAllLecturePackages(int page, int size, String sortCriteria) {
+        Pageable pageable = PageRequest.of(page, size, getSort(sortCriteria));
+        Page<LecturePackageEntity> lecturePackageEntities = null;
+
+        switch (sortCriteria) {
+            case "rating":
+                lecturePackageEntities = lecturePackageRepository.findAllOrderByRating(pageable);
+                break;
+            case "viewCount":
+                lecturePackageEntities = lecturePackageRepository.findAllOrderByViewCount(pageable);
+                break;
+            case "latest":
+            default:
+                lecturePackageEntities = lecturePackageRepository.findAllOrderByLatest(pageable);
+                break;
+        }
+
+        return toLecturePackageListPage(lecturePackageEntities, pageable);
+    }
+
+    private Page<LecturePackageList> toLecturePackageListPage(Page<LecturePackageEntity> lecturePackageEntities, Pageable pageable) {
         List<LecturePackageList> lecturePackageLists = lecturePackageEntities.stream()
                 .map(this::toLecturePackageList)
                 .collect(Collectors.toList());
@@ -84,6 +201,9 @@ public class LecturePackageService {
                 return Sort.by("registerDate").descending();
         }
     }
+
+
+
 
 
 
@@ -290,8 +410,6 @@ public class LecturePackageService {
                 .nickname(lecturePackage.getNickname())
                 .title(lecturePackage.getTitle())
                 .content(lecturePackage.getContent())
-                .priceKind(lecturePackage.getPriceKind())
-                .priceMonth(lecturePackage.getPriceMonth())
                 .priceForever(lecturePackage.getPriceForever())
                 .packageLevel(lecturePackage.getPackageLevel())
                 .thumbnail(lecturePackage.getThumbnail())
@@ -314,8 +432,6 @@ public class LecturePackageService {
                 .title(register.getTitle())
                 .content(register.getContent())
                 .packageLevel(register.getPackageLevel())
-                .priceKind(register.getPriceKind())
-                .priceMonth(register.getPriceMonth())
                 .priceForever(register.getPriceForever())
                 .thumbnail(register.getThumbnail())
                 .backgroundColor(register.getBackgroundColor())
@@ -362,8 +478,6 @@ public class LecturePackageService {
         existingEntity.setTitle(lecturePackageRegister.getTitle());
         existingEntity.setContent(lecturePackageRegister.getContent());
         existingEntity.setPackageLevel(lecturePackageRegister.getPackageLevel());
-        existingEntity.setPriceKind(lecturePackageRegister.getPriceKind());
-        existingEntity.setPriceMonth(lecturePackageRegister.getPriceMonth());
         existingEntity.setPriceForever(lecturePackageRegister.getPriceForever());
         existingEntity.setThumbnail(lecturePackageRegister.getThumbnail());
         existingEntity.setBackgroundColor(lecturePackageRegister.getBackgroundColor());

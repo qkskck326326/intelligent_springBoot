@@ -17,7 +17,8 @@ import org.ict.intelligentclass.lecture_packages.model.dto.TechStackDto;
 public class TechStackEntity {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "SQ_TECH_STACK_ID")
+    @SequenceGenerator(name = "SQ_TECH_STACK_ID" , sequenceName = "SQ_TECH_STACK_ID", allocationSize = 1)
     @Column(name = "TECH_STACK_ID")
     private Long techStackId;
 

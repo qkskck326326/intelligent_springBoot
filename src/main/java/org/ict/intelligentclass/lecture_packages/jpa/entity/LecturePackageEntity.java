@@ -7,6 +7,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.ict.intelligentclass.lecture.jpa.entity.RatingEntity;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.Set;
 
@@ -36,12 +37,6 @@ public class LecturePackageEntity {
     @Column(name = "PACKAGE_LEVEL", nullable = false)
     private int packageLevel;
 
-    @Column(name = "PRICE_KIND", nullable = false)
-    private int priceKind;
-
-    @Column(name = "PRICE_MONTH", nullable = false)
-    private int priceMonth;
-
     @Column(name = "PRICE_FOREVER", nullable = false)
     private int priceForever;
 
@@ -49,7 +44,8 @@ public class LecturePackageEntity {
     private String thumbnail;
 
     @Column(name = "REGISTER_DATE", nullable = false, updatable = false)
-    private Date registerDate;
+    @Temporal(TemporalType.TIMESTAMP)
+    private LocalDateTime registerDate;
 
     @Column(name = "VIEW_COUNT", nullable = false, columnDefinition = "int default 0")
     private int viewCount;
@@ -67,10 +63,9 @@ public class LecturePackageEntity {
 //    private Set<RatingEntity> ratings;
 
     @PrePersist
-    protected void onCreate() {
-        if (this.registerDate == null) {
-            this.registerDate = new Date();
-        }
+    public void prePersist() {
+        LocalDateTime now = LocalDateTime.now();
+        if (registerDate == null) registerDate = now;
     }
 
 //    public LecturePackageDTO toDTO() {

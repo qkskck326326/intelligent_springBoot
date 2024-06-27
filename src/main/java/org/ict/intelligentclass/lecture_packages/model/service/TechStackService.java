@@ -19,6 +19,19 @@ public class TechStackService {
 
     public List<TechStackEntity> getTechStackAll(){
         return techStackRepository.findAll();
+
+
     }
 
+    public TechStackEntity addTechStack(TechStackEntity techStackEntity) {
+//        TechStackEntity techStack = TechStackEntity.builder()
+//                .techStackName(techStackEntity.getTechStackName())
+//                .techStackPath(techStackEntity.getTechStackPath())
+//                .build();
+        return techStackRepository.save(techStackEntity);
+    }
+
+    public void deleteTechStack(Long techStackId) {
+        techStackRepository.deleteById(techStackId);
+    }
 }
