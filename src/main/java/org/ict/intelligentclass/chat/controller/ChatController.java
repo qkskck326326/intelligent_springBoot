@@ -33,7 +33,6 @@ public class ChatController {
 
     private final ChatService chatService;
     private final Path fileStorageLocation = Paths.get("src/main/resources/static/uploads").toAbsolutePath().normalize();
-    private final SimpMessagingTemplate template;
     private final WebSocketService webSocketService;
     private final UserService userService;
 
@@ -41,7 +40,7 @@ public class ChatController {
     public ResponseEntity<Long> countUnreadAll(@RequestParam String userId) {
 
         log.info("countUnreadAll start");
-        Long countTotalUnRead = chatService.selectRoomIds(userId);
+        Long countTotalUnRead = chatService.countTotalUnread(userId);
         log.info("countUnreadAll end" + countTotalUnRead);
         return ResponseEntity.ok(countTotalUnRead);
 
