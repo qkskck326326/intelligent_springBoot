@@ -1,7 +1,6 @@
 package org.ict.intelligentclass.lecture.jpa.repository;
 
 import org.ict.intelligentclass.lecture.jpa.entity.LectureCommentEntity;
-import org.ict.intelligentclass.user.jpa.entity.UserEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

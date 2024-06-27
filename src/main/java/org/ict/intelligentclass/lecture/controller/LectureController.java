@@ -6,7 +6,9 @@ import org.ict.intelligentclass.lecture.jpa.entity.input.*;
 import org.ict.intelligentclass.lecture.jpa.entity.output.*;
 import org.ict.intelligentclass.lecture.model.service.LectureService;
 import org.ict.intelligentclass.lecture_packages.jpa.entity.LecturePackageEntity;
+import org.ict.intelligentclass.lecture_packages.jpa.output.LecturePackageList;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
@@ -217,5 +219,12 @@ public class LectureController {
         UserProfileDto userProfile = lectureService.getUserProfileByNickname(nickname);
         return new ResponseEntity<>(userProfile, HttpStatus.OK);
     }
+    
+//    // 마이페이지에서 내 강좌 보기
+//    @GetMapping("/lecturePackage/{nickname}")
+//    public ResponseEntity<Page<MyLecturePackageListDto>> getUserLecturePackages(@PathVariable String nickname, @RequestParam int page, @RequestParam int size) {
+//        Page<MyLecturePackageListDto> lecturePackages = lectureService.getAllLecturePackages(nickname, page, size);
+//        return ResponseEntity.ok(lecturePackages);
+//    }
 
 }
