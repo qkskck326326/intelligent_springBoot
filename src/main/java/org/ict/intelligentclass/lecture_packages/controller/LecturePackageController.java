@@ -42,6 +42,18 @@ public class LecturePackageController {
 
 
     //패키지리스트 조회
+//    @GetMapping
+//    public ResponseEntity<Page<LecturePackageList>> getLecturePackages(
+//            @RequestParam int page,
+//            @RequestParam int size,
+//            @RequestParam(required = false) String sortCriteria,
+//            @RequestParam(required = false) String searchTerm,
+//            @RequestParam(required = false) Long subCategoryId,
+//            @RequestParam(required = false) String searchCriteria) {
+//        Page<LecturePackageList> lecturePackages = lecturePackageService.getAllLecturePackages(page, size, sortCriteria, searchTerm, subCategoryId, searchCriteria);
+//        return ResponseEntity.ok(lecturePackages);
+//    }
+
     @GetMapping
     public ResponseEntity<Page<LecturePackageList>> getLecturePackages(
             @RequestParam int page,
@@ -50,7 +62,17 @@ public class LecturePackageController {
             @RequestParam(required = false) String searchTerm,
             @RequestParam(required = false) Long subCategoryId,
             @RequestParam(required = false) String searchCriteria) {
-        Page<LecturePackageList> lecturePackages = lecturePackageService.getAllLecturePackages(page, size, sortCriteria, searchTerm, subCategoryId, searchCriteria);
+
+        Page<LecturePackageList> lecturePackages;
+
+        if (subCategoryId != null && sortCriteria != null) {
+            lecturePackages = lecturePackageService.getLecturePackagesBySubCategory(page, size, sortCriteria, subCategoryId);
+        } else if (searchTerm != null && searchCriteria != null && sortCriteria != null) {
+            lecturePackages = lecturePackageService.getLecturePackagesBySearch(page, size, sortCriteria, searchTerm, searchCriteria);
+        } else {
+            lecturePackages = lecturePackageService.getAllLecturePackages(page, size, sortCriteria);
+        }
+
         return ResponseEntity.ok(lecturePackages);
     }
 
@@ -168,6 +190,8 @@ public class LecturePackageController {
             System.out.println("View count increased for non-author.");
         }
     }
+
+
 
 
     @GetMapping("/profile")

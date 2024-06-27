@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 import org.ict.intelligentclass.lecture_packages.jpa.entity.PackageSubCategoryId;
 import org.ict.intelligentclass.lecture_packages.jpa.entity.PackageTechStackId;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
 
@@ -22,13 +23,11 @@ public class LecturePackageDetail {
     private String nickname;
     private String title;
     private String content;
-    private int priceKind;
-    private int priceMonth;
     private int priceForever;
     private int packageLevel;
     private String thumbnail;
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
-    private Date registerDate;
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    private LocalDateTime registerDate;
     private int viewCount;
     private String backgroundColor;
     private List<Long> subCategoryId;

@@ -19,8 +19,6 @@ public class LecturePackageRegister {
     private String title;
     private String content;
     private int packageLevel;
-    private int priceKind;
-    private int priceMonth;
     private int priceForever;
     private String thumbnail;
     private String backgroundColor;
@@ -28,16 +26,16 @@ public class LecturePackageRegister {
     private List<Long> packageTechStackId = new ArrayList<>();
 
 
-    public LecturePackageRegister(LecturePackageEntity lecturePackageEntity) {
-        this.lecturePackageId = lecturePackageEntity.getLecturePackageId();
-        this.nickname = lecturePackageEntity.getNickname();
-        this.title = lecturePackageEntity.getTitle();
-        this.content = lecturePackageEntity.getContent();
-        this.packageLevel = lecturePackageEntity.getPackageLevel();
-        this.priceKind = lecturePackageEntity.getPriceKind();
-        this.priceMonth = lecturePackageEntity.getPriceMonth();
-        this.priceForever = lecturePackageEntity.getPriceForever();
-        this.thumbnail = lecturePackageEntity.getThumbnail();
-
-    }
+//    public LecturePackageRegister(LecturePackageEntity lecturePackageEntity) {
+//        this.lecturePackageId = lecturePackageEntity.getLecturePackageId();
+//        this.nickname = lecturePackageEntity.getNickname();
+//        this.title = lecturePackageEntity.getTitle();
+//        this.content = lecturePackageEntity.getContent();
+//        this.packageLevel = lecturePackageEntity.getPackageLevel();
+//        this.priceKind = lecturePackageEntity.getPriceKind();
+//        this.priceMonth = lecturePackageEntity.getPriceMonth();
+//        this.priceForever = lecturePackageEntity.getPriceForever();
+//        this.thumbnail = lecturePackageEntity.getThumbnail();
+//
+//    }
 }

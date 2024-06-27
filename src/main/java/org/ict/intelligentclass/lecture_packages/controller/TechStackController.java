@@ -6,10 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.ict.intelligentclass.lecture_packages.jpa.entity.TechStackEntity;
 import org.ict.intelligentclass.lecture_packages.model.service.TechStackService;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -27,4 +24,22 @@ public class TechStackController {
         List<TechStackEntity> techStack = techStackService.getTechStackAll();
         return ResponseEntity.ok(techStack);
     }
+
+    @PostMapping
+    public ResponseEntity<TechStackEntity> addTechStack(@RequestBody TechStackEntity techStackRequest) {
+        TechStackEntity techStack = techStackService.addTechStack(techStackRequest);
+        return ResponseEntity.ok(techStack);
+    }
+
+
+
+
+    @DeleteMapping
+    public ResponseEntity<Void> deleteTechStack(@RequestParam Long techStackId) {
+        log.info("Deleting techstack with id {}", techStackId);
+        techStackService.deleteTechStack(techStackId);
+        log.info("techStackId :", techStackId);
+        return ResponseEntity.noContent().build();
+    }
+
 }

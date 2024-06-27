@@ -8,10 +8,7 @@ import org.ict.intelligentclass.lecture_packages.jpa.entity.UpperCategoryEntity;
 import org.ict.intelligentclass.lecture_packages.jpa.output.SubCategoryAll;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -37,6 +34,35 @@ public class CategoryController {
         log.info("getAllSubCategories : ", categoryService.getAllSubCategories());
         return categoryService.getAllSubCategories();
     }
+
+    //상위카테고리 추가
+    @PostMapping("/insertUpper")
+    public ResponseEntity<UpperCategoryEntity> insertUpperCategory(@RequestBody UpperCategoryEntity upperCategory) {
+        UpperCategoryEntity upperCategory1 = categoryService.insertUpperCategory(upperCategory);
+        return ResponseEntity.ok(upperCategory1);
+    }
+
+    // 하위 카테고리 추가
+    @PostMapping("/insertSub")
+    public ResponseEntity<SubCategoryEntity> insertSubCategory(@RequestBody SubCategoryEntity subCategory) {
+        SubCategoryEntity subCategory1 = categoryService.insertSubCategory(subCategory);
+        return ResponseEntity.ok(subCategory1);
+    }
+
+    @DeleteMapping("/deleteUpper")
+    public ResponseEntity<Void> deleteUpperCategory(@RequestParam Long upperCategoryId) {
+        categoryService.deleteUpperCategory(upperCategoryId);
+        return ResponseEntity.ok().build();
+    }
+
+    @DeleteMapping("/deleteSub")
+    public ResponseEntity<Void> deleteSubCategory(@RequestParam Long subCategoryId) {
+        categoryService.deleteSubCategory(subCategoryId);
+        return ResponseEntity.ok().build();
+    }
+
+
+
 
 //    @GetMapping("/suball")
 //    public ResponseEntity<List<SubCategoryAll>> getAllSubCategory(){

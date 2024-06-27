@@ -37,6 +37,12 @@ public class MyCertificateController {
         return new ResponseEntity<>(newCertificate, HttpStatus.CREATED);
     }
 
+    @PutMapping
+    public ResponseEntity<MyCertificateDto> updateCertificate(@RequestBody MyCertificateDto certificateDTO) {
+        MyCertificateDto updatedCertificate = myCertificateService.updateCertificate(certificateDTO);
+        return new ResponseEntity<>(updatedCertificate, HttpStatus.OK);
+    }
+
     @DeleteMapping
     public ResponseEntity<Void> deleteCertificate(@RequestParam String certificateNumber) {
         log.info("certificateNumber : ", certificateNumber);

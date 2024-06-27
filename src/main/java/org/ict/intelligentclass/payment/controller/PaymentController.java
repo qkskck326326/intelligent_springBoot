@@ -7,6 +7,7 @@ import org.ict.intelligentclass.lecture_packages.jpa.output.LecturePackageDetail
 import org.ict.intelligentclass.lecture_packages.model.service.LecturePackageService;
 import org.ict.intelligentclass.payment.jpa.entity.CouponEntity;
 import org.ict.intelligentclass.payment.jpa.entity.PaymentEntity;
+import org.ict.intelligentclass.payment.model.dto.PaymentHistoryDto;
 import org.ict.intelligentclass.payment.model.dto.PaymentRequest;
 import org.ict.intelligentclass.payment.model.service.PaymentService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,6 +31,14 @@ public class PaymentController {
 
     @Autowired
     private PaymentService paymentService;
+
+
+    @GetMapping("paymentHistory/{userEmail}")
+    public ResponseEntity<List<PaymentHistoryDto>> getTransactionHistory(@PathVariable String userEmail) {
+        log.info("userEmail {}: " + userEmail); // 요청된 userEmail 로그 출력
+        List<PaymentHistoryDto> history = paymentService.getTransactionHistoryByUserEmail(userEmail);
+        return ResponseEntity.ok(history);
+    }
 
     @GetMapping("/packages/{lecturePackageId}")
     public ResponseEntity<LecturePackageDetail> getPackage(@PathVariable Long lecturePackageId) {
@@ -89,50 +98,6 @@ public class PaymentController {
     }
 
 
-    //결제 데이터 세션 저장 로직 -------------------------------------------------------------------------------
-//    @PostMapping("/request")
-//    public ResponseEntity<String> requestPayment(@RequestBody PaymentRequest paymentRequest, HttpSession session) {
-//        log.info("paymentRequest 정보 확인 : " + paymentRequest);
-//        session.setAttribute("orderId", paymentRequest.getOrderId());
-//        session.setAttribute("amount", paymentRequest.getAmount());
-//        session.setAttribute("userEmail", paymentRequest.getUserEmail());
-//        session.setAttribute("lecturePackageId", paymentRequest.getLecturePackageId());
-//        session.setAttribute("paymentMethod", paymentRequest.getPaymentMethod());
-//        session.setAttribute("couponId", paymentRequest.getCouponId());
-//        session.setAttribute("priceKind", paymentRequest.getPriceKind());
-//        log.info("세션 아이디 확인 : " + session.getId());
-//        log.info("session 정보 확인 : " + session.getAttribute("orderId"));
-//        log.info("session 정보 확인2 : " + session.getAttribute("lecturePackageId"));
-//        return ResponseEntity.ok("Payment requested");
-//    }
-//
-//    @GetMapping("/session-info")
-//    public ResponseEntity<Map<String, Object>> getSessionInfo(HttpSession session) {
-//        Map<String, Object> sessionInfo = new HashMap<>();
-//        sessionInfo.put("orderId", session.getAttribute("orderId"));
-//        sessionInfo.put("amount", session.getAttribute("amount"));
-//        sessionInfo.put("userEmail", session.getAttribute("userEmail"));
-//        sessionInfo.put("lecturePackageId", session.getAttribute("lecturePackageId"));
-//        sessionInfo.put("paymentMethod", session.getAttribute("paymentMethod"));
-//        sessionInfo.put("couponId", session.getAttribute("couponId"));
-//        sessionInfo.put("priceKind", session.getAttribute("priceKind"));
-//        log.info("세션 정보 가져오기 아이디 확인 : "+ session.getId());
-//        log.info("세션 가져오기 정보 확인 : " + session.getAttribute("orderId"));
-//        log.info("세션 가져오기 : " + sessionInfo);
-//        return ResponseEntity.ok(sessionInfo);
-//    }
-//
-//    @PostMapping("/clear-session")
-//    public ResponseEntity<String> clearSession(HttpSession session) {
-//        session.removeAttribute("orderId");
-//        session.removeAttribute("amount");
-//        session.removeAttribute("userEmail");
-//        session.removeAttribute("lecturePackageId");
-//        session.removeAttribute("paymentMethod");
-//        session.removeAttribute("couponId");
-//        session.removeAttribute("priceKind");
-//
-//        return ResponseEntity.ok("Session cleared");
-//    }
+
 }
 

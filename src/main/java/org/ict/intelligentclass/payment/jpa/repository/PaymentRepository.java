@@ -14,4 +14,5 @@ public interface PaymentRepository extends JpaRepository<PaymentEntity, Long> {
     @Query("SELECT p.lecturePackageId FROM PaymentEntity p WHERE p.userEmail = :userEmail AND p.paymentConfirmation = 'Y'")
     List<Long> findPurchasedPackageIdsByUserEmail(@Param("userEmail") String userEmail);
 
+    List<PaymentEntity> findByUserEmail(String userEmail);
 }

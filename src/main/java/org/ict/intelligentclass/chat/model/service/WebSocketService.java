@@ -30,4 +30,12 @@ public class WebSocketService {
         log.info("Sending room name change to room {}: {}", roomId, roomNameChangeDto);
         messagingTemplate.convertAndSend("/topic/room/" + roomId, roomNameChangeDto);
     }
+
+    public void broadcastUpdate() {
+        log.info("Broadcasting update to all users");
+        //이 메소드가 실행되면서 변화가 생겼음을 저 주소로 보냄
+        messagingTemplate.convertAndSend("/topic/update", "update");
+    }
+
+
 }

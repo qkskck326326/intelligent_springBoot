@@ -18,7 +18,8 @@ import java.util.Date;
 public class ReportEntity {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "SQ_REPORT_ID")
+    @SequenceGenerator(name = "SQ_REPORT_ID" , sequenceName = "SQ_REPORT_ID", allocationSize = 1)
     @Column(name = "REPORT_ID")
     private Long reportId;
 

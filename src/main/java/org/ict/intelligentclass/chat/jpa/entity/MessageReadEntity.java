@@ -1,9 +1,6 @@
 package org.ict.intelligentclass.chat.jpa.entity;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -17,12 +14,12 @@ import java.util.Date;
 @Data
 public class MessageReadEntity {
 
-    @Id
-    @Column(name="MESSAGE_ID")//메시지 일련번호
-    private Long messageId;
-
-    @Column(name="USER_ID", nullable = false)//읽은 유저
-    private String userId;
+    @EmbeddedId
+    @AttributeOverrides({
+            @AttributeOverride(name = "messageId", column = @Column(name = "MESSAGE_ID")),
+            @AttributeOverride(name = "userId", column = @Column(name = "USER_ID"))
+    })
+    private MessageReadCompositeKey messageReadCompositeKey; //유저닉네임, 채팅방 일련번호 묶음
 
     @Column(name="ROOM_ID", nullable = false)//채팅방
     private Long roomId;

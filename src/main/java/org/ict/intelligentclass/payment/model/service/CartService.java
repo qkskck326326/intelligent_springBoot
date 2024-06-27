@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -29,6 +30,32 @@ public class CartService {
 
     @Autowired
     private PaymentRepository paymentRepository;
+
+    @Transactional
+    public String  addPackageToCart(String userEmail, String provider, Long lecturePackageId) {
+        CartEntity cart = cartRepository.findByUserEmailAndProvider(userEmail, provider)
+                .orElseGet(() -> {
+                    CartEntity newCart = new CartEntity();
+                    newCart.setUserEmail(userEmail);
+                    newCart.setProvider(provider);
+                    return cartRepository.save(newCart);
+                });
+
+        boolean alreadyExists = cartItemRepository.existsByCartIdAndLecturePackageId(cart.getCartId(), lecturePackageId);
+
+        if (alreadyExists) {
+            return "EXISTS";
+        } else {
+            CartItemEntity cartItem = new CartItemEntity();
+            cartItem.setCartId(cart.getCartId());
+            cartItem.setLecturePackageId(lecturePackageId);
+            if (cartItem.getDateAdded() == null) {
+                cartItem.setDateAdded(LocalDateTime.now());
+            }
+            cartItemRepository.save(cartItem);
+            return "ADDED";
+        }
+    }
 
     public List<CartItemDto> getCartItems(Long cartId, String userEmail) {
         List<Long> purchasedPackageIds = paymentRepository.findPurchasedPackageIdsByUserEmail(userEmail);
@@ -64,8 +91,8 @@ public class CartService {
     }
 
     @Transactional
-    public void deleteCartItems(List<Long> ids) {
-        cartItemRepository.deleteByCartItemIdIn(ids);
+    public void deleteCartItems(Long cartId, List<Long> lecturePackageIds) {
+        cartItemRepository.deleteByCartIdAndLecturePackageIdIn(cartId, lecturePackageIds);
     }
 
 

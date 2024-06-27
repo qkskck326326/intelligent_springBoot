@@ -58,6 +58,7 @@ public class EducationService {
             educationEntity.setGraduationDate(updatedEducation.getGraduationDate());
             educationEntity.setHomeAndTransfer(updatedEducation.getHomeAndTransfer());
             educationEntity.setPassDate(updatedEducation.getPassDate());
+            educationEntity.setUniversityLevel(updatedEducation.getUniversityLevel());
 
             educationRepository.save(educationEntity);
             return educationEntity;
@@ -71,5 +72,9 @@ public class EducationService {
 
     public void deleteEducationById(Long educationId) {
         educationRepository.deleteById(educationId);
+    }
+
+    public void saveAllEducations(List<EducationEntity> educations) {
+        educationRepository.saveAll(educations);
     }
 }
