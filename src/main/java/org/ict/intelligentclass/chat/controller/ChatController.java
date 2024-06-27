@@ -3,6 +3,7 @@ package org.ict.intelligentclass.chat.controller;
 import org.ict.intelligentclass.chat.model.dto.*;
 import org.ict.intelligentclass.chat.model.service.WebSocketService;
 import org.ict.intelligentclass.user.jpa.entity.UserEntity;
+import org.ict.intelligentclass.user.model.service.UserService;
 import org.springframework.http.HttpHeaders;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -34,14 +35,14 @@ public class ChatController {
     private final Path fileStorageLocation = Paths.get("src/main/resources/static/uploads").toAbsolutePath().normalize();
     private final SimpMessagingTemplate template;
     private final WebSocketService webSocketService;
+    private final UserService userService;
 
     @GetMapping("/countunreadall")
     public ResponseEntity<Long> countUnreadAll(@RequestParam String userId) {
+
         log.info("countUnreadAll start");
         Long countTotalUnRead = chatService.selectRoomIds(userId);
-
-        log.info(countTotalUnRead.toString());
-
+        log.info("countUnreadAll end" + countTotalUnRead);
         return ResponseEntity.ok(countTotalUnRead);
 
     }
@@ -55,9 +56,9 @@ public class ChatController {
     }
 
     @GetMapping("/chatlist")
-    public ResponseEntity<List<ChatroomDetailsDto>> listChatroom(@RequestParam String userId) {
+    public ResponseEntity<List<ChatroomDetailsDto>> listChatroom(@RequestParam String userId, @RequestParam boolean isChats) {
         log.info("listChatroom start");
-        List<ChatroomDetailsDto> chatrooms = chatService.getChatrooms(userId);
+        List<ChatroomDetailsDto> chatrooms = chatService.getChatrooms(userId, isChats);
         return ResponseEntity.ok(chatrooms);
     }
 
@@ -65,6 +66,11 @@ public class ChatController {
     public ResponseEntity<ChatMessagesResponse> getMessages(@RequestParam String userId, @RequestParam Long roomId, @RequestParam int page) {
         ChatMessagesResponse res = chatService.getMessages(userId, roomId, page);
         return ResponseEntity.ok(res);
+    }
+
+    @GetMapping("/admins")
+    public ResponseEntity<List<String>> getAdmins() {
+        return ResponseEntity.ok(userService.getAdmins(2));
     }
 
     @GetMapping("/people")

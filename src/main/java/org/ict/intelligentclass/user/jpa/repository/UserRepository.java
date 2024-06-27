@@ -1,6 +1,7 @@
 package org.ict.intelligentclass.user.jpa.repository;
 
 
+import org.ict.intelligentclass.lecture_packages.jpa.entity.LecturePackageEntity;
 import org.ict.intelligentclass.user.jpa.entity.UserEntity;
 import org.ict.intelligentclass.user.jpa.entity.id.UserId;
 import org.springframework.data.domain.Page;
@@ -77,6 +78,12 @@ public interface UserRepository extends JpaRepository<UserEntity, UserId> {
     @Query("UPDATE UserEntity u SET u.userPwd = :newPw WHERE u.userId.userEmail = :email AND u.userId.provider = :provider")
     void updateUserPwd(@Param("email") String email, @Param("provider") String provider, @Param("newPw") String newPw);
 
+    @Query("SELECT COUNT(u) FROM UserEntity u WHERE u.nickname LIKE :nickname%")
+    int countByNicknameStartingWith(@Param("nickname") String nickname);
+
+
+
+
     @Query("SELECT u FROM UserEntity u WHERE "
             + "(:nickname IS NULL OR u.nickname <> :nickname) AND "
             + "((:addingOption = 'teachers' AND u.userType = 1) OR "
@@ -113,4 +120,6 @@ public interface UserRepository extends JpaRepository<UserEntity, UserId> {
                                   @Param("endDate") LocalDateTime endDateTime,
                                   Pageable pageable);
 
+    @Query("SELECT u.nickname FROM UserEntity u WHERE u.userType = :userType")
+    List<String> findNicknamesByUserType(int userType);
 }

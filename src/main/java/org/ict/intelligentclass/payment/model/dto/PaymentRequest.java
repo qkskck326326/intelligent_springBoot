@@ -15,4 +15,5 @@ public class PaymentRequest {
     private String paymentMethod;
     private Long couponId;
     private String priceKind;
+    private String provider;
 }
