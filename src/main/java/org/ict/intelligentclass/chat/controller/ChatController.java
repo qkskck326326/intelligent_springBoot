@@ -51,6 +51,7 @@ public class ChatController {
         List<String> names = request.getNames();
         log.info("makechat start " + names + " " + roomType);
         ChatroomEntity entity = chatService.insertRoom(names, roomType);
+        webSocketService.broadcastUpdate();
         return new ResponseEntity<>(entity, HttpStatus.CREATED);
     }
 
@@ -92,6 +93,8 @@ public class ChatController {
         log.info("converted messageDto: {}", messageDto);
 
         webSocketService.sendToSpecificRoom(savedMessage.getRoomId(), messageDto);
+        //이걸로 업데이트가 일어남을 알림
+        webSocketService.broadcastUpdate();
 
         return ResponseEntity.ok(messageDto);
     }
@@ -169,7 +172,7 @@ public class ChatController {
 
             RoomNameChangeDto roomNameChangeDto = new RoomNameChangeDto(roomId, roomName);
             webSocketService.sendRoomNameChange(roomId, roomNameChangeDto);
-
+            webSocketService.broadcastUpdate();
             return ResponseEntity.ok(updatedChatRoom);
         } catch (EntityNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
@@ -193,6 +196,7 @@ public class ChatController {
         ChatMessageEntity deletedMessage = chatService.deleteMessage(messageId);
         ChatMessageDto messageDto = chatService.convertToDto(deletedMessage);
         webSocketService.sendToSpecificRoom(deletedMessage.getRoomId(), messageDto);
+        webSocketService.broadcastUpdate();
         return ResponseEntity.ok(deletedMessage);
     }
 
@@ -204,6 +208,7 @@ public class ChatController {
 
         try {
             chatService.leaveRoom(userId, roomId);
+            webSocketService.broadcastUpdate();
             return ResponseEntity.ok("User has left the room");
         } catch (EntityNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
