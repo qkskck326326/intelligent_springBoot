@@ -99,6 +99,18 @@ public class ChatController {
         return ResponseEntity.ok(messageDto);
     }
 
+    @PostMapping("markread")
+    public ResponseEntity<MessageReadEntity> markRead(@RequestBody ChatMessageEntity chatMessageEntity) {
+        log.info("markRead start");
+        log.info("markRead {}", chatMessageEntity);
+
+        MessageReadCompositeKey compositeKey = new MessageReadCompositeKey(chatMessageEntity.getMessageId(), chatMessageEntity.getSenderId());
+        Long roomId = chatMessageEntity.getRoomId();
+        MessageReadEntity messageRead = chatService.markRead(compositeKey, roomId);
+        return ResponseEntity.ok(messageRead);
+    }
+
+
     @PostMapping(value = "/uploadfiles/{roomId}/{senderId}/{messageType}/{dateSent}/{isAnnouncement}", consumes = {"multipart/form-data"})
     public ResponseEntity<?> uploadFiles(
             @PathVariable Long roomId,

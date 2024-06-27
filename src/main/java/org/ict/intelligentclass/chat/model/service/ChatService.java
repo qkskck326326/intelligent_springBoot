@@ -3,6 +3,7 @@ package org.ict.intelligentclass.chat.model.service;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.ict.intelligentclass.chat.jpa.entity.MessageReadCompositeKey;
 import org.ict.intelligentclass.chat.jpa.entity.*;
 import org.ict.intelligentclass.chat.jpa.repository.*;
 import org.ict.intelligentclass.chat.model.dto.ChatMessageDto;
@@ -243,30 +244,44 @@ public class ChatService {
                 })
                 .collect(Collectors.toList());
 
-        //혹시 아무 값도 없다면
+        // If no messages found, return an empty response
         if (messageDtos.isEmpty() && announcementDto == null) {
             return new ChatMessagesResponse(null, List.of());
         }
 
         return new ChatMessagesResponse(announcementDto, messageDtos);
     }
+
     /**
      * 채팅읽음 처리
      * 1. messageReadRepository.existsByMessageIdAndUserId(message.getMessageId(), userId) => O(1)
      * 2. messageReadRepository.save(newRead) => O(1)
      * 최종 시간 복잡도 O(1)
      * */
+
     private void markMessageAsRead(String userId, Long roomId, ChatMessageEntity message) {
-        boolean isRead = messageReadRepository.existsByMessageIdAndUserId(message.getMessageId(), userId);
+        MessageReadCompositeKey compositeKey = new MessageReadCompositeKey(message.getMessageId(), userId);
+        boolean isRead = messageReadRepository.existsByMessageReadCompositeKey(compositeKey);
         if (!isRead) {
             MessageReadEntity newRead = new MessageReadEntity();
-            newRead.setMessageId(message.getMessageId());
-            newRead.setUserId(userId);
+            newRead.setMessageReadCompositeKey(compositeKey);
             newRead.setRoomId(roomId);
             newRead.setReadAt(new Date());
             messageReadRepository.save(newRead);
         }
     }
+
+    public MessageReadEntity markRead(MessageReadCompositeKey compositeKey, Long roomId) {
+
+        MessageReadEntity newRead = new MessageReadEntity();
+        newRead.setMessageReadCompositeKey(compositeKey);
+        newRead.setRoomId(roomId);
+        newRead.setReadAt(new Date());
+        return messageReadRepository.save(newRead);
+    }
+
+
+
 
     /**
      * Dto로 변환
@@ -284,11 +299,12 @@ public class ChatService {
         dto.setAnnouncement(message.getIsAnnouncement() == 1);
 
         // Check read count
-        int readCount = messageReadRepository.countByMessageId(message.getMessageId());
+        int readCount = (int) messageReadRepository.countByMessageReadCompositeKeyMessageId(message.getMessageId());
         dto.setReadCount(readCount);
 
         // Check if current user has read the message
-        boolean isReadByCurrentUser = messageReadRepository.existsByMessageIdAndUserId(message.getMessageId(), userId);
+        MessageReadCompositeKey compositeKey = new MessageReadCompositeKey(message.getMessageId(), userId);
+        boolean isReadByCurrentUser = messageReadRepository.existsByMessageReadCompositeKey(compositeKey);
         dto.setReadByCurrentUser(isReadByCurrentUser);
 
         // Fetch sender information
@@ -420,9 +436,9 @@ public class ChatService {
         log.info("Message saved: {}", savedMessage);
 
         // Mark message as read by sender
+        MessageReadCompositeKey compositeKey = new MessageReadCompositeKey(savedMessage.getMessageId(), chatMessageEntity.getSenderId());
         MessageReadEntity messageReadEntity = new MessageReadEntity();
-        messageReadEntity.setMessageId(savedMessage.getMessageId());
-        messageReadEntity.setUserId(chatMessageEntity.getSenderId());
+        messageReadEntity.setMessageReadCompositeKey(compositeKey);
         messageReadEntity.setRoomId(chatMessageEntity.getRoomId());
         messageReadEntity.setReadAt(new Date());
 
@@ -567,5 +583,7 @@ public class ChatService {
                 .files(fileDtos)
                 .build();
     }
+
+
 }
 
