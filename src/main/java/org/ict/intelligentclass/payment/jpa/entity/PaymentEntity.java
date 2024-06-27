@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.ict.intelligentclass.payment.model.dto.PaymentHistoryDto;
 
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
@@ -53,4 +54,18 @@ public class PaymentEntity {
 
     @Column(name = "ORDERID", nullable = false)
     private String orderId;
+
+    public PaymentHistoryDto toDto(PaymentHistoryDto paymentHistoryDto) {
+        paymentHistoryDto.setTransactionId(this.transactionId);
+        paymentHistoryDto.setUserEmail(this.userEmail);
+        paymentHistoryDto.setProvider(this.provider);
+        paymentHistoryDto.setLecturePackageId(this.lecturePackageId);
+        paymentHistoryDto.setPaymentType(this.paymentType);
+        paymentHistoryDto.setCouponId(this.couponId);
+        paymentHistoryDto.setFinalPrice(this.finalPrice);
+        paymentHistoryDto.setTransactionDate(this.transactionDate);
+        paymentHistoryDto.setOrderId(this.orderId);
+        paymentHistoryDto.setPaymentConfirmation(this.paymentConfirmation);
+        return paymentHistoryDto;
+    }
 }

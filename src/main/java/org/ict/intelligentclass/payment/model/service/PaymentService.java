@@ -1,5 +1,6 @@
 package org.ict.intelligentclass.payment.model.service;
 
+import lombok.extern.slf4j.Slf4j;
 import org.ict.intelligentclass.lecture_packages.jpa.entity.LecturePackageEntity;
 import org.ict.intelligentclass.lecture_packages.jpa.repository.LecturePackageRepository;
 import org.ict.intelligentclass.payment.jpa.entity.CartEntity;
@@ -11,6 +12,7 @@ import org.ict.intelligentclass.payment.jpa.repository.CartRepository;
 import org.ict.intelligentclass.payment.jpa.repository.CouponRepositoy;
 import org.ict.intelligentclass.payment.jpa.repository.PaymentRepository;
 import org.ict.intelligentclass.payment.model.dto.CartItemDto;
+import org.ict.intelligentclass.payment.model.dto.PaymentHistoryDto;
 import org.ict.intelligentclass.user.jpa.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -22,6 +24,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
+@Slf4j
 public class PaymentService {
 
     @Autowired
@@ -65,5 +68,24 @@ public class PaymentService {
 
     public void deleteCoupon(Long couponId) {
         paymentRepository.deleteById(couponId);
+    }
+
+    public List<PaymentHistoryDto> getTransactionHistoryByUserEmail(String userEmail) {
+        List<PaymentEntity> paymentEntities = paymentRepository.findByUserEmail(userEmail);
+        log.info("결제내역가져오기 엔티티확인 {} : " + paymentEntities);
+        List<PaymentHistoryDto> paymentHistoryDtos = new ArrayList<>();
+        for (PaymentEntity paymentEntity : paymentEntities) {
+            LecturePackageEntity lecturePackage = lecturePackageRepository.findById(paymentEntity.getLecturePackageId()).orElse(null);
+
+            PaymentHistoryDto paymentHistoryDto = paymentEntity.toDto(new PaymentHistoryDto());
+            String title = lecturePackage.getTitle();
+            String thumbnail = lecturePackage.getThumbnail();
+            paymentHistoryDto.setTitle(title);
+            paymentHistoryDto.setThumbnail(thumbnail);
+            paymentHistoryDtos.add(paymentHistoryDto);
+            log.info("결제내역가져오기 확인 {}" + paymentHistoryDto);
+        }
+
+        return paymentHistoryDtos;
     }
 }
