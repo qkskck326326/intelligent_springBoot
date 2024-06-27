@@ -258,7 +258,6 @@ public class ChatService {
      * 2. messageReadRepository.save(newRead) => O(1)
      * 최종 시간 복잡도 O(1)
      * */
-
     private void markMessageAsRead(String userId, Long roomId, ChatMessageEntity message) {
         MessageReadCompositeKey compositeKey = new MessageReadCompositeKey(message.getMessageId(), userId);
         boolean isRead = messageReadRepository.existsByMessageReadCompositeKey(compositeKey);
@@ -271,14 +270,14 @@ public class ChatService {
         }
     }
 
-    public MessageReadEntity markRead(MessageReadCompositeKey compositeKey, Long roomId) {
-
-        MessageReadEntity newRead = new MessageReadEntity();
-        newRead.setMessageReadCompositeKey(compositeKey);
-        newRead.setRoomId(roomId);
-        newRead.setReadAt(new Date());
-        return messageReadRepository.save(newRead);
-    }
+//    public MessageReadEntity markRead(MessageReadCompositeKey compositeKey, Long roomId) {
+//
+//        MessageReadEntity newRead = new MessageReadEntity();
+//        newRead.setMessageReadCompositeKey(compositeKey);
+//        newRead.setRoomId(roomId);
+//        newRead.setReadAt(new Date());
+//        return messageReadRepository.save(newRead);
+//    }
 
 
 
