@@ -72,4 +72,8 @@ public class EducationService {
     public void deleteEducationById(Long educationId) {
         educationRepository.deleteById(educationId);
     }
+
+    public void saveAllEducations(List<EducationEntity> educations) {
+        educationRepository.saveAll(educations);
+    }
 }

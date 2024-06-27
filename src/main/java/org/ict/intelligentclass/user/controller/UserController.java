@@ -4,12 +4,16 @@ import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+import org.ict.intelligentclass.career.jpa.entity.CareerEntity;
+import org.ict.intelligentclass.career.model.service.CareerService;
+import org.ict.intelligentclass.education.jpa.entity.EducationEntity;
+import org.ict.intelligentclass.education.model.service.EducationService;
 import org.ict.intelligentclass.user.jpa.entity.UserEntity;
 import org.ict.intelligentclass.user.jpa.entity.UserInterestEntity;
 import org.ict.intelligentclass.user.model.dto.AttendanceDto;
+import org.ict.intelligentclass.user.model.dto.EnrollForm;
 import org.ict.intelligentclass.user.model.dto.UserDto;
 import org.ict.intelligentclass.user.model.dto.UserInterestDto;
-import org.ict.intelligentclass.user.model.dto.enrollForm;
 import org.ict.intelligentclass.user.model.service.UserService;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
@@ -30,13 +34,16 @@ import java.util.stream.Collectors;
 @CrossOrigin     // 리액트 애플리케이션(포트가 다름)의 자원 요청을 처리하기 위함
 public class UserController {
     private final UserService userService;
+    private final EducationService educationService;
+    private final CareerService careerService;
     private final JavaMailSender mailSender;
 
+
     @GetMapping
-    public ResponseEntity<UserDto> selectUserByEmail(@RequestParam("email") String email,
+    public ResponseEntity<UserDto> selectUserByEmail(@RequestParam("userEmail") String userEmail,
                                                      @RequestParam("provider") String provider) {
-        log.info("/users : " + email, provider + " 사용자 정보 조회 요청");
-        return new ResponseEntity<>(userService.getUserById(email, provider), HttpStatus.OK);
+        log.info("/users : " + userEmail, provider + " 사용자 정보 조회 요청");
+        return new ResponseEntity<>(userService.getUserById(userEmail, provider), HttpStatus.OK);
     }
 
     @GetMapping("/nickname/{nickname}")
@@ -218,7 +225,7 @@ public class UserController {
 
     // 찐 회원 가입
     @PostMapping("/insertuser")
-    public ResponseEntity<?> insertUser(@RequestBody enrollForm enrollForm) {
+    public ResponseEntity<?> insertUser(@RequestBody EnrollForm enrollForm) {
         log.info("/users/user/ " + enrollForm.getUserEmail() + "/" + enrollForm.getUserType() + " 유저 회원가입 요청");
 
         try {
@@ -260,11 +267,41 @@ public class UserController {
             // 저장 로직
             userService.saveAllUserInterests(userInterestEntities);
 
+            // EducationEntity 저장
+            List<EducationEntity> educationEntities = enrollForm.getEducations().stream()
+                    .peek(education -> education.setNickname(enrollForm.getNickname()))  // Nickname 설정
+                    .collect(Collectors.toList());
+
+            educationService.saveAllEducations(educationEntities);
+
+
+            // CareerEntity 저장
+            List<CareerEntity> careerEntities = enrollForm.getCareers().stream()
+                    .peek(career -> career.setNickname(enrollForm.getNickname()))  // Nickname 설정
+                    .collect(Collectors.toList());
+
+            careerService.saveAllCareers(careerEntities);
+
             return new ResponseEntity<>(userDto, HttpStatus.CREATED);
         } catch (Exception e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
+    // 회원 정보 수정
+    @PutMapping("/update-profile")
+    public ResponseEntity<Void> updateUserProfile(@RequestBody UserDto userDto) {
+        log.info("/users/update-profile : {} 회원 정보 수정 요청", userDto.getUserEmail());
+
+        try {
+            userService.updateUserProfile(userDto);
+            return new ResponseEntity<>(HttpStatus.OK);
+        } catch (Exception e) {
+            log.error("Error updating user profile:", e);
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
 
 
     // 사용자 탈퇴
@@ -317,12 +354,11 @@ public class UserController {
     }
 
     // 비밀번호 변경
-    @PutMapping("/password/{email}/{provider}")
-    public ResponseEntity<Void> updateUserPwd(@PathVariable("email") String email,
-                                              @PathVariable("provider") String provider,
-                                              @RequestParam("newPw") String newPw) {
-        log.info("/users/" + email + "/" + provider + "/비밀번호 변경 요청");
-        userService.updateUserPwd(email, provider, newPw);
+    @PutMapping("/reset-password/{userEmail}/{userPwd}")
+    public ResponseEntity<Void> updateUserPwd(@PathVariable("userEmail") String userEmail,
+                                              @PathVariable("userPwd") String userPwd) {
+        log.info("/users/reset-password : " + userEmail + " 비밀번호 변경 요청");
+        userService.updateUserPwd(userEmail, "intelliclass", userPwd);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 

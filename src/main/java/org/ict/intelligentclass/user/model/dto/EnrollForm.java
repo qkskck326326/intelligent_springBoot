@@ -5,7 +5,8 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
+import org.ict.intelligentclass.career.jpa.entity.CareerEntity;
+import org.ict.intelligentclass.education.jpa.entity.EducationEntity;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -14,7 +15,7 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class enrollForm {
+public class EnrollForm {
     private String userEmail;
     private String provider;
     private String userName;
@@ -30,8 +31,8 @@ public class enrollForm {
     private char faceLoginYn;
     private String snsAccessToken;
 
-    private List<Long> interests; // 추가된 부분
-    //학력 리스트
-    //경력 리스트
+    private List<Long> interests;
 
+    private List<EducationEntity> educations;
+    private List<CareerEntity> careers;
 }
