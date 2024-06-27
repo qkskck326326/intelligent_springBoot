@@ -3,7 +3,7 @@ package org.ict.intelligentclass.chat.model.service;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.ict.intelligentclass.chat.controller.ChatWebSocketController;
+import org.ict.intelligentclass.chat.jpa.entity.MessageReadCompositeKey;
 import org.ict.intelligentclass.chat.jpa.entity.*;
 import org.ict.intelligentclass.chat.jpa.repository.*;
 import org.ict.intelligentclass.chat.model.dto.ChatMessageDto;
@@ -41,8 +41,14 @@ public class ChatService {
     private final MessageReadRepository messageReadRepository;
     private final UserRepository userRepository;
 
-
-    public Long selectRoomIds(String userId) {
+    /**
+     * 안 읽은 메시지 갯수 확인
+     * 1. chatUserRepository.findRoomIdsByUserId(userId) => O(1)
+     * 2. messageReadRepository.countByRoomIdAndUserId(chatroomId, userId) -> O(1)
+     * 2의 for 반복문 => O(I) I: 채팅방 모든 아이디들
+     * 최종 시간 복잡도 => O(I) => O(n)
+     * */
+    public Long countTotalUnread(String userId) {
 
         log.info("selectRoomIds userId = " + userId);
         //챗유저 닉네임으로 모든 채팅방 아이디 가져오기
@@ -69,6 +75,13 @@ public class ChatService {
         }
     }
 
+    /**
+     * 채팅방 생성
+     * 1. ChatroomEntity newRoom = chatroomRepository.save(chatroomEntity) -> O(1)
+     * 2. chatUserRepository.save(chatUserEntity); -> O(1)
+     * 2의 for 반복문 -> O(U) U: 추가된 인원수
+     * 최종 시간 복잡도 O(U) => O(n)
+     * */
     public ChatroomEntity insertRoom(List<String> people, String roomType) {
         log.info("insertRoom people = " + people);
 
@@ -110,7 +123,22 @@ public class ChatService {
         return newRoom;
     }
 
-
+    /**
+     * 채팅방 리스트 가져오기
+     * 1. chatUserRepository.findRoomIdsByUserIdOrderByIsPinned(userId) => O(R) R: 채팅방 일련번호
+     * -> 작동방식 : userId를 통해서 해당하는 방을 찾기위해 모든 채팅방을 확인
+     * 2. chatroomRepository.findChatsByRoomIds(roomIds) => O(R)
+     * 3. for 반복문 안 메소드들 => O(1)
+     * 4. for 반복문 O(U) U: 채팅방내 유저
+     * 최종 시간 복잡도 O(2R x U) => O(n^2) => 최적화 필요
+     *
+     * **개선할만한 점***
+     * => Lazy Loading : 바로 모든 데이터 fetch하지말고 페이지네이션 적용 그리고 유저 스크롤로 추가 데이터 가져오도록 수정
+     * => 캐싱 : 자주 접근하는 데이터를 캐싱하는 메커니즘 적용
+     * => 자주 접근해야하는 데이터를 엔티티에 추가: 가장 마지막으로 전송된 메시지칼럼을 chatroom엔티티에 추가
+     *    메시지 전송 메커니즘에 chatroom에서 마지막으로 전송된 메시지 아이디 변경로직도 추가
+     * => 필요한 데이터만 가져오는 Dto 만들기 : 유저엔티티를 전부 가져가지 말고 필요한 칼럼만 추려서 가져가기
+     * */
     public List<ChatroomDetailsDto> getChatrooms(String userId, boolean isChats) {
 
         //유저아이디로 채팅방아이디 모두 가져옴
@@ -134,6 +162,8 @@ public class ChatService {
             int totalPeople = chatUserRepository.countByRoomId(chatroom.getRoomId());
             List<String> userNicknames = chatUserRepository.findUserIdsByRoomId(chatroom.getRoomId());
             List<UserEntity> users = new ArrayList<>();
+
+            //닉네임으로 유저 엔티티 가져옴
             for(String userNickname : userNicknames) {
                 Optional<UserEntity> user = userRepository.findByNickname(userNickname);
                 if(user.isPresent()) {
@@ -168,6 +198,14 @@ public class ChatService {
                 .collect(Collectors.toList());
     }
 
+    /**
+     * 채팅방 내부 메세지들 가져오기
+     * 1. chatMessageRepository.findFirstByRoomIdAndIsAnnouncement(roomId, 1L) : O(1)
+     * 2. chatMessageRepository.findByRoomId(roomId, PageRequest.of(page - 1, 25, Sort.by("dateSent").descending())) : O(M) M: 메시지 갯수
+     * 3. for 반복문 -> O(M)
+     * 4. 3내부의 메소드들 -> O(1)
+     * 최종 시간 복잡도 O(2M) => O(n)
+     * */
     public ChatMessagesResponse getMessages(String userId, Long roomId, int page) {
         // Fetch announcement for the room if exists
         Optional<ChatMessageEntity> announcementOpt = chatMessageRepository.findFirstByRoomIdAndIsAnnouncement(roomId, 1L);
@@ -206,28 +244,49 @@ public class ChatService {
                 })
                 .collect(Collectors.toList());
 
-        //혹시 아무 값도 없다면
+        // If no messages found, return an empty response
         if (messageDtos.isEmpty() && announcementDto == null) {
             return new ChatMessagesResponse(null, List.of());
         }
 
         return new ChatMessagesResponse(announcementDto, messageDtos);
     }
+
     /**
      * 채팅읽음 처리
+     * 1. messageReadRepository.existsByMessageIdAndUserId(message.getMessageId(), userId) => O(1)
+     * 2. messageReadRepository.save(newRead) => O(1)
+     * 최종 시간 복잡도 O(1)
      * */
     private void markMessageAsRead(String userId, Long roomId, ChatMessageEntity message) {
-        boolean isRead = messageReadRepository.existsByMessageIdAndUserId(message.getMessageId(), userId);
+        MessageReadCompositeKey compositeKey = new MessageReadCompositeKey(message.getMessageId(), userId);
+        boolean isRead = messageReadRepository.existsByMessageReadCompositeKey(compositeKey);
         if (!isRead) {
             MessageReadEntity newRead = new MessageReadEntity();
-            newRead.setMessageId(message.getMessageId());
-            newRead.setUserId(userId);
+            newRead.setMessageReadCompositeKey(compositeKey);
             newRead.setRoomId(roomId);
             newRead.setReadAt(new Date());
             messageReadRepository.save(newRead);
         }
     }
 
+//    public MessageReadEntity markRead(MessageReadCompositeKey compositeKey, Long roomId) {
+//
+//        MessageReadEntity newRead = new MessageReadEntity();
+//        newRead.setMessageReadCompositeKey(compositeKey);
+//        newRead.setRoomId(roomId);
+//        newRead.setReadAt(new Date());
+//        return messageReadRepository.save(newRead);
+//    }
+
+
+
+
+    /**
+     * Dto로 변환
+     * 모든 메소드들 : O(1)
+     * 최종 시간 복잡도 => O(1)
+     * */
     private ChatMessageDto convertToDto(ChatMessageEntity message, String userId, Long roomId) {
         ChatMessageDto dto = new ChatMessageDto();
         dto.setMessageId(message.getMessageId());
@@ -239,11 +298,12 @@ public class ChatService {
         dto.setAnnouncement(message.getIsAnnouncement() == 1);
 
         // Check read count
-        int readCount = messageReadRepository.countByMessageId(message.getMessageId());
+        int readCount = (int) messageReadRepository.countByMessageReadCompositeKeyMessageId(message.getMessageId());
         dto.setReadCount(readCount);
 
         // Check if current user has read the message
-        boolean isReadByCurrentUser = messageReadRepository.existsByMessageIdAndUserId(message.getMessageId(), userId);
+        MessageReadCompositeKey compositeKey = new MessageReadCompositeKey(message.getMessageId(), userId);
+        boolean isReadByCurrentUser = messageReadRepository.existsByMessageReadCompositeKey(compositeKey);
         dto.setReadByCurrentUser(isReadByCurrentUser);
 
         // Fetch sender information
@@ -258,10 +318,20 @@ public class ChatService {
         return dto;
     }
 
+    /**
+     * 복합키로 유저 엔티티 반환
+     * 최종 시간 복잡도 O(1)
+     * */
     public ChatUserEntity getChatUserDetail(String userId, Long roomId) {
         return chatUserRepository.findByChatUserCompositeKeyUserIdAndChatUserCompositeKeyRoomId(userId, roomId);
     }
 
+    /**
+     * 채팅방 핀 설정/제거
+     * 1. chatUserRepository.findById(key) => O(1)
+     * 2. chatUserRepository.save(chatUser) => O(1)
+     * 최종 시간 복잡도 O(1)
+     * */
     public ChatUserEntity changePinStatus(String userId, Long roomId, Long isPinned) {
         ChatUserCompositeKey key = new ChatUserCompositeKey(userId, roomId);
         Optional<ChatUserEntity> optionalChatUser = chatUserRepository.findById(key);
@@ -275,15 +345,13 @@ public class ChatService {
         }
     }
     /**
-     * 방을 나가는 로직<br>
-     * 1. 유저닉네임과 채팅방 일련번호를 받아<br>
-     * 2. 채팅유저 테이블에서 그 유저닉네임과 채팅방에 해당하는 것을 삭제<br>
-     * 3. 채팅방 나가기 처리<br>
-     * 3-1. 내가 나감으로써 채팅방에 아무도 남아있지 않으면<br>
-     * 3-2. 채팅방 내 사진 전부 삭제<br>
-     * 3.3. 파일 테이블, 채팅메시지 테이블, 채팅테이블에서 채팅방 번호로 모두 찾아 삭제후 삭제처리
-     * @Param userId: 유저닉네임(String)
-     * @Param roomId: 채팅방 일련번호(Long)
+     * 채팅방 나가기
+     * 1. chatUserRepository.existsById(key): O(1)
+     * 2. chatUserRepository.deleteById(key): O(1)
+     *  시간 복잡도 (일반적인 경우) => O(1)
+     * 3. 만일 나가는 사람이 마지막이라 내부 파일, 메시지, 최종적으로 방까지 삭제
+     * 파일 삭제용 for 반복문 : O(F) F: 채팅방 내 파일 갯수
+     * 최종 시간 복잡도 O(1) + O(F) => O(n)
      * */
     public void leaveRoom(String userId, Long roomId) {
 
@@ -316,12 +384,10 @@ public class ChatService {
         }
     }
     /**
-     * 방제목 바꾸는 로직<br>
-     * 1. 수정할 방제목과 채팅방 일련번호를 받아 <br>
-     * 2. 해당하는 채팅방의 입력받은 방제목으로 변경 <br>
-     * 2-1. 혹시나 해당하는 방이 없으면 error처리
-     * @Param roomId: 채팅방 일련번호
-     * @Param roomName: 채팅방 제목
+     * 채팅방 이름 변경
+     * 1. chatroomRepository.findById(roomId): O(1)
+     * 2. chatroomRepository.save(chatRoom): O(1)
+     * 최종 시간 복잡도 : O(1)
      * */
     public ChatroomEntity changeRoomName(Long roomId, String roomName) {
         Optional<ChatroomEntity> optionalChatRoom = chatroomRepository.findById(roomId);
@@ -335,9 +401,12 @@ public class ChatService {
         }
     }
     /**
-     * 채팅방 공지사항 변경<br>
-     * @Param roomId: 채팅방 일련번호
-     * @Param messageId: 채팅 일련번호
+     * 채팅방 내부 공지사항 변경
+     * 1. chatMessageRepository.findAnnouncementByRoomId(roomId):  O(1)
+     * 2. chatMessageRepository.save(currentAnnouncement): O(1)
+     * 3. chatMessageRepository.findById(messageId): O(1)
+     * 4. chatMessageRepository.save(newAnnouncement):  O(1)
+     * 최종 시간 복잡도 : O(1)
      * */
     public ChatMessageEntity updateAnnouncement(Long roomId, Long messageId) {
         ChatMessageEntity currentAnnouncement = chatMessageRepository.findAnnouncementByRoomId(roomId);
@@ -354,6 +423,11 @@ public class ChatService {
         return chatMessageRepository.save(newAnnouncement);
     }
 
+    /**
+     * 메시지 저장
+     * 모든 메소드들 : O(1)
+     * 최종 시간 복잡도 : O(1)
+     * */
     public ChatMessageEntity saveMessage(ChatMessageEntity chatMessageEntity) {
         log.info("Saving message: {}", chatMessageEntity);
         chatMessageEntity.setDateSent(new Date());
@@ -361,9 +435,9 @@ public class ChatService {
         log.info("Message saved: {}", savedMessage);
 
         // Mark message as read by sender
+        MessageReadCompositeKey compositeKey = new MessageReadCompositeKey(savedMessage.getMessageId(), chatMessageEntity.getSenderId());
         MessageReadEntity messageReadEntity = new MessageReadEntity();
-        messageReadEntity.setMessageId(savedMessage.getMessageId());
-        messageReadEntity.setUserId(chatMessageEntity.getSenderId());
+        messageReadEntity.setMessageReadCompositeKey(compositeKey);
         messageReadEntity.setRoomId(chatMessageEntity.getRoomId());
         messageReadEntity.setReadAt(new Date());
 
@@ -373,6 +447,11 @@ public class ChatService {
         return savedMessage;
     }
 
+    /**
+     * 파일 저장
+     * 1. for 반복문 : O(F) : 첨부된 파일 갯수
+     * 최종 시간 복잡도 : O(F) => O(n)
+     * */
     public List<MessageFileEntity> saveFiles(ChatMessageEntity message, List<MultipartFile> files) {
         log.info("서비스 실행됨");
 
@@ -411,6 +490,15 @@ public class ChatService {
         return fileEntities;
     }
 
+    /**
+     * 메시지 삭제
+     * 1. chatMessageRepository.findById(messageId): O(1)
+     * 2. for 반복문 messageFiles: O(F) F: 파일 갯수
+     * 3. 반복문 내 메소드들: O(1)
+     * 4. messageFileRepository.deleteByMessageId(messageId): O(1)
+     * 5. chatMessageRepository.save(chatMessage): O(1)
+     * 최종 시간 복잡도 : O(F) => O(n)
+     * */
     public ChatMessageEntity deleteMessage(Long messageId) {
 
         Optional<ChatMessageEntity> optionalChatMessage = chatMessageRepository.findById(messageId);
@@ -441,6 +529,13 @@ public class ChatService {
         return chatMessageRepository.save(chatMessage);
     }
 
+    /**
+     * 채팅방 일련번호로 방 내부 유저들 엔티티 반환
+     * 1. chatUserRepository.findUserIdsByRoomId(roomId): O(U)
+     * 2. 가져온 유저닉네임으로 for 반복문 : O(U)
+     * 3. userRepository.findByNickname(userNickname): O(1)
+     * 최종 시간 복잡도 : O(2U) => O(n)
+     * */
     public List<UserEntity> getPeople(Long roomId) {
 
         List<String> userNicknames = chatUserRepository.findUserIdsByRoomId(roomId);
@@ -455,7 +550,11 @@ public class ChatService {
         return users;
     }
 
-
+    /**
+     * Dto로 변환
+     * 모든 메소드들 : O(1)
+     * 최종 시간 복잡도 => O(1)
+     * */
     public ChatMessageDto convertToDto(ChatMessageEntity message) {
         UserEntity sender = userRepository.findByNickname(message.getSenderId())
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
@@ -483,11 +582,7 @@ public class ChatService {
                 .files(fileDtos)
                 .build();
     }
+
+
 }
-
-
-//    public ArrayList<ChatUserEntity> selectChatrooms(String userId) {
-//        log.info("selectChatrooms userId = " + userId);
-//
-//    }
 

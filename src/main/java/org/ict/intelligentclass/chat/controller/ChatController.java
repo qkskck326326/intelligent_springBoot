@@ -33,7 +33,6 @@ public class ChatController {
 
     private final ChatService chatService;
     private final Path fileStorageLocation = Paths.get("src/main/resources/static/uploads").toAbsolutePath().normalize();
-    private final SimpMessagingTemplate template;
     private final WebSocketService webSocketService;
     private final UserService userService;
 
@@ -41,7 +40,7 @@ public class ChatController {
     public ResponseEntity<Long> countUnreadAll(@RequestParam String userId) {
 
         log.info("countUnreadAll start");
-        Long countTotalUnRead = chatService.selectRoomIds(userId);
+        Long countTotalUnRead = chatService.countTotalUnread(userId);
         log.info("countUnreadAll end" + countTotalUnRead);
         return ResponseEntity.ok(countTotalUnRead);
 
@@ -52,6 +51,7 @@ public class ChatController {
         List<String> names = request.getNames();
         log.info("makechat start " + names + " " + roomType);
         ChatroomEntity entity = chatService.insertRoom(names, roomType);
+        webSocketService.broadcastUpdate();
         return new ResponseEntity<>(entity, HttpStatus.CREATED);
     }
 
@@ -93,9 +93,23 @@ public class ChatController {
         log.info("converted messageDto: {}", messageDto);
 
         webSocketService.sendToSpecificRoom(savedMessage.getRoomId(), messageDto);
+        //이걸로 업데이트가 일어남을 알림
+        webSocketService.broadcastUpdate();
 
         return ResponseEntity.ok(messageDto);
     }
+
+//    @PostMapping("markread")
+//    public ResponseEntity<MessageReadEntity> markRead(@RequestBody ChatMessageEntity chatMessageEntity) {
+//        log.info("markRead start");
+//        log.info("markRead {}", chatMessageEntity);
+//
+//        MessageReadCompositeKey compositeKey = new MessageReadCompositeKey(chatMessageEntity.getMessageId(), chatMessageEntity.getSenderId());
+//        Long roomId = chatMessageEntity.getRoomId();
+//        MessageReadEntity messageRead = chatService.markRead(compositeKey, roomId);
+//        return ResponseEntity.ok(messageRead);
+//    }
+
 
     @PostMapping(value = "/uploadfiles/{roomId}/{senderId}/{messageType}/{dateSent}/{isAnnouncement}", consumes = {"multipart/form-data"})
     public ResponseEntity<?> uploadFiles(
@@ -170,7 +184,7 @@ public class ChatController {
 
             RoomNameChangeDto roomNameChangeDto = new RoomNameChangeDto(roomId, roomName);
             webSocketService.sendRoomNameChange(roomId, roomNameChangeDto);
-
+            webSocketService.broadcastUpdate();
             return ResponseEntity.ok(updatedChatRoom);
         } catch (EntityNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
@@ -194,6 +208,7 @@ public class ChatController {
         ChatMessageEntity deletedMessage = chatService.deleteMessage(messageId);
         ChatMessageDto messageDto = chatService.convertToDto(deletedMessage);
         webSocketService.sendToSpecificRoom(deletedMessage.getRoomId(), messageDto);
+        webSocketService.broadcastUpdate();
         return ResponseEntity.ok(deletedMessage);
     }
 
@@ -205,6 +220,7 @@ public class ChatController {
 
         try {
             chatService.leaveRoom(userId, roomId);
+            webSocketService.broadcastUpdate();
             return ResponseEntity.ok("User has left the room");
         } catch (EntityNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
