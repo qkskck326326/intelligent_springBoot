@@ -59,4 +59,7 @@ public class EducationEntity {
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM")
     private Date passDate;
 
+    @Column(name = "UNIVERSITY_LEVEL")
+    private String universityLevel;
+
 }
