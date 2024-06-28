@@ -256,12 +256,7 @@ public class UserService {
         UserEntity userEntity = userRepository.findByEmailAndProvider(userDto.getUserEmail(), userDto.getProvider())
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
-        if (userDto.getUserPwd() != null && !userDto.getUserPwd().isEmpty()) {
-            // 비밀번호 암호화
-            userEntity.setUserPwd(passwordEncoder.encode(userDto.getUserPwd()));
-        }
 
-        userEntity.setNickname(userDto.getNickname());
         userEntity.setPhone(userDto.getPhone());
         userEntity.setProfileImageUrl(userDto.getProfileImageUrl());
 
@@ -308,6 +303,24 @@ public class UserService {
         String encodedPassword = passwordEncoder.encode(newPw);
 
         userRepository.updateUserPwd(email, provider, encodedPassword);
+    }
+
+
+    public void changePassword(String userEmail, String provider, String currentPassword, String newPassword) {
+        Optional<UserEntity> optionalUser = userRepository.findByEmailAndProvider(userEmail, provider);
+
+        if (!optionalUser.isPresent()) {
+            throw new UserNotFoundException("User not found with email: " + userEmail + " and provider: " + provider);
+        }
+
+        UserEntity userEntity = optionalUser.get();
+
+        if (!passwordEncoder.matches(currentPassword, userEntity.getUserPwd())) {
+            throw new IllegalArgumentException("Current password is incorrect");
+        }
+
+        String encodedNewPassword = passwordEncoder.encode(newPassword);
+        userRepository.updateUserPwd(userEmail, provider, encodedNewPassword);
     }
 
     public String generateNickname(String userName) {

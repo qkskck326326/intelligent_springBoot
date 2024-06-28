@@ -81,9 +81,6 @@ public interface UserRepository extends JpaRepository<UserEntity, UserId> {
     @Query("SELECT COUNT(u) FROM UserEntity u WHERE u.nickname LIKE :nickname%")
     int countByNicknameStartingWith(@Param("nickname") String nickname);
 
-
-
-
     @Query("SELECT u FROM UserEntity u WHERE "
             + "(:nickname IS NULL OR u.nickname <> :nickname) AND "
             + "((:addingOption = 'teachers' AND u.userType = 1) OR "

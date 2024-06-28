@@ -10,10 +10,7 @@ import org.ict.intelligentclass.education.jpa.entity.EducationEntity;
 import org.ict.intelligentclass.education.model.service.EducationService;
 import org.ict.intelligentclass.user.jpa.entity.UserEntity;
 import org.ict.intelligentclass.user.jpa.entity.UserInterestEntity;
-import org.ict.intelligentclass.user.model.dto.AttendanceDto;
-import org.ict.intelligentclass.user.model.dto.EnrollForm;
-import org.ict.intelligentclass.user.model.dto.UserDto;
-import org.ict.intelligentclass.user.model.dto.UserInterestDto;
+import org.ict.intelligentclass.user.model.dto.*;
 import org.ict.intelligentclass.user.model.service.UserService;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
@@ -39,6 +36,7 @@ public class UserController {
     private final JavaMailSender mailSender;
 
 
+    // 사용자 정보 조회
     @GetMapping
     public ResponseEntity<UserDto> selectUserByEmail(@RequestParam("userEmail") String userEmail,
                                                      @RequestParam("provider") String provider) {
@@ -46,24 +44,28 @@ public class UserController {
         return new ResponseEntity<>(userService.getUserById(userEmail, provider), HttpStatus.OK);
     }
 
+    // 닉네임으로 사용자 정보 조회
     @GetMapping("/nickname/{nickname}")
     public ResponseEntity<UserDto> selectUserByNickname(@PathVariable("nickname") String nickname) {
         log.info("/users/nickname/" + nickname + " 사용자 정보 조회 요청");
         return new ResponseEntity<>(userService.getUserByNickname(nickname), HttpStatus.OK);
     }
 
+    // 사용자 정보 휴대폰으로 조회
     @GetMapping("/phone/{phone}")
     public ResponseEntity<UserDto> selectUserByPhone(@PathVariable("phone") String phone) {
         log.info("/users/phone/" + phone + " 사용자 정보 조회 요청");
         return new ResponseEntity<>(userService.getUserByPhone(phone), HttpStatus.OK);
     }
 
+    // 사용자 정보 리스트 이름으로 조회
     @GetMapping("/name/{name}")
     public ResponseEntity<List<UserDto>> selectUserByName(@PathVariable("name") String name) {
         log.info("/users/name/" + name + " 사용자 정보 조회 요청");
         return new ResponseEntity<>(userService.getUserByName(name), HttpStatus.OK);
     }
 
+    // 이메일 중복 검사 조회
     @GetMapping("/check-email")
     public ResponseEntity<String> checkEmailDuplicate(@RequestParam("userEmail") String userEmail,
                                                       @RequestParam("provider") String provider) {
@@ -77,6 +79,7 @@ public class UserController {
         }
     }
 
+    // 닉네임 중복 검사 조회
     @GetMapping("/check-nickname")
     public ResponseEntity<String> checkNicknameDuplicate(@RequestParam("nickname") String nickname) {
         log.info("/users/check-nickname/" + nickname + " 닉네임 중복 검사 요청");
@@ -90,6 +93,7 @@ public class UserController {
         }
     }
 
+    // 유저 타입 조회
     @GetMapping("/check-usertype/{email}/{provider}")
     public ResponseEntity<UserDto> checkUserType(@PathVariable("email") String email,
                                                  @PathVariable("provider") String provider) {
@@ -97,12 +101,14 @@ public class UserController {
         return new ResponseEntity<>(userService.checkUserType(email, provider), HttpStatus.OK);
     }
 
+    // 오늘 가입한 사용자 리스트 조회
     @GetMapping("/today-registered")
     public ResponseEntity<List<UserDto>> selectTodayRegisteredUsers() {
         log.info("/users/today-registered/ 오늘 가입한 사용자 리스트 조회 요청");
         return new ResponseEntity<>(userService.selectTodayRegisteredUsers(), HttpStatus.OK);
     }
 
+    // 기간 동안 가입한 사용자 리스트 조회
     @GetMapping("/registered-users-period")
     public ResponseEntity<List<UserDto>> selectRegisteredUsersByPeriod(@RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") Date begin,
                                                                        @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") Date end) {
@@ -111,6 +117,7 @@ public class UserController {
         return new ResponseEntity<>(users, HttpStatus.OK);
     }
 
+    // 경고 횟수 조회
     @GetMapping("/report/{email}/{provider}")
     public ResponseEntity<Integer> selectReportCount(@PathVariable("email") String email,
                                                      @PathVariable("provider") String provider) {
@@ -119,6 +126,7 @@ public class UserController {
         return new ResponseEntity<>(reportCount, HttpStatus.OK);
     }
 
+    // 로그인 제한 여부 조회
     @GetMapping("/loginok/{email}/{provider}")
     public ResponseEntity<String> checkLoginOk(@PathVariable("email") String email,
                                                @PathVariable("provider") String provider) {
@@ -127,6 +135,7 @@ public class UserController {
         return new ResponseEntity<>(loginOk, HttpStatus.OK);
     }
 
+    // 얼굴 등록 여부 조회
     @GetMapping("/faceloginyn/{email}/{provider}")
     public ResponseEntity<String> checkFaceLoginYN(@PathVariable("email") String email,
                                                    @PathVariable("provider") String provider) {
@@ -135,6 +144,7 @@ public class UserController {
         return new ResponseEntity<>(faceLoginYn, HttpStatus.OK);
     }
 
+    // 출석일 조회
     @GetMapping("/select-attendance/{email}/{provider}")
     public ResponseEntity<List<AttendanceDto>> selectAttendance(@PathVariable("email") String email,
                                                                 @PathVariable("provider") String provider) {
@@ -142,6 +152,7 @@ public class UserController {
         return new ResponseEntity<>(userService.selectAttendance(email, provider), HttpStatus.OK);
     }
 
+    // 이메일 인증코드 전송
     @PostMapping("/send-verification-code")
     public ResponseEntity<Map<String, String>> sendVerificationCode(@RequestParam("userEmail") String userEmail) {
         log.info("/users/send-verification-code : " + userEmail + " 인증 코드 전송 요청");
@@ -223,7 +234,7 @@ public class UserController {
         }
     }
 
-    // 찐 회원 가입
+    // 진짜 회원 가입
     @PostMapping("/insertuser")
     public ResponseEntity<?> insertUser(@RequestBody EnrollForm enrollForm) {
         log.info("/users/user/ " + enrollForm.getUserEmail() + "/" + enrollForm.getUserType() + " 유저 회원가입 요청");
@@ -303,14 +314,13 @@ public class UserController {
     }
 
 
-
     // 사용자 탈퇴
-    @DeleteMapping("/deleteuser/{email}/{provider}")
-    public ResponseEntity<Void> deleteUser(@PathVariable("email") String email,
+    @DeleteMapping("/deleteuser/{userEmail}/{provider}")
+    public ResponseEntity<Void> deleteUser(@PathVariable("userEmail") String userEmail,
                                            @PathVariable("provider") String provider,
                                            @RequestParam("reason") String reason) {
-        log.info("/users/deleteuser/" + email + "/" + provider + " 유저 삭제 요청");
-        userService.deleteUser(email, provider, reason);
+        log.info("/users/deleteuser : " + userEmail + "/" + provider + " 유저 삭제 요청");
+        userService.deleteUser(userEmail, provider, reason);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
@@ -353,7 +363,7 @@ public class UserController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    // 비밀번호 변경
+    // 비밀번호 변경(로그인 전)
     @PutMapping("/reset-password/{userEmail}/{userPwd}")
     public ResponseEntity<Void> updateUserPwd(@PathVariable("userEmail") String userEmail,
                                               @PathVariable("userPwd") String userPwd) {
@@ -363,11 +373,26 @@ public class UserController {
     }
 
 
+    // 비밀번호 변경(회원 정보 수정)
+    @PutMapping("/change-password")
+    public ResponseEntity<Void> changePassword(@RequestBody ChangePasswordForm form) {
+        log.info("/users/change-password : 비밀번호 변경 요청");
+
+        try {
+            userService.changePassword(form.getUserEmail(), "intelliclass", form.getCurrentPassword(), form.getNewPassword());
+            return new ResponseEntity<>(HttpStatus.OK);
+        } catch (Exception e) {
+            log.error("Error changing password:", e);
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+
     // 허강 여기서부터
     @GetMapping("/getpeople")
     public ResponseEntity<List<UserEntity>> getPeople(@RequestParam("userId") String nickname,
-                                                   @RequestParam("userType") int userType,
-                                                   @RequestParam("addingOption") String addingOption,
+                                                      @RequestParam("userType") int userType,
+                                                      @RequestParam("addingOption") String addingOption,
                                                       @RequestParam("page") int page,
                                                       @RequestParam(name="searchQuery", required=false) String searchQuery) {
 
