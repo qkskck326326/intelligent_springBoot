@@ -15,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class CartService {
@@ -93,6 +94,16 @@ public class CartService {
     @Transactional
     public void deleteCartItems(Long cartId, List<Long> lecturePackageIds) {
         cartItemRepository.deleteByCartIdAndLecturePackageIdIn(cartId, lecturePackageIds);
+    }
+
+    @Transactional
+    public boolean isLecturePackageInCart(String userEmail, String provider, Long lecturePackageId) {
+        Optional<CartEntity> cart = cartRepository.findByUserEmailAndProvider(userEmail, provider);
+        if (cart.isPresent()) {
+            Long cartId = cart.get().getCartId();
+            return cartItemRepository.existsByCartIdAndLecturePackageId(cartId, lecturePackageId);
+        }
+        return false;
     }
 
 

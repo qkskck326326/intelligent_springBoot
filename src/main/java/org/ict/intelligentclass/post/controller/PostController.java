@@ -8,12 +8,14 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.ict.intelligentclass.lecture_packages.jpa.entity.SubCategoryEntity;
+import org.ict.intelligentclass.post.jpa.entity.BookmarkEntity;
 import org.ict.intelligentclass.post.jpa.entity.CommentEntity;
 import org.ict.intelligentclass.post.jpa.entity.LikeEntity;
 import org.ict.intelligentclass.post.jpa.entity.PostEntity;
 import org.ict.intelligentclass.post.model.dto.LikeDto;
 import org.ict.intelligentclass.post.model.dto.PostDetailDto;
 import org.ict.intelligentclass.post.model.dto.PostDto;
+import org.ict.intelligentclass.post.model.service.BookmarkService;
 import org.ict.intelligentclass.post.model.service.PostService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,6 +37,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Base64;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RequestMapping("/posts")
 @Slf4j
@@ -45,7 +48,50 @@ public class PostController {
     private static final Logger logger = LoggerFactory.getLogger(PostService.class);
     @Autowired
     private PostService postService;
+    @Autowired
+    private BookmarkService bookmarkService;
 // GET 요청부 ---------------------------------------------------------------------------------------------------------
+
+    @PostMapping("/bookmark")
+    public ResponseEntity<BookmarkEntity> addBookmark(@RequestBody
+                                                          BookmarkEntity bookmarkEntity) {
+        BookmarkEntity bookmark = bookmarkService.addBookmark(bookmarkEntity.getPostId(), bookmarkEntity.getUserEmail(), bookmarkEntity.getProvider());
+        return ResponseEntity.ok(bookmark);
+    }
+
+    @DeleteMapping("/bookmark")
+    public ResponseEntity<Void> removeBookmark(@RequestBody BookmarkEntity bookmarkEntity) {
+        bookmarkService.removeBookmark(bookmarkEntity.getPostId(), bookmarkEntity.getUserEmail(), bookmarkEntity.getProvider());
+        return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/myPosts")
+    public Page<PostDto> getMyPosts(
+            @RequestParam String userEmail,
+            @RequestParam String provider,
+            @RequestParam int page,
+            @RequestParam int size,
+            @RequestParam String sort
+    ) {
+        Pageable pageable = PageRequest.of(page, size);
+        List<PostEntity> posts = postService.getUserPosts(userEmail, provider);
+        List<PostDto> postDtos = posts.stream().map(postService::convertToDto).collect(Collectors.toList());
+        return postService.applySorting(postDtos, pageable, sort);
+    }
+
+    @GetMapping("/bookmarks")
+    public Page<PostDto> getBookmarks(
+            @RequestParam String userEmail,
+            @RequestParam String provider,
+            @RequestParam int page,
+            @RequestParam int size,
+            @RequestParam String sort
+    ) {
+        Pageable pageable = PageRequest.of(page, size);
+        List<PostEntity> posts = postService.getUserBookmarks(userEmail, provider);
+        List<PostDto> postDtos = posts.stream().map(postService::convertToDto).collect(Collectors.toList());
+        return postService.applySorting(postDtos, pageable, sort);
+    }
 
 
     @GetMapping("/top10")

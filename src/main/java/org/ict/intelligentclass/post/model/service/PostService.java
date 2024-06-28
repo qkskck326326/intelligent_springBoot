@@ -5,10 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.ict.intelligentclass.exception.PostNotFoundException;
 import org.ict.intelligentclass.lecture_packages.jpa.entity.SubCategoryEntity;
 import org.ict.intelligentclass.lecture_packages.jpa.repository.SubCategoryRepository;
-import org.ict.intelligentclass.post.jpa.entity.CommentEntity;
-import org.ict.intelligentclass.post.jpa.entity.FileEntity;
-import org.ict.intelligentclass.post.jpa.entity.LikeEntity;
-import org.ict.intelligentclass.post.jpa.entity.PostEntity;
+import org.ict.intelligentclass.post.jpa.entity.*;
 
 
 import org.ict.intelligentclass.post.jpa.repository.*;
@@ -58,6 +55,37 @@ public class PostService {
     @Autowired
     private FileStorageService fileStorageService;
 
+    @Autowired
+    private BookmarkService bookmarkService;
+
+    // 북마크 추가
+    public BookmarkEntity addBookmark(Long postId, String userEmail, String provider) {
+        return bookmarkService.addBookmark(postId, userEmail, provider);
+    }
+
+    // 북마크 제거
+    public void removeBookmark(Long postId, String userEmail, String provider) {
+        bookmarkService.removeBookmark(postId, userEmail, provider);
+    }
+
+    // 사용자의 북마크 목록 가져오기
+    public List<PostEntity> getUserBookmarks(String userEmail, String provider) {
+        List<BookmarkEntity> bookmarks = bookmarkService.getUserBookmarks(userEmail, provider);
+        return bookmarks.stream()
+                .map(bookmark -> postRepository.findById(bookmark.getPostId()).orElse(null))
+                .collect(Collectors.toList());
+    }
+
+    // 게시물이 북마크되었는지 확인
+    public boolean isPostBookmarked(Long postId, String userEmail, String provider) {
+        return bookmarkService.isPostBookmarked(postId, userEmail, provider);
+    }
+
+    // 사용자의 게시글 목록 가져오기
+    public List<PostEntity> getUserPosts(String userEmail, String provider) {
+        return postRepository.findByUserEmailAndProvider(userEmail, provider);
+    }
+
     // 인기 게시물 가져오기 메서드
     public List<PostDto> getTop5PopularPosts() {
         List<PostEntity> posts = postRepository.findAll();
@@ -100,7 +128,7 @@ public class PostService {
         return applySorting(postDtos, pageable, sort);
     }
 
-    private Page<PostDto> applySorting(List<PostDto> postDtos, Pageable pageable, String sort) {
+    public Page<PostDto> applySorting(List<PostDto> postDtos, Pageable pageable, String sort) {
         Comparator<PostDto> comparator;
         switch (sort) {
             case "likes":
@@ -124,7 +152,7 @@ public class PostService {
         return new PageImpl<>(sortedPosts, pageable, postDtos.size());
     }
 
-    private PostDto convertToDto(PostEntity post) {
+    public PostDto convertToDto(PostEntity post) {
         Optional<UserEntity> userOptional = userRepository.findById(new UserId(post.getUserEmail(), post.getProvider()));
         UserDto userDto = userOptional.map(UserEntity::toDto).orElse(null);
 

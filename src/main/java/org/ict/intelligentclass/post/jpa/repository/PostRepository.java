@@ -22,6 +22,7 @@ public interface PostRepository extends JpaRepository<PostEntity, Long> {
     List<PostEntity> findBySubCategoryId(Long subCategoryId);
 
 
+    List<PostEntity> findByUserEmailAndProvider(String userEmail, String provider);
 }
 
 
