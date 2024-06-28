@@ -3,12 +3,10 @@ package org.ict.intelligentclass.lecture.jpa.entity.output;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.ict.intelligentclass.lecture.jpa.entity.LectureCommentEntity;
 import org.ict.intelligentclass.lecture.jpa.entity.RatingEntity;
 import org.ict.intelligentclass.lecture_packages.jpa.entity.LecturePackageEntity;
-import org.ict.intelligentclass.user.jpa.entity.UserEntity;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 
 @Data
 @AllArgsConstructor
@@ -20,12 +18,11 @@ public class MyLecturePackageListDto {
     private String title;
     private String thumbnail;
     private int viewCount;
-    private Date registerDate;
+    private LocalDateTime registerDate;
     private int packageLevel;
-    private int ratingId;
     private float rating;
 
-    public MyLecturePackageListDto(LecturePackageEntity lecturePackageEntity, RatingEntity ratingEntity) {
+    public MyLecturePackageListDto(LecturePackageEntity lecturePackageEntity, float rating) {
         this.lecturePackageId = lecturePackageEntity.getLecturePackageId();
         this.nickname = lecturePackageEntity.getNickname();
         this.title = lecturePackageEntity.getTitle();
@@ -33,7 +30,6 @@ public class MyLecturePackageListDto {
         this.viewCount = lecturePackageEntity.getViewCount();
         this.registerDate = lecturePackageEntity.getRegisterDate();
         this.packageLevel = lecturePackageEntity.getPackageLevel();
-        this.ratingId = ratingEntity.getRatingId();
-        this.rating = ratingEntity.getRating();
+        this.rating = rating;
     }
 }

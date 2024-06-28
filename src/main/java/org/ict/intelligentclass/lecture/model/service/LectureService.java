@@ -236,13 +236,17 @@ public class LectureService {
         return new UserProfileDto(userEntity, educationList, careerList, certificateList);
     }
 
-//    public Page<MyLecturePackageListDto> getAllLecturePackages(String nickname, int page, int size) {
-//        Pageable pageable = PageRequest.of(page, size);
-//        return myLecturePackageRepository.findByUserNickname(nickname, pageable);
-//    }
+    // 마이 페이지 강좌 관리
+    public Page<MyLecturePackageListDto> getAllLecturePackages(String nickname, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<LecturePackageEntity> lecturePackageEntities = myLecturePackageRepository.findByNickname(nickname, pageable);
+
+        return lecturePackageEntities.map(entity -> {
+            PackageRatingDto ratingDto = selectLecturePackageRating(entity.getLecturePackageId());
+            return new MyLecturePackageListDto(entity, ratingDto.getRating());
+        });
+    }
 }
-
-
 
 
 

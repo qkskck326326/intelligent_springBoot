@@ -220,11 +220,11 @@ public class LectureController {
         return new ResponseEntity<>(userProfile, HttpStatus.OK);
     }
     
-//    // 마이페이지에서 내 강좌 보기
-//    @GetMapping("/lecturePackage/{nickname}")
-//    public ResponseEntity<Page<MyLecturePackageListDto>> getUserLecturePackages(@PathVariable String nickname, @RequestParam int page, @RequestParam int size) {
-//        Page<MyLecturePackageListDto> lecturePackages = lectureService.getAllLecturePackages(nickname, page, size);
-//        return ResponseEntity.ok(lecturePackages);
-//    }
+    // 마이페이지에서 내 강좌 보기
+    @GetMapping("/lecturePackage/{nickname}")
+    public ResponseEntity<Page<MyLecturePackageListDto>> getUserLecturePackages(@PathVariable String nickname, @RequestParam int page, @RequestParam int size) {
+        Page<MyLecturePackageListDto> lecturePackages = lectureService.getAllLecturePackages(nickname, page, size);
+        return ResponseEntity.ok(lecturePackages);
+    }
 
 }
