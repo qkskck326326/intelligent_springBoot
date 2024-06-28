@@ -34,6 +34,9 @@ public class LecturePackageEntity {
     @Column(name = "CONTENT", nullable = false)
     private String content;
 
+    @Column(name = "AVERAGE_CLASS_LENGTH", nullable = false)
+    private String averageClassLength;
+
     @Column(name = "PACKAGE_LEVEL", nullable = false)
     private int packageLevel;
 

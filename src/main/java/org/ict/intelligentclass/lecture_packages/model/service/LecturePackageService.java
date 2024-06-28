@@ -5,6 +5,7 @@ import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.ict.intelligentclass.lecture.jpa.entity.RatingEntity;
+import org.ict.intelligentclass.lecture.jpa.repository.LectureRepository;
 import org.ict.intelligentclass.lecture.jpa.repository.RatingRepository;
 import org.ict.intelligentclass.lecture_packages.jpa.entity.*;
 import org.ict.intelligentclass.lecture_packages.jpa.input.LecturePackageRegister;
@@ -35,6 +36,7 @@ public class LecturePackageService {
     private final RatingRepository ratingRepository;
     private final UserInterestRepository userInterestRepository;
     private final UpperCategoryRepository upperCategoryRepository;
+    private final LectureRepository lectureRepository;
 
 
 
@@ -410,6 +412,7 @@ public class LecturePackageService {
                 .nickname(lecturePackage.getNickname())
                 .title(lecturePackage.getTitle())
                 .content(lecturePackage.getContent())
+                .averageClassLength(lecturePackage.getAverageClassLength())
                 .priceForever(lecturePackage.getPriceForever())
                 .packageLevel(lecturePackage.getPackageLevel())
                 .thumbnail(lecturePackage.getThumbnail())
@@ -431,6 +434,7 @@ public class LecturePackageService {
                 .nickname(register.getNickname())
                 .title(register.getTitle())
                 .content(register.getContent())
+                .averageClassLength(register.getAverageClassLength())
                 .packageLevel(register.getPackageLevel())
                 .priceForever(register.getPriceForever())
                 .thumbnail(register.getThumbnail())
@@ -477,6 +481,7 @@ public class LecturePackageService {
         // 2. 필드 업데이트
         existingEntity.setTitle(lecturePackageRegister.getTitle());
         existingEntity.setContent(lecturePackageRegister.getContent());
+        existingEntity.setAverageClassLength(lecturePackageRegister.getAverageClassLength());
         existingEntity.setPackageLevel(lecturePackageRegister.getPackageLevel());
         existingEntity.setPriceForever(lecturePackageRegister.getPriceForever());
         existingEntity.setThumbnail(lecturePackageRegister.getThumbnail());
@@ -550,6 +555,12 @@ public class LecturePackageService {
             System.out.println("Lecture package not found with ID: " + lecturePackageId);
             throw new IllegalArgumentException("Invalid lecture package ID: " + lecturePackageId);
         }
+    }
+
+    //패키지에 대한 강의수
+    public Integer getLectureCount(Long lecturePackageId) {
+        int lectureCount = lectureRepository.getlectureCount(lecturePackageId);
+        return lectureCount;
     }
 
 
