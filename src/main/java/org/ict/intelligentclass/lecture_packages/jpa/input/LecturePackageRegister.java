@@ -18,6 +18,7 @@ public class LecturePackageRegister {
     private String nickname;
     private String title;
     private String content;
+    private String averageClassLength;
     private int packageLevel;
     private int priceForever;
     private String thumbnail;
