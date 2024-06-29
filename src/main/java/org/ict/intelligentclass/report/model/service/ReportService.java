@@ -8,6 +8,7 @@ import org.ict.intelligentclass.user.jpa.entity.UserEntity;
 import org.ict.intelligentclass.user.jpa.repository.UserRepository;
 import org.springframework.stereotype.Service;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -27,6 +28,9 @@ public class ReportService {
     }
 
     public ReportEntity insertReport(ReportEntity reportEntity){
+        if(reportEntity.getReportDate() == null){
+            reportEntity.setReportDate(new Date());
+        }
         return reportRepository.save(reportEntity);
     }
 

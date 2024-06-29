@@ -7,6 +7,7 @@ import org.ict.intelligentclass.lecture_packages.jpa.output.LecturePackageDetail
 import org.ict.intelligentclass.lecture_packages.model.service.LecturePackageService;
 import org.ict.intelligentclass.payment.jpa.entity.CouponEntity;
 import org.ict.intelligentclass.payment.jpa.entity.PaymentEntity;
+import org.ict.intelligentclass.payment.model.dto.ConfirmDto;
 import org.ict.intelligentclass.payment.model.dto.PaymentHistoryDto;
 import org.ict.intelligentclass.payment.model.dto.PaymentRequest;
 import org.ict.intelligentclass.payment.model.service.PaymentService;
@@ -95,6 +96,12 @@ public class PaymentController {
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error deleting coupon");
         }
+    }
+
+    @GetMapping("/confirmation")
+    public ResponseEntity<List<ConfirmDto>> confirmation() {
+        List<ConfirmDto> confirmDto = paymentService.getConfirmation();
+        return ResponseEntity.ok(confirmDto);
     }
 
 

@@ -31,6 +31,7 @@ public class PostDetailDto {
     private boolean userLiked;
     private List<CommentDto> comments;
     private List<FileEntity> files;
+    private List<String> tags;
 
     // Getters and setters
 
@@ -46,7 +47,6 @@ public class PostDetailDto {
         postEntity.setViewCount(viewCount);
         return postEntity;
     }
-
 
 
 
