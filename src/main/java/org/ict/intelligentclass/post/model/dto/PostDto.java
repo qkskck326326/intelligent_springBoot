@@ -8,6 +8,7 @@ import org.ict.intelligentclass.post.jpa.entity.PostEntity;
 
 import java.time.LocalDateTime;
 import java.util.Date;
+import java.util.List;
 
 @Data
 @AllArgsConstructor
@@ -26,7 +27,9 @@ public class PostDto {
     private String categoryName;
     private long likeCount;
     private long commentCount;
-    private String profileImageUrl; // 프로필 사진 URL 필드 추가
+    private String profileImageUrl;
+    private boolean userLiked;
+    private List<String> tags; // 태그 필드 추가// 프로필 사진 URL 필드 추가
 
     public PostEntity toEntity() {
         PostEntity entity = new PostEntity();

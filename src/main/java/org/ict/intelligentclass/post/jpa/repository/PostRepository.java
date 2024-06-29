@@ -22,6 +22,10 @@ public interface PostRepository extends JpaRepository<PostEntity, Long> {
     List<PostEntity> findBySubCategoryId(Long subCategoryId);
 
 
+    List<PostEntity> findByUserEmailAndProvider(String userEmail, String provider);
+
+    @Query("SELECT p FROM PostEntity p JOIN PostTagEntity pt ON p.id = pt.post.id JOIN TagEntity t ON pt.tag.id = t.id WHERE LOWER(t.name) LIKE LOWER(CONCAT('%', :tagName, '%'))")
+    List<PostEntity> findByTagName(@Param("tagName") String tagName);
 }
 
 

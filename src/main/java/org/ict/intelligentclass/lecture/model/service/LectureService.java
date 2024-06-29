@@ -9,6 +9,7 @@ import org.ict.intelligentclass.lecture.jpa.entity.input.LectureReadInput;
 import org.ict.intelligentclass.lecture.jpa.entity.output.*;
 import org.ict.intelligentclass.lecture.jpa.repository.*;
 import org.ict.intelligentclass.lecture_packages.jpa.entity.LecturePackageEntity;
+import org.ict.intelligentclass.lecture_packages.jpa.output.LecturePackageList;
 import org.ict.intelligentclass.lecture_packages.jpa.repository.LecturePackageRepository;
 import org.ict.intelligentclass.lecture.jpa.entity.LectureEntity;
 import org.ict.intelligentclass.lecture.jpa.entity.LectureReadEntity;
@@ -16,6 +17,9 @@ import org.ict.intelligentclass.lecture.jpa.entity.input.RatingInput;
 import org.ict.intelligentclass.lecture.jpa.entity.input.LectureInput;
 import org.ict.intelligentclass.user.jpa.entity.UserEntity;
 import org.ict.intelligentclass.user.jpa.repository.UserRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -30,12 +34,12 @@ import java.util.stream.Stream;
 public class LectureService {
 
     private final LecturePackageRepository lecturePackageRepository;
+    private final MyLecturePackageRepository myLecturePackageRepository;
     private final LectureRepository lectureRepository;
     private final LectureCommentRepository lectureCommentRepository;
     private final LectureReadRepository lectureReadRepository;
     private final RatingRepository ratingRepository;
     private final UserRepository userRepository;
-    private final UserProfileRepository userProfileRepository;
     private final ProfileEducationRepository profileEducationRepository;
     private final ProfileCertifiRepository profileCertifiRepository;
     private final ProfileCareerRepository profileCareerRepository;
@@ -232,9 +236,17 @@ public class LectureService {
         return new UserProfileDto(userEntity, educationList, careerList, certificateList);
     }
 
+    // 마이 페이지 강좌 관리
+    public Page<MyLecturePackageListDto> getAllLecturePackages(String nickname, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<LecturePackageEntity> lecturePackageEntities = myLecturePackageRepository.findByNickname(nickname, pageable);
+
+        return lecturePackageEntities.map(entity -> {
+            PackageRatingDto ratingDto = selectLecturePackageRating(entity.getLecturePackageId());
+            return new MyLecturePackageListDto(entity, ratingDto.getRating());
+        });
+    }
 }
-
-
 
 
 
