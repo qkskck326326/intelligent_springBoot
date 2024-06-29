@@ -199,4 +199,10 @@ public class LecturePackageController {
         UserDto user = userService.getUserByNickname(nickname);
         return ResponseEntity.ok(user);
     }
+
+    @GetMapping("/lecturecount")
+    public ResponseEntity<Integer> getLectureCount(@RequestParam Long lecturePackageId){
+        int lectureCount = lecturePackageService.getLectureCount(lecturePackageId);
+        return ResponseEntity.ok(lectureCount);
+    }
 }
