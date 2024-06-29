@@ -23,10 +23,11 @@ public class LecturePackageDetail {
     private String nickname;
     private String title;
     private String content;
+    private String averageClassLength;
     private int priceForever;
     private int packageLevel;
     private String thumbnail;
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(pattern = "yyyy-MM-dd")
     private LocalDateTime registerDate;
     private int viewCount;
     private String backgroundColor;
