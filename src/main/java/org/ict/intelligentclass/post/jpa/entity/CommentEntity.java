@@ -18,8 +18,8 @@ import java.util.Date;
 public class CommentEntity {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "SQ_COMMENT_ID")
-    @SequenceGenerator(name = "SQ_COMMENT_ID", sequenceName = "SQ_COMMENT_ID", allocationSize = 1)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "SQ_POST_COMMENT_ID")
+    @SequenceGenerator(name = "SQ_POST_COMMENT_ID", sequenceName = "SQ_POST_COMMENT_ID", allocationSize = 1)
     @Column(name = "COMMENT_ID")
     private Long id;
 

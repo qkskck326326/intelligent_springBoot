@@ -257,6 +257,7 @@ public class ChatService {
      * 1. messageReadRepository.existsByMessageIdAndUserId(message.getMessageId(), userId) => O(1)
      * 2. messageReadRepository.save(newRead) => O(1)
      * 최종 시간 복잡도 O(1)
+     * 아 배아프다..
      * */
     private void markMessageAsRead(String userId, Long roomId, ChatMessageEntity message) {
         MessageReadCompositeKey compositeKey = new MessageReadCompositeKey(message.getMessageId(), userId);

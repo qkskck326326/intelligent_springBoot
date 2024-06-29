@@ -56,7 +56,7 @@ public class PostEntity {
         }
     }
 
-    public PostDto toDto(UserDto userDto, String categoryName, int likeCount, int commentCount) {
+    public PostDto toDto(UserDto userDto, String categoryName, int likeCount, int commentCount, List<String> tags) {
         PostDto dto = new PostDto();
         dto.setId(this.id);
         dto.setTitle(this.title);
@@ -68,10 +68,11 @@ public class PostEntity {
         dto.setCommentCount(commentCount);
         dto.setViewCount(this.viewCount);
         dto.setPostTime(this.postTime);
+        dto.setTags(tags); // 태그 추가
         return dto;
     }
 
-    public PostDetailDto toDetailDto(UserDto userDto, String categoryName, boolean userLiked, long likeCount, long commentCount, List<CommentDto> commentDtos, List<FileEntity> files) {
+    public PostDetailDto toDetailDto(UserDto userDto, String categoryName, boolean userLiked, long likeCount, long commentCount, List<CommentDto> commentDtos, List<FileEntity> files, List<String> tags) {
         PostDetailDto dto = new PostDetailDto();
         dto.setId(this.id);
         dto.setUserEmail(this.userEmail);
@@ -89,6 +90,7 @@ public class PostEntity {
         dto.setCommentCount(commentCount);
         dto.setComments(commentDtos);
         dto.setFiles(files);
+        dto.setTags(tags); // 태그 추가
         return dto;
     }
 
