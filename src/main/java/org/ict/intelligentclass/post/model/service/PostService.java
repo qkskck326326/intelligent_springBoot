@@ -5,10 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.ict.intelligentclass.exception.PostNotFoundException;
 import org.ict.intelligentclass.lecture_packages.jpa.entity.SubCategoryEntity;
 import org.ict.intelligentclass.lecture_packages.jpa.repository.SubCategoryRepository;
-import org.ict.intelligentclass.post.jpa.entity.CommentEntity;
-import org.ict.intelligentclass.post.jpa.entity.FileEntity;
-import org.ict.intelligentclass.post.jpa.entity.LikeEntity;
-import org.ict.intelligentclass.post.jpa.entity.PostEntity;
+import org.ict.intelligentclass.post.jpa.entity.*;
 
 
 import org.ict.intelligentclass.post.jpa.repository.*;
@@ -58,6 +55,42 @@ public class PostService {
     @Autowired
     private FileStorageService fileStorageService;
 
+    @Autowired
+    private BookmarkService bookmarkService;
+
+    @Autowired
+    private TagRepository tagRepository;
+    @Autowired
+    private PostTagRepository postTagRepository;
+
+    // 북마크 추가
+    public BookmarkEntity addBookmark(Long postId, String userEmail, String provider) {
+        return bookmarkService.addBookmark(postId, userEmail, provider);
+    }
+
+    // 북마크 제거
+    public void removeBookmark(Long postId, String userEmail, String provider) {
+        bookmarkService.removeBookmark(postId, userEmail, provider);
+    }
+
+    // 사용자의 북마크 목록 가져오기
+    public List<PostEntity> getUserBookmarks(String userEmail, String provider) {
+        List<BookmarkEntity> bookmarks = bookmarkService.getUserBookmarks(userEmail, provider);
+        return bookmarks.stream()
+                .map(bookmark -> postRepository.findById(bookmark.getPostId()).orElse(null))
+                .collect(Collectors.toList());
+    }
+
+    // 게시물이 북마크되었는지 확인
+    public boolean isPostBookmarked(Long postId, String userEmail, String provider) {
+        return bookmarkService.isPostBookmarked(postId, userEmail, provider);
+    }
+
+    // 사용자의 게시글 목록 가져오기
+    public List<PostEntity> getUserPosts(String userEmail, String provider) {
+        return postRepository.findByUserEmailAndProvider(userEmail, provider);
+    }
+
     // 인기 게시물 가져오기 메서드
     public List<PostDto> getTop5PopularPosts() {
         List<PostEntity> posts = postRepository.findAll();
@@ -100,7 +133,7 @@ public class PostService {
         return applySorting(postDtos, pageable, sort);
     }
 
-    private Page<PostDto> applySorting(List<PostDto> postDtos, Pageable pageable, String sort) {
+    public Page<PostDto> applySorting(List<PostDto> postDtos, Pageable pageable, String sort) {
         Comparator<PostDto> comparator;
         switch (sort) {
             case "likes":
@@ -124,7 +157,7 @@ public class PostService {
         return new PageImpl<>(sortedPosts, pageable, postDtos.size());
     }
 
-    private PostDto convertToDto(PostEntity post) {
+    public PostDto convertToDto(PostEntity post) {
         Optional<UserEntity> userOptional = userRepository.findById(new UserId(post.getUserEmail(), post.getProvider()));
         UserDto userDto = userOptional.map(UserEntity::toDto).orElse(null);
 
@@ -133,8 +166,16 @@ public class PostService {
 
         long likeCount = likeRepository.countByPostId(post.getId());
         long commentCount = commentRepository.countByPostId(post.getId());
+        List<String> tags = postTagRepository.findByIdPostId(post.getId())
+                .stream()
+                .map(postTagEntity -> postTagEntity.getTag().getName())
+                .collect(Collectors.toList());
+        PostDto postDto = post.toDto(userDto, categoryName, (int) likeCount, (int) commentCount, tags);
+        if (postDto.getPostTime() == null) {
+            postDto.setPostTime(LocalDateTime.now());
+        }
 
-        return post.toDto(userDto, categoryName, (int) likeCount, (int) commentCount);
+        return postDto;
     }
 
 
@@ -170,8 +211,12 @@ public class PostService {
                     return comment.toDto(commentUserDto);
                 })
                 .collect(Collectors.toList());
+        List<String> tags = postTagRepository.findByIdPostId(postId)
+                .stream()
+                .map(postTagEntity -> postTagEntity.getTag().getName())
+                .collect(Collectors.toList());
 
-        PostDetailDto postDetailDto = post.toDetailDto(userDto, categoryName, userLiked, likeCount, comments.size(), commentDto, files);
+        PostDetailDto postDetailDto = post.toDetailDto(userDto, categoryName, userLiked, likeCount, comments.size(), commentDto, files, tags);
 
         log.info("Returning post: {}", postDetailDto);
         return postDetailDto;
@@ -179,9 +224,23 @@ public class PostService {
 
 
     @Transactional
-    public PostEntity insertPost(PostEntity postEntity) {
+    public PostEntity insertPost(PostEntity postEntity, List<String> tagNames) {
+        PostEntity savedPost = postRepository.save(postEntity);
         log.info("insertPost : " + postEntity);
-        return postRepository.save(postEntity);
+        for (String tagName : tagNames) {
+            TagEntity tagEntity = tagRepository.findByName(tagName);
+            if (tagEntity == null) {
+                tagEntity = new TagEntity();
+                tagEntity.setName(tagName);
+                tagEntity = tagRepository.save(tagEntity);
+            }
+            PostTagEntity postTagEntity = new PostTagEntity();
+            postTagEntity.setId(new PostTagId(savedPost.getId(), tagEntity.getId()));
+            postTagEntity.setPost(savedPost);
+            postTagEntity.setTag(tagEntity);
+            postTagRepository.save(postTagEntity);
+        }
+        return savedPost;
     }
 
     public PostEntity convertToEntity(PostDto postDto) {
@@ -233,11 +292,30 @@ public class PostService {
 
 
 
-    public PostEntity updatePost(PostEntity postEntity) {
+    @Transactional
+    public PostEntity updatePost(PostEntity postEntity, List<String> tagNames) {
         if (postEntity.getPostTime() == null) {
-            postEntity.setPostTime(LocalDateTime.now());
+            postEntity.setPostTime(LocalDateTime.now());}
+        PostEntity updatedPost = postRepository.save(postEntity);
+
+        // 기존 태그 삭제
+        postTagRepository.deleteByPostId(updatedPost.getId());
+
+
+          for (String tagName : tagNames) {
+            TagEntity tagEntity = tagRepository.findByName(tagName);
+            if (tagEntity == null) {
+                tagEntity = new TagEntity();
+                tagEntity.setName(tagName);
+                tagEntity = tagRepository.save(tagEntity);
+            }
+            PostTagEntity postTagEntity = new PostTagEntity();
+            postTagEntity.setId(new PostTagId(updatedPost.getId(), tagEntity.getId()));
+            postTagEntity.setPost(updatedPost);
+            postTagEntity.setTag(tagEntity);
+            postTagRepository.save(postTagEntity);
         }
-        return postRepository.save(postEntity);
+        return updatedPost;
     }
 
 
@@ -260,4 +338,10 @@ public class PostService {
         commentRepository.delete(commentEntity);
     }
 
+    public Page<PostDto> getSearchByTag(String tag, Pageable pageable, String sort) {
+        log.info("Fetching posts with tag: {} and pageable: {} and sort: {}", tag, pageable, sort);
+        List<PostEntity> posts = postRepository.findByTagName(tag);
+        List<PostDto> postDtos = posts.stream().map(this::convertToDto).collect(Collectors.toList());
+        return applySorting(postDtos, pageable, sort);
+    }
 }
