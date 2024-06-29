@@ -80,28 +80,17 @@ public class CartController {
             log.error("Error deleting cart items", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error deleting cart items.");
         }
+
+
     }
+    //특정 패키지가 장바구니에 있는지
+    @GetMapping("/check")
+    public ResponseEntity<?> checkIfLecturePackageInCart(
+            @RequestParam String userEmail,
+            @RequestParam String provider,
+            @RequestParam Long lecturePackageId) {
 
-
-
-//    @DeleteMapping
-//    public ResponseEntity<?> deleteCartItems(@RequestBody List<Long> ids) {
-//        try {
-//            cartService.deleteCartItems(ids);
-//            return ResponseEntity.ok().build();
-//        } catch (Exception e) {
-//            log.error("Error deleting cart items", e);
-//            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error deleting cart items.");
-//        }
-//    }
-
-//    @DeleteMapping("/items")
-//    public ResponseEntity<?> deleteCartItems(@RequestBody List<Long> itemIds) {
-//        try {
-//            cartService.deleteCartItemsAll(itemIds);
-//            return ResponseEntity.ok("Cart items deleted successfully");
-//        } catch (Exception e) {
-//            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error deleting cart items");
-//        }
-//    }
+        boolean isInCart = cartService.isLecturePackageInCart(userEmail, provider, lecturePackageId);
+        return ResponseEntity.ok().body(Map.of("inCart", isInCart));
+    }
 }

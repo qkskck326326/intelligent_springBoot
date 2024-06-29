@@ -12,6 +12,7 @@ import org.ict.intelligentclass.payment.jpa.repository.CartRepository;
 import org.ict.intelligentclass.payment.jpa.repository.CouponRepositoy;
 import org.ict.intelligentclass.payment.jpa.repository.PaymentRepository;
 import org.ict.intelligentclass.payment.model.dto.CartItemDto;
+import org.ict.intelligentclass.payment.model.dto.ConfirmDto;
 import org.ict.intelligentclass.payment.model.dto.PaymentHistoryDto;
 import org.ict.intelligentclass.user.jpa.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -87,5 +88,18 @@ public class PaymentService {
         }
 
         return paymentHistoryDtos;
+    }
+    public List<ConfirmDto> getConfirmation() {
+        List<ConfirmDto> confirmDtos = new ArrayList<>();
+        List<PaymentEntity> paymentEntities = paymentRepository.getConfirmation();
+        for (PaymentEntity paymentEntity : paymentEntities) {
+            ConfirmDto confirmDto = new ConfirmDto();
+            confirmDto.setUserEmail(paymentEntity.getUserEmail());
+            confirmDto.setProvider(paymentEntity.getProvider());
+            confirmDto.setLecturePackageId(paymentEntity.getLecturePackageId());
+            confirmDto.setPaymentConfirmation(paymentEntity.getPaymentConfirmation());
+            confirmDtos.add(confirmDto);
+        }
+        return confirmDtos;
     }
 }
