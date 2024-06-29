@@ -11,17 +11,18 @@ import lombok.NoArgsConstructor;
 @Entity
 @Table(name="TB_POST_TAG")
 public class PostTagEntity {
-    @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "SQ_POST_TAG_ID")
-    @SequenceGenerator(name = "SQ_POST_TAG_ID", sequenceName = "SQ_POST_TAG_ID", allocationSize = 1)
-    @Column(name = "POST_TAG_ID")
-    private Long id;
+    @EmbeddedId
+    private PostTagId id;
 
     @ManyToOne
-    @JoinColumn(name = "POST_ID", nullable = false)
+    @MapsId("postId")
+    @JoinColumn(name = "POST_ID")
     private PostEntity post;
 
     @ManyToOne
-    @JoinColumn(name = "TAG_ID", nullable = false)
+    @MapsId("tagId")
+    @JoinColumn(name = "TAG_ID")
     private TagEntity tag;
 }
+
+

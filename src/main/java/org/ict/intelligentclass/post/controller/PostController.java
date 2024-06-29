@@ -110,6 +110,15 @@ public class PostController {
     }
 
     //게시물 검색 ------------------------------------------------------------
+
+    @GetMapping("/searchByTag")
+    public Page<PostDto> getSearchByTag(@RequestParam String tag, Pageable pageable, @RequestParam(defaultValue = "latest") String sort) {
+        log.info("Received request for getSearchByTag with tag: {}", tag);
+        Page<PostDto> response = postService.getSearchByTag(tag, pageable, sort);
+        log.info("Returning posts: {}", response.getContent());
+        return response;
+    }
+
     @GetMapping("/searchTitleOrContent")
     public Page<PostDto> getSearchTitleOrContent(@RequestParam String keyword, Pageable pageable, @RequestParam(defaultValue = "latest") String sort) {
         log.info("Received request for getSearchTitleOrContent with keyword: {}", keyword);
@@ -216,7 +225,7 @@ public class PostController {
         log.info("Insert post", postDto);
         System.out.print(postDto);
         PostEntity postEntity = postService.convertToEntity(postDto);
-        PostEntity savedPost = postService.insertPost(postEntity);
+        PostEntity savedPost = postService.insertPost(postEntity, postDto.getTags());
         return ResponseEntity.ok(savedPost);
     }
 
@@ -226,7 +235,7 @@ public class PostController {
         log.info("Update post with id: {}", postId);
         PostEntity postEntity = postService.convertToEntity(postDto);
         postEntity.setId(postId); // postId를 엔티티에 설정
-        PostEntity updatedPost = postService.updatePost(postEntity);
+        PostEntity updatedPost = postService.updatePost(postEntity, postDto.getTags());
         return ResponseEntity.ok(updatedPost);
     }
 
