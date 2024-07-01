@@ -8,10 +8,9 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.ict.intelligentclass.lecture_packages.jpa.entity.SubCategoryEntity;
-import org.ict.intelligentclass.post.jpa.entity.BookmarkEntity;
-import org.ict.intelligentclass.post.jpa.entity.CommentEntity;
-import org.ict.intelligentclass.post.jpa.entity.LikeEntity;
-import org.ict.intelligentclass.post.jpa.entity.PostEntity;
+import org.ict.intelligentclass.post.jpa.entity.*;
+import org.ict.intelligentclass.post.jpa.repository.TagRepository;
+import org.ict.intelligentclass.post.model.dto.CommentDto;
 import org.ict.intelligentclass.post.model.dto.LikeDto;
 import org.ict.intelligentclass.post.model.dto.PostDetailDto;
 import org.ict.intelligentclass.post.model.dto.PostDto;
@@ -50,7 +49,31 @@ public class PostController {
     private PostService postService;
     @Autowired
     private BookmarkService bookmarkService;
+
+    @Autowired
+    private TagRepository tagRepository;
 // GET 요청부 ---------------------------------------------------------------------------------------------------------
+
+    @GetMapping("/tags/popular")
+    public ResponseEntity<List<String>> getTop10PopularTags() {
+        List<String> popularTags = postService.getTop10PopularTags();
+        return ResponseEntity.ok(popularTags);
+    }
+
+    // 내 댓글 가져오기
+    // 내 댓글 가져오기
+    @GetMapping("/comments/myComments")
+    public ResponseEntity<List<CommentDto>> getMyComments(
+            @RequestParam String userEmail,
+            @RequestParam String provider,
+            @RequestParam int page,
+            @RequestParam int size,
+            @RequestParam String sort
+    ) {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<CommentDto> comments = postService.getUserComments(userEmail, provider, pageable, sort);
+        return ResponseEntity.ok(comments.getContent());
+    }
 
     @PostMapping("/bookmark")
     public ResponseEntity<BookmarkEntity> addBookmark(@RequestBody
@@ -94,7 +117,7 @@ public class PostController {
     }
 
 
-    @GetMapping("/top10")
+    @GetMapping("/top5")
     public ResponseEntity<List<PostDto>> getTop5PopularPosts() {
         List<PostDto> topPosts = postService.getTop5PopularPosts();
         return ResponseEntity.ok(topPosts);
