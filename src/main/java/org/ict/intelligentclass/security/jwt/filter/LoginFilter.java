@@ -178,7 +178,7 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
         } else if (rootCause instanceof BadCredentialsException) {
             message = "잘못된 비밀번호입니다.";
         } else if (rootCause instanceof DisabledException) {
-            message = "계정이 비활성화되었습니다.";
+            message = "탈퇴한 회원입니다.";
         } else if (rootCause instanceof LockedException) {
             message = "계정이 잠겨 있습니다.";
         } else {
