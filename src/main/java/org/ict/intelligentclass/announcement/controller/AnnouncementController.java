@@ -44,6 +44,7 @@ public class AnnouncementController {
         List<AnnouncementEntity> list = announcementService.selectAnnouncementsByKeyword(page, keyword);
         return ResponseEntity.ok(list);
     }
+
     @PostMapping
     public ResponseEntity<AnnouncementEntity> insertAnnouncement(@RequestBody AnnouncementEntity announcementEntity){
         AnnouncementEntity entity = announcementService.insertAnnouncement(announcementEntity);
