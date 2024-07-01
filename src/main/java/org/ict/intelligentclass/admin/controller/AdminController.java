@@ -238,13 +238,14 @@ public class AdminController {
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
             @RequestParam(required = false) String searchQuery,
+            @RequestParam(required = false) String searchValue,
             @RequestParam(required = false) Integer userType,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate) {
-        log.info("Fetching users with parameters: page={}, size={}, searchQuery={}, userType={}, startDate={}, endDate={}",
-                page, size, searchQuery, userType, startDate, endDate);
+        log.info("Fetching users with parameters: page={}, size={}, searchQuery={}, searchValue={}, userType={}, startDate={}, endDate={}",
+                page, size, searchQuery, searchValue, userType, startDate, endDate);
 
-        Page<UserDto> usersPage = userService.getAllUsers(page, size, searchQuery, userType, startDate, endDate);
+        Page<UserDto> usersPage = userService.getAllUsers(page, size, searchQuery, searchValue, userType, startDate, endDate);
         Map<String, Object> response = new HashMap<>();
         response.put("content", usersPage.getContent());
         response.put("totalPages", usersPage.getTotalPages());

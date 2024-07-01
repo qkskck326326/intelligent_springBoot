@@ -3,10 +3,12 @@ package org.ict.intelligentclass.user.jpa.entity.id;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Objects;
 
@@ -14,6 +16,7 @@ import java.util.Objects;
 @AllArgsConstructor
 @NoArgsConstructor
 @Embeddable
+@Builder
 public class AttendanceId implements Serializable {
 
     @Column(name = "USEREMAIL")
@@ -23,7 +26,7 @@ public class AttendanceId implements Serializable {
     private String provider;
 
     @Column(name = "ATTENDANCE_TIME")
-    private LocalDateTime attendanceTime;
+    private LocalDate attendanceTime;
 
     @Override
     public boolean equals(Object o) {

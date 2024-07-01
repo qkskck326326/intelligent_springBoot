@@ -22,6 +22,8 @@ public class LecturePackageDetail {
     private Long lecturePackageId;
     private String nickname;
     private String title;
+    private List<String> learningContent;
+    private List<String> readyContent;
     private String content;
     private String averageClassLength;
     private int priceForever;
