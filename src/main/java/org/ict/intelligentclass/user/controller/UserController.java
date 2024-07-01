@@ -8,10 +8,12 @@ import org.ict.intelligentclass.career.jpa.entity.CareerEntity;
 import org.ict.intelligentclass.career.model.service.CareerService;
 import org.ict.intelligentclass.education.jpa.entity.EducationEntity;
 import org.ict.intelligentclass.education.model.service.EducationService;
+import org.ict.intelligentclass.lecture_packages.jpa.output.LecturePackageList;
 import org.ict.intelligentclass.user.jpa.entity.UserEntity;
 import org.ict.intelligentclass.user.jpa.entity.UserInterestEntity;
 import org.ict.intelligentclass.user.model.dto.*;
 import org.ict.intelligentclass.user.model.service.UserService;
+import org.springframework.data.domain.Page;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -21,6 +23,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -148,10 +151,20 @@ public class UserController {
     @GetMapping("/select-attendance/{email}/{provider}")
     public ResponseEntity<List<AttendanceDto>> selectAttendance(@PathVariable("email") String email,
                                                                 @PathVariable("provider") String provider) {
-        log.info("/users/select-attendance/" + email + "/" + provider + " 출석일 조회 요청");
+        log.info("/users/select-attendance : " + email + ", " + provider + " 출석일 조회 요청");
         return new ResponseEntity<>(userService.selectAttendance(email, provider), HttpStatus.OK);
     }
 
+    @PostMapping("/check-attendance")
+    public ResponseEntity<Void> checkAttendance(@RequestBody Map<String, String> request) {
+        String email = request.get("email");
+        String provider = request.get("provider");
+
+        log.info("/users/check-attendance : " + email + ", " + provider + " 출석일 조회 요청");
+        userService.checkAttendance(email, provider);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+    
     // 이메일 인증코드 전송
     @PostMapping("/send-verification-code")
     public ResponseEntity<Map<String, String>> sendVerificationCode(@RequestParam("userEmail") String userEmail) {
@@ -240,6 +253,9 @@ public class UserController {
         log.info("/users/user/ " + enrollForm.getUserEmail() + "/" + enrollForm.getUserType() + " 유저 회원가입 요청");
 
         try {
+            // 강사 신청 여부 설정
+            char teacherApply = enrollForm.getUserType() == 1 ? 'Y' : 'N';
+
             UserDto userDto = UserDto.builder()
                     .userEmail(enrollForm.getUserEmail())
                     .provider(enrollForm.getProvider())
@@ -247,13 +263,14 @@ public class UserController {
                     .userPwd(enrollForm.getUserPwd())
                     .phone(enrollForm.getPhone())
                     .nickname(enrollForm.getNickname())
-                    .registerTime(enrollForm.getRegisterTime())
+                    .registerTime(LocalDateTime.now())
                     .profileImageUrl(enrollForm.getProfileImageUrl())
-                    .userType(enrollForm.getUserType())
+                    .userType(0) // 강사는 원래 1이지만 관리자 승인후에 1로 바뀔예정
                     .reportCount(enrollForm.getReportCount())
                     .loginOk(enrollForm.getLoginOk())
                     .faceLoginYn(enrollForm.getFaceLoginYn())
                     .snsAccessToken(enrollForm.getSnsAccessToken())
+                    .teacherApply(teacherApply) // 강사 신청 여부 설정
                     .build();
 
             log.info(userDto.toString());
@@ -387,7 +404,21 @@ public class UserController {
         }
     }
 
+    // 나의 결제한 강의 리스트 조회
+    @GetMapping("/purchased-lectures")
+    public ResponseEntity<Page<LecturePackageList>> getPurchasedLectures(
+            @RequestParam("email") String userEmail,
+            @RequestParam("provider") String provider,
+            @RequestParam("page") int page,
+            @RequestParam("size") int size) {
 
+        log.info("User email: {}, provider: {} - get purchased lectures", userEmail, provider);
+        Page<LecturePackageList> purchasedLectures = userService.getPurchasedLectures(userEmail, provider, page, size);
+        return new ResponseEntity<>(purchasedLectures, HttpStatus.OK);
+    }
+    
+    
+    
     // 허강 여기서부터
     @GetMapping("/getpeople")
     public ResponseEntity<List<UserEntity>> getPeople(@RequestParam("userId") String nickname,

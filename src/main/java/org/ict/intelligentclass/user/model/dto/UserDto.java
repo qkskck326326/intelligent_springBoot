@@ -29,6 +29,7 @@ public class UserDto {
     private char loginOk;
     private char faceLoginYn;
     private String snsAccessToken;
+    private char teacherApply;
 
     // dto -> entity method
     public UserEntity toEntity() {
@@ -46,6 +47,7 @@ public class UserDto {
                 .loginOk(this.loginOk)
                 .faceLoginYn(this.faceLoginYn)
                 .snsAccessToken(this.snsAccessToken)
+                .teacherApply(this.teacherApply)
                 .build();
     }
 }
