@@ -27,9 +27,6 @@ public class ItNewsSiteEntity {
     @Column(name = "SITE_NAME", length = 100)
     private String siteName;
 
-    @Column(name = "VIDEO_ELEMENT", length = 500)
-    private String videoElement;
-
     @Column(name = "TITLE_ELEMENT", length = 300)
     private String titleElement;
 
@@ -41,7 +38,6 @@ public class ItNewsSiteEntity {
                 .siteUrl(this.siteUrl)
                 .latestBoardUrl(this.latestBoardUrl)
                 .siteName(this.siteName)
-                .videoElement(this.videoElement)
                 .titleElement(this.titleElement)
                 .contextElement(this.contextElement)
                 .build();

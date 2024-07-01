@@ -17,7 +17,6 @@ public class ItNewsSiteDto {
     private String siteUrl;
     private String latestBoardUrl;
     private String siteName;
-    private String videoElement;
     private String titleElement;
     private String contextElement;
 
@@ -26,7 +25,6 @@ public class ItNewsSiteDto {
                 .siteUrl(this.siteUrl)
                 .latestBoardUrl(this.latestBoardUrl)
                 .siteName(this.siteName)
-                .videoElement(this.videoElement)
                 .titleElement(this.titleElement)
                 .contextElement(this.contextElement)
                 .build();
