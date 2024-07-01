@@ -60,14 +60,8 @@ public class UserEntity {
     @Column(name = "sns_access_token", nullable = false)
     private String snsAccessToken;
 
-//    @OneToMany(mappedBy = "receiveUser")
-//    private List<ReportEntity> receivedReports;
-//
-//    @OneToMany(mappedBy = "doUser")
-//    private List<ReportEntity> reportsMade;
-
-
-
+    @Column(name = "TEACHER_APPLY", nullable = false)
+    private char teacherApply;
 
 
     @PrePersist
@@ -92,6 +86,7 @@ public class UserEntity {
                 .loginOk(this.loginOk)
                 .faceLoginYn(this.faceLoginYn)
                 .snsAccessToken(this.snsAccessToken)
+                .teacherApply(this.teacherApply)
                 .build();
     }
 }

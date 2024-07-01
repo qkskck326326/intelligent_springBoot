@@ -5,6 +5,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDate;
+
 @Entity
 @Table(name = "TB_COUPON")
 @NoArgsConstructor
@@ -28,4 +30,7 @@ public class CouponEntity {
 
     @Column(name = "DISCOUNT_AMOUNT", nullable = false)
     private Double discountAmount;
+
+    @Column(name = "ISSUED_DATE")
+    private LocalDate issuedDate;
 }
