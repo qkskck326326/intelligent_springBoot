@@ -7,6 +7,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -26,6 +28,9 @@ public interface PostRepository extends JpaRepository<PostEntity, Long> {
 
     @Query("SELECT p FROM PostEntity p JOIN PostTagEntity pt ON p.id = pt.post.id JOIN TagEntity t ON pt.tag.id = t.id WHERE LOWER(t.name) LIKE LOWER(CONCAT('%', :tagName, '%'))")
     List<PostEntity> findByTagName(@Param("tagName") String tagName);
+
+    @Query("SELECT p FROM PostEntity p WHERE p.postTime >= :since")
+    List<PostEntity> findPopularPostsSince(@Param("since") LocalDateTime since);
 }
 
 

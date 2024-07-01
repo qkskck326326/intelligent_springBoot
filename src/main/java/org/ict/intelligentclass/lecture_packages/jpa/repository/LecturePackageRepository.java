@@ -77,4 +77,9 @@ public interface LecturePackageRepository extends JpaRepository<LecturePackageEn
     // 서브카테고리별 최신순
     @Query("SELECT l FROM LecturePackageEntity l JOIN l.packageSubCategory p WHERE p.packageSubCategoryId.subCategoryId = :subCategoryId ORDER BY l.registerDate DESC")
     Page<LecturePackageEntity> findBySubCategoryIdOrderByLatest(@Param("subCategoryId") Long subCategoryId, Pageable pageable);
+
+
+    // 태석 추가
+    Page<LecturePackageEntity> findByLecturePackageIdIn(List<Long> lecturePackageIds, Pageable pageable);
+
 }

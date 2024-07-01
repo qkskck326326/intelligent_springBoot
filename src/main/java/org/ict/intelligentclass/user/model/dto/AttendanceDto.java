@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 import org.ict.intelligentclass.user.jpa.entity.AttendanceEntity;
 import org.ict.intelligentclass.user.jpa.entity.id.AttendanceId;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Data
@@ -17,8 +18,8 @@ import java.time.LocalDateTime;
 public class AttendanceDto {
     private String userEmail;
     private String provider;
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    private LocalDateTime attendanceTime;
+    @JsonFormat(pattern = "yyyy-MM-dd")
+    private LocalDate attendanceTime;
 
     // dto -> entity method
     public AttendanceEntity toEntity() {

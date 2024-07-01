@@ -34,7 +34,6 @@ public interface UserRepository extends JpaRepository<UserEntity, UserId> {
     @Query("SELECT u FROM UserEntity u WHERE u.userId.userEmail = :userEmail")
     Optional<UserEntity> findByEmail(@Param("userEmail") String userEmail);
 
-
     @Query("SELECT u FROM UserEntity u WHERE u.userId.userEmail = :userEmail AND u.userId.provider = :provider")
     Optional<UserEntity> findByEmailAndProvider(@Param("userEmail") String userEmail, @Param("provider") String provider);
 
@@ -84,6 +83,9 @@ public interface UserRepository extends JpaRepository<UserEntity, UserId> {
 
 
 
+    // 허강 추가 시작
+    boolean existsByNickname(String nickname);
+
     @Query("SELECT u FROM UserEntity u WHERE "
             + "(:nickname IS NULL OR u.nickname <> :nickname) AND "
             + "((:addingOption = 'teachers' AND u.userType = 1) OR "
@@ -106,20 +108,34 @@ public interface UserRepository extends JpaRepository<UserEntity, UserId> {
                                          @Param("searchQuery") String searchQuery,
                                          Pageable pageable);
 
-    List<UserEntity> findAllByRegisterTimeBetween(LocalDateTime startDate, LocalDateTime endDate);
-
-
-    @Query("SELECT u FROM UserEntity u WHERE "
-            + "(:searchQuery IS NULL OR u.userName LIKE %:searchQuery% OR u.userId.userEmail LIKE %:searchQuery% OR u.phone LIKE %:searchQuery%) AND "
-            + "(:userType IS NULL OR u.userType = :userType) AND "
-            + "(:startDate IS NULL OR u.registerTime >= :startDate) AND "
-            + "(:endDate IS NULL OR u.registerTime <= :endDate)")
-    Page<UserEntity> findAllUsers(@Param("searchQuery") String searchQuery,
-                                  @Param("userType") Integer userType,
-                                  @Param("startDate") LocalDateTime startDateTime,
-                                  @Param("endDate") LocalDateTime endDateTime,
-                                  Pageable pageable);
-
     @Query("SELECT u.nickname FROM UserEntity u WHERE u.userType = :userType")
     List<String> findNicknamesByUserType(int userType);
+
+
+    // 허강 추가 끝
+
+
+
+
+
+    // 시원 추가 시작
+    List<UserEntity> findAllByRegisterTimeBetween(LocalDateTime startDate, LocalDateTime endDate);
+
+    @Query("SELECT u FROM UserEntity u WHERE " +
+            "(:searchQuery IS NULL OR " +
+            "(CASE WHEN :searchQuery = 'name' THEN u.userName " +
+            "WHEN :searchQuery = 'email' THEN u.userId.userEmail " +
+            "WHEN :searchQuery = 'phone' THEN u.phone " +
+            "WHEN :searchQuery = 'id' THEN u.userId.userEmail " +
+            "ELSE '' END) LIKE %:searchValue%) AND " +
+            "(:userType IS NULL OR u.userType = :userType) AND " +
+            "(:startDateTime IS NULL OR u.registerTime >= :startDateTime) AND " +
+            "(:endDateTime IS NULL OR u.registerTime <= :endDateTime)")
+    Page<UserEntity> findAllUsers(@Param("searchQuery") String searchQuery,
+                                  @Param("searchValue") String searchValue,
+                                  @Param("userType") Integer userType,
+                                  @Param("startDateTime") LocalDateTime startDateTime,
+                                  @Param("endDateTime") LocalDateTime endDateTime,
+                                  Pageable pageable);
+    // 시원 추가 끝
 }

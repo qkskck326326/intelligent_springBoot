@@ -164,6 +164,7 @@ public class KakaoController {
             userDto.setLoginOk('Y');
             userDto.setFaceLoginYn('N');
             userDto.setSnsAccessToken(kakaoAccessToken);
+            userDto.setTeacherApply('N');
 
             userService.insertSocialLoginUser(userDto.toEntity());
             log.info("회원가입 성공: {}, {}}", userDto.getUserEmail(), userDto.getProvider());
