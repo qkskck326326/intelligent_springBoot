@@ -13,7 +13,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @Slf4j
@@ -56,6 +58,8 @@ public class AnnouncementService {
 
     public AnnouncementEntity updateAnnouncement(AnnouncementEntity announcementEntity) {
 
+        Date createdTime = announcementRepository.findCreatedAtByAnnouncementId(announcementEntity.getAnnouncementId());
+        announcementEntity.setCreatedAt(createdTime);
         return announcementRepository.save(announcementEntity);
     }
 
