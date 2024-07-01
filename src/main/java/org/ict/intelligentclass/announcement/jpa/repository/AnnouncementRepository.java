@@ -8,6 +8,8 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.Date;
+
 @Repository
 public interface AnnouncementRepository extends JpaRepository<AnnouncementEntity, Integer> {
 
@@ -16,4 +18,6 @@ public interface AnnouncementRepository extends JpaRepository<AnnouncementEntity
     @Query("SELECT a FROM AnnouncementEntity a WHERE a.title LIKE %:keyword% OR a.content LIKE %:keyword%")
     Page<AnnouncementEntity> searchByKeyword(@Param("keyword") String keyword, Pageable pageable);
 
+    @Query("SELECT a.createdAt FROM AnnouncementEntity a WHERE a.announcementId = :announcementId")
+    Date findCreatedAtByAnnouncementId(@Param("announcementId") Long announcementId);
 }

@@ -60,7 +60,7 @@ public class PostEntity {
         PostDto dto = new PostDto();
         dto.setId(this.id);
         dto.setTitle(this.title);
-        dto.setContentSnippet(this.content.substring(0, Math.min(this.content.length(), 80)));
+        dto.setContentSnippet(this.content.substring(0, Math.min(this.content.length(), 150)));
         dto.setNickname(userDto.getNickname());
         dto.setProfileImageUrl(userDto.getProfileImageUrl());
         dto.setCategoryName(categoryName);

@@ -11,10 +11,7 @@ import org.ict.intelligentclass.lecture_packages.jpa.entity.*;
 import org.ict.intelligentclass.lecture_packages.jpa.input.LecturePackageRegister;
 import org.ict.intelligentclass.lecture_packages.jpa.output.LecturePackageDetail;
 import org.ict.intelligentclass.lecture_packages.jpa.output.LecturePackageList;
-import org.ict.intelligentclass.lecture_packages.jpa.repository.LecturePackageRepository;
-import org.ict.intelligentclass.lecture_packages.jpa.repository.PackageSubCategoryRepository;
-import org.ict.intelligentclass.lecture_packages.jpa.repository.PackageTechStackRepository;
-import org.ict.intelligentclass.lecture_packages.jpa.repository.UpperCategoryRepository;
+import org.ict.intelligentclass.lecture_packages.jpa.repository.*;
 import org.ict.intelligentclass.user.jpa.entity.UserInterestEntity;
 import org.ict.intelligentclass.user.jpa.repository.UserInterestRepository;
 import org.springframework.data.domain.*;
@@ -37,8 +34,8 @@ public class LecturePackageService {
     private final UserInterestRepository userInterestRepository;
     private final UpperCategoryRepository upperCategoryRepository;
     private final LectureRepository lectureRepository;
-
-
+    private final LearningPersonRepository learningPersonRepository;
+    private final ReadyKnowledgeRepository readyKnowledgeRepository;
 
 
     //모든 패키지리스트 조회
@@ -386,6 +383,8 @@ public class LecturePackageService {
 
         List<PackageSubCategoryEntity> packageSubCategories = packageSubCategoryRepository.findByLecturePackageId(lecturePackageId);
         List<PackageTechStackEntity> packageTechStacks = packageTechStackRepository.findByLecturePackageId(lecturePackageId);
+        List<LearningPersonEntity> learningContents = learningPersonRepository.findByLearningContent(lecturePackageId);
+        List<ReadyKnowledgeEntity> readyContents = readyKnowledgeRepository.findByReadyContent(lecturePackageId);
 
 
         List<Long> subCategoryIds = packageSubCategories.stream()
@@ -407,6 +406,14 @@ public class LecturePackageService {
                 .collect(Collectors.joining(", "));
 
 
+        List<String> learningContentStrings = learningContents.stream()
+                .map(LearningPersonEntity::getLearningContent)
+                .collect(Collectors.toList());
+
+        List<String> readyContentStrings = readyContents.stream()
+                .map(ReadyKnowledgeEntity::getReadyContent)
+                .collect(Collectors.toList());
+
         return LecturePackageDetail.builder()
                 .lecturePackageId(lecturePackageId)
                 .nickname(lecturePackage.getNickname())
@@ -423,6 +430,8 @@ public class LecturePackageService {
                 .subCategoryName(subCategoryNames)
                 .techStackId(techStackIds)
                 .techStackPath(techStackPaths)
+                .learningContent(learningContentStrings)
+                .readyContent(readyContentStrings)
                 .build();
     }
 
@@ -462,6 +471,25 @@ public class LecturePackageService {
                     .build();
             packageTechStackRepository.save(techStackEntity);
         }
+
+        for(String learningPerson : register.getLearningContent()) {
+            LearningPersonEntity learningPersonEntity = LearningPersonEntity.builder()
+                    .lecturePackage(savedLecturePackage)
+                    .learningContent(learningPerson)
+                    .build();
+
+            learningPersonRepository.save(learningPersonEntity);
+        }
+
+        for(String readyKnowledge : register.getReadyContent()){
+            ReadyKnowledgeEntity readyKnowledgeEntity = ReadyKnowledgeEntity.builder()
+                    .lecturePackage(savedLecturePackage)
+                    .readyContent(readyKnowledge)
+                    .build();
+            readyKnowledgeRepository.save(readyKnowledgeEntity);
+        }
+
+
 
         return savedLecturePackage;
     }
@@ -515,10 +543,38 @@ public class LecturePackageService {
         }
         packageTechStackRepository.saveAll(updatedTechStacks);
 
+
+        // 7. 기존 학습대상자 업데이트
+        List<LearningPersonEntity> existingLearningPersons = learningPersonRepository.findByLecturePackageId(lecturePackageId);
+        learningPersonRepository.deleteAll(existingLearningPersons);
+        List<LearningPersonEntity> updatedLearningPersons = new ArrayList<>();
+        for (String learningContent : lecturePackageRegister.getLearningContent()) {
+            LearningPersonEntity learningPersonEntity = LearningPersonEntity.builder()
+                    .lecturePackage(existingEntity)
+                    .learningContent(learningContent)
+                    .build();
+            updatedLearningPersons.add(learningPersonEntity);
+        }
+        learningPersonRepository.saveAll(updatedLearningPersons);
+
+        // 8. 기존 선수지식 업데이트
+        List<ReadyKnowledgeEntity> existingReadyKnowledge = readyKnowledgeRepository.findByLecturePackageId(lecturePackageId);
+        readyKnowledgeRepository.deleteAll(existingReadyKnowledge);
+        List<ReadyKnowledgeEntity> updatedReadyKnowledgeList = new ArrayList<>();
+        for (String readyContent : lecturePackageRegister.getReadyContent()) {
+            ReadyKnowledgeEntity readyKnowledgeEntity = ReadyKnowledgeEntity.builder()
+                    .lecturePackage(existingEntity)
+                    .readyContent(readyContent)
+                    .build();
+            updatedReadyKnowledgeList.add(readyKnowledgeEntity);
+        }
+        readyKnowledgeRepository.saveAll(updatedReadyKnowledgeList);
+
+
+
         // 7. 업데이트된 엔티티 저장 및 반환
         return lecturePackageRepository.save(existingEntity);
     }
-
 
 
     //강의패키지 삭제하기
@@ -526,7 +582,10 @@ public class LecturePackageService {
     public void deleteLecturePackage(Long lecturePackageId) {
         packageSubCategoryRepository.deleteAllByPackageSubCategoryId_LecturePackageId(lecturePackageId);
         packageTechStackRepository.deleteAllByPackageTechStackId_LecturePackageId(lecturePackageId);
+        learningPersonRepository.deleteByLearningContent(lecturePackageId);
+        readyKnowledgeRepository.deleteByReadyContent(lecturePackageId);
         lecturePackageRepository.deleteById(lecturePackageId);
+
     }
 
 

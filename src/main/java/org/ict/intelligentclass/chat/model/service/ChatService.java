@@ -50,25 +50,15 @@ public class ChatService {
      * */
     public Long countTotalUnread(String userId) {
 
-        log.info("selectRoomIds userId = " + userId);
-        //챗유저 닉네임으로 모든 채팅방 아이디 가져오기
         List<Long> chatroomIds = chatUserRepository.findRoomIdsByUserId(userId);
-
-        log.info("선택된 챗방 아이디들: {}", chatroomIds);
-
-        //만약 아무것도 없다면 리턴
         if(chatroomIds == null || chatroomIds.isEmpty()) {
             return 0L;
-
         } else {
-            //있을 경우 하나씩 꺼내서 채팅방 확인
             long sum = 0;
             for (Long chatroomId : chatroomIds) {
-
                 Long totalMessages = chatMessageRepository.countByRoomId(chatroomId);
                 Long readMessages = messageReadRepository.countByRoomIdAndUserId(chatroomId, userId);
                 Long unreadMessageCount = totalMessages - readMessages;
-
                 sum += unreadMessageCount;
             }
             return sum;
@@ -83,11 +73,8 @@ public class ChatService {
      * 최종 시간 복잡도 O(U) => O(n)
      * */
     public ChatroomEntity insertRoom(List<String> people, String roomType) {
-        log.info("insertRoom people = " + people);
-
         String roomName = (roomType.equals("inquiries")) ? "문의" : String.join(", ", people);
-        String creator = people.get(0); // Assuming the first person in the list is the creator
-
+        String creator = people.get(0);
         ChatroomEntity chatroomEntity = new ChatroomEntity();
         chatroomEntity.setRoomName(roomName);
         switch (roomType) {
@@ -103,12 +90,8 @@ public class ChatService {
         }
         chatroomEntity.setCreatedAt(new Date());
         chatroomEntity.setCreator(creator);
-
         ChatroomEntity newRoom = chatroomRepository.save(chatroomEntity);
-        log.info(newRoom.toString());
-
         Long roomId = newRoom.getRoomId();
-
         for (String userId : people) {
             ChatUserCompositeKey key = new ChatUserCompositeKey(userId, roomId);
             ChatUserEntity chatUserEntity = ChatUserEntity.builder()
@@ -116,10 +99,8 @@ public class ChatService {
                     .isMuted(0L)
                     .isPinned(0L)
                     .build();
-
             chatUserRepository.save(chatUserEntity);
         }
-
         return newRoom;
     }
 
@@ -140,30 +121,21 @@ public class ChatService {
      * => 필요한 데이터만 가져오는 Dto 만들기 : 유저엔티티를 전부 가져가지 말고 필요한 칼럼만 추려서 가져가기
      * */
     public List<ChatroomDetailsDto> getChatrooms(String userId, boolean isChats) {
-
-        //유저아이디로 채팅방아이디 모두 가져옴
         List<Long> roomIds = chatUserRepository.findRoomIdsByUserIdOrderByIsPinned(userId);
-
-        List<ChatroomEntity> chatrooms = new ArrayList<>();
-        //아이디와 정보로 방 가져옴
+        List<ChatroomEntity> chatrooms;
         if (isChats) {
             chatrooms = chatroomRepository.findChatsByRoomIds(roomIds);
         } else {
             chatrooms = chatroomRepository.findInquiriesByRoomIds(roomIds);
         }
-
         List<ChatroomDetailsDto> chatroomDetails = new ArrayList<>();
-
         for (ChatroomEntity chatroom : chatrooms) {
-            //방정보 하나씩 돌려서 정보 가져옴
             ChatUserEntity chatUser = chatUserRepository.findByChatUserCompositeKeyUserIdAndChatUserCompositeKeyRoomId(userId, chatroom.getRoomId());
             ChatMessageEntity latestMessage = chatMessageRepository.findTopByRoomIdOrderByDateSentDesc(chatroom.getRoomId());
             Date latestMessageTimestamp = latestMessage != null ? latestMessage.getDateSent() : null;
             int totalPeople = chatUserRepository.countByRoomId(chatroom.getRoomId());
             List<String> userNicknames = chatUserRepository.findUserIdsByRoomId(chatroom.getRoomId());
             List<UserEntity> users = new ArrayList<>();
-
-            //닉네임으로 유저 엔티티 가져옴
             for(String userNickname : userNicknames) {
                 Optional<UserEntity> user = userRepository.findByNickname(userNickname);
                 if(user.isPresent()) {
@@ -174,25 +146,15 @@ public class ChatService {
             Long totalMessages = chatMessageRepository.countByRoomId(chatroom.getRoomId());
             Long readMessages = messageReadRepository.countByRoomIdAndUserId(chatroom.getRoomId(), userId);
             Long unreadMessageCount = totalMessages - readMessages;
-
             chatroomDetails.add(new ChatroomDetailsDto(chatroom, chatUser, latestMessage, totalPeople, latestMessageTimestamp, unreadMessageCount, users));
         }
-
         return chatroomDetails.stream()
                 .sorted((c1, c2) -> {
                     int pinnedComparison = c2.getChatUser().getIsPinned().compareTo(c1.getChatUser().getIsPinned());
-                    if (pinnedComparison != 0) {
-                        return pinnedComparison;
-                    }
-                    if (c1.getLatestMessageTimestamp() == null && c2.getLatestMessageTimestamp() == null) {
-                        return 0;
-                    }
-                    if (c1.getLatestMessageTimestamp() == null) {
-                        return 1;
-                    }
-                    if (c2.getLatestMessageTimestamp() == null) {
-                        return -1;
-                    }
+                    if (pinnedComparison != 0) {return pinnedComparison;}
+                    if (c1.getLatestMessageTimestamp() == null && c2.getLatestMessageTimestamp() == null) {return 0;}
+                    if (c1.getLatestMessageTimestamp() == null) {return 1;}
+                    if (c2.getLatestMessageTimestamp() == null) {return -1;}
                     return c2.getLatestMessageTimestamp().compareTo(c1.getLatestMessageTimestamp());
                 })
                 .collect(Collectors.toList());
@@ -257,7 +219,6 @@ public class ChatService {
      * 1. messageReadRepository.existsByMessageIdAndUserId(message.getMessageId(), userId) => O(1)
      * 2. messageReadRepository.save(newRead) => O(1)
      * 최종 시간 복잡도 O(1)
-     * 아 배아프다..
      * */
     private void markMessageAsRead(String userId, Long roomId, ChatMessageEntity message) {
         MessageReadCompositeKey compositeKey = new MessageReadCompositeKey(message.getMessageId(), userId);
@@ -279,8 +240,6 @@ public class ChatService {
 //        newRead.setReadAt(new Date());
 //        return messageReadRepository.save(newRead);
 //    }
-
-
 
 
     /**
