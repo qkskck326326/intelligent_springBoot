@@ -85,7 +85,7 @@ public class CustomUserDetailsService implements UserDetailsService {
 
         // 사용자 계정이 활성화되지 않은 경우 UsernameNotFoundException 예외를 발생시킵니다.
         if (userEntity.getLoginOk() == 'N') {
-            throw new LockedException("활성화되지 않은 계정입니다: " + inputUser.getUserEmail() + inputUser.getProvider());
+            throw new LockedException("계정이 잠겨 있습니다. " + inputUser.getUserEmail() + inputUser.getProvider());
         }
 
         log.info("CustomUserDetailsService validateUser return: " + userEntity.getUserId().getUserEmail());

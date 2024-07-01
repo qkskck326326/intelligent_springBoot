@@ -31,9 +31,6 @@ public class ItNewsBoardEntity {
     @Column(name = "TITLE", length = 300)
     private String title;
 
-    @Column(name = "VIDEO_TEXTLIZED_CONTEXT", length = 3000)
-    private String videoTextlizedContext;
-
     @Column(name = "ORIGINAL_CONTEXT", length = 3000)
     private String originalContext;
 
@@ -46,7 +43,6 @@ public class ItNewsBoardEntity {
                 .siteUrl(this.siteUrl)
                 .boardUrl(this.boardUrl)
                 .title(this.title)
-                .videoTextlizedContext(this.videoTextlizedContext)
                 .originalContext(this.originalContext)
                 .registDate(this.registDate)
                 .build();

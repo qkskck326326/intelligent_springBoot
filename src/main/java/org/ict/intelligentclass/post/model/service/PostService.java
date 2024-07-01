@@ -28,11 +28,10 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.sql.Timestamp;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Optional;
+import java.time.ZoneId;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -62,6 +61,10 @@ public class PostService {
     private TagRepository tagRepository;
     @Autowired
     private PostTagRepository postTagRepository;
+
+    public List<String> getTop10PopularTags() {
+        return tagRepository.findTop10PopularTags();
+    }
 
     // 북마크 추가
     public BookmarkEntity addBookmark(Long postId, String userEmail, String provider) {
@@ -93,12 +96,17 @@ public class PostService {
 
     // 인기 게시물 가져오기 메서드
     public List<PostDto> getTop5PopularPosts() {
-        List<PostEntity> posts = postRepository.findAll();
+
+        LocalDateTime oneWeekAgo = LocalDateTime.now().minusWeeks(1);
+
+//        List<PostEntity> posts = postRepository.findAll();
+        // 1주일 전부터 현재까지의 게시물을 가져옵니다.
+        List<PostEntity> posts = postRepository.findPopularPostsSince(oneWeekAgo);
 
         return posts.stream()
                 .map(this::convertToDto)
                 .sorted((post1, post2) -> Long.compare(calculateScore(post2), calculateScore(post1)))
-                .limit(10)
+                .limit(5)
                 .collect(Collectors.toList());
     }
 
@@ -197,6 +205,7 @@ public class PostService {
         List<FileEntity> files = fileRepository.findByPostId(postId);
         long likeCount = likeRepository.countByPostId(postId);
         boolean userLiked = likeRepository.existsByPostIdAndUserEmailAndProvider(postId, userEmail, provider);
+        boolean userBookmarked = bookmarkService.isPostBookmarked(postId, userEmail, provider); // 북마크 상태 확인
 
         Optional<UserEntity> userOptional = userRepository.findById(new UserId(post.getUserEmail(), post.getProvider()));
         UserDto userDto = userOptional.map(UserEntity::toDto).orElse(null);
@@ -217,7 +226,7 @@ public class PostService {
                 .collect(Collectors.toList());
 
         PostDetailDto postDetailDto = post.toDetailDto(userDto, categoryName, userLiked, likeCount, comments.size(), commentDto, files, tags);
-
+        postDetailDto.setUserBookmarked(userBookmarked); // 북마크 상태 설정
         log.info("Returning post: {}", postDetailDto);
         return postDetailDto;
     }
@@ -343,5 +352,35 @@ public class PostService {
         List<PostEntity> posts = postRepository.findByTagName(tag);
         List<PostDto> postDtos = posts.stream().map(this::convertToDto).collect(Collectors.toList());
         return applySorting(postDtos, pageable, sort);
+    }
+
+    public Page<CommentDto> getUserComments(String userEmail, String provider, Pageable pageable, String sort) {
+        List<CommentEntity> comments = commentRepository.findByUserEmailAndProvider(userEmail, provider);
+        List<CommentDto> commentDtos = comments.stream()
+                .map(comment -> {
+                    Optional<UserEntity> commentUserOptional = userRepository.findById(new UserId(comment.getUserEmail(), comment.getProvider()));
+                    UserDto commentUserDto = commentUserOptional.map(UserEntity::toDto).orElse(null);
+                    return comment.toDto(commentUserDto);
+                })
+                .collect(Collectors.toList());
+        return applyCommentSorting(commentDtos, pageable, sort);
+    }
+
+    // 댓글 정렬 적용
+    private Page<CommentDto> applyCommentSorting(List<CommentDto> commentDtos, Pageable pageable, String sort) {
+        Comparator<CommentDto> comparator;
+        switch (sort) {
+            case "latest":
+                comparator = Comparator.comparing(CommentDto::getCommentTime).reversed();
+                break;
+            default:
+                comparator = Comparator.comparing(CommentDto::getCommentTime).reversed();
+                break;
+        }
+        commentDtos.sort(comparator);
+        int start = (int) pageable.getOffset();
+        int end = Math.min((start + pageable.getPageSize()), commentDtos.size());
+        List<CommentDto> sortedComments = commentDtos.subList(start, end);
+        return new PageImpl<>(sortedComments, pageable, commentDtos.size());
     }
 }

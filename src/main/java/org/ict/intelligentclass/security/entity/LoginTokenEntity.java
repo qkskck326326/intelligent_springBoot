@@ -55,12 +55,12 @@ public class LoginTokenEntity {
     })
     private UserEntity user;
 
-    @PrePersist // jpa로 넘어가기 전에 작동하라는 어노테이션임
-    public void prePersist() {
-      LocalDateTime now = LocalDateTime.now();
-      if (refreshTokenCreatedTime == null) refreshTokenCreatedTime = now;
-      if (refreshTokenExpirationTime == null) refreshTokenExpirationTime = now.plusSeconds(86400L); // 86400000L / 1000
-    }
+//    @PrePersist // jpa로 넘어가기 전에 작동하라는 어노테이션임
+//    public void prePersist() {
+//      LocalDateTime now = LocalDateTime.now();
+//      if (refreshTokenCreatedTime == null) refreshTokenCreatedTime = now;
+//      if (refreshTokenExpirationTime == null) refreshTokenExpirationTime = now.plusSeconds(86400L); // 86400000L / 1000
+//    }
 
     public LoginTokenDto toDto() {
         return LoginTokenDto.builder()
