@@ -27,7 +27,10 @@ public class AnnouncementService {
 
     public ArrayList<AnnouncementDto> selectAnnouncements(int page) {
 
-        Pageable pageable = PageRequest.of(page - 1, 10, Sort.by(Sort.Direction.DESC, "createdAt"));
+        Pageable pageable = PageRequest.of(
+                page - 1,
+                10,
+                Sort.by(Sort.Direction.DESC, "createdAt"));
         Page<AnnouncementEntity> announcements = announcementRepository.findAll(pageable);
         ArrayList<AnnouncementDto> announcementDtos = new ArrayList<>();
 
@@ -36,35 +39,38 @@ public class AnnouncementService {
             announcementDtos.add(announcementDto);
         }
         return announcementDtos;
-
     }
 
     public List<AnnouncementEntity> selectCategorizedAnnouncements(int page, Long category) {
-        Pageable pageable = PageRequest.of(page - 1, 10, Sort.by(Sort.Direction.DESC, "createdAt"));
-        Page<AnnouncementEntity> announcements = announcementRepository.findByCategory(category, pageable);
+        Pageable pageable = PageRequest.of(
+                page - 1,
+                10,
+                Sort.by(Sort.Direction.DESC, "createdAt"));
+        Page<AnnouncementEntity> announcements =
+                announcementRepository.findByCategory(category, pageable);
         return announcements.getContent();
     }
 
     public List<AnnouncementEntity> selectAnnouncementsByKeyword(int page, String keyword) {
-        Pageable pageable = PageRequest.of(page - 1, 10, Sort.by(Sort.Direction.DESC, "createdAt"));
+        Pageable pageable = PageRequest.of(
+                page - 1,
+                10,
+                Sort.by(Sort.Direction.DESC, "createdAt"));
         Page<AnnouncementEntity> announcements = announcementRepository.searchByKeyword(keyword, pageable);
         return announcements.getContent();
     }
+    public AnnouncementEntity selectOneAnnouncement(int id) {
+        return announcementRepository.findById(id).orElse(null);
+    }
 
     public AnnouncementEntity insertAnnouncement(AnnouncementEntity announcementEntity) {
-
         return announcementRepository.save(announcementEntity);
     }
 
     public AnnouncementEntity updateAnnouncement(AnnouncementEntity announcementEntity) {
-
         Date createdTime = announcementRepository.findCreatedAtByAnnouncementId(announcementEntity.getAnnouncementId());
         announcementEntity.setCreatedAt(createdTime);
         return announcementRepository.save(announcementEntity);
-    }
-
-    public AnnouncementEntity selectOneAnnouncement(int id) {
-        return announcementRepository.findById(id).orElse(null);
     }
 
     public void deleteAnnouncement(long announcementId) {
