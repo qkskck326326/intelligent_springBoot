@@ -29,6 +29,7 @@ public class PostDetailDto {
     private long commentCount;
     private long likeCount;
     private boolean userLiked;
+    private boolean userBookmarked; // 북마크 상태 추가
     private List<CommentDto> comments;
     private List<FileEntity> files;
     private List<String> tags;

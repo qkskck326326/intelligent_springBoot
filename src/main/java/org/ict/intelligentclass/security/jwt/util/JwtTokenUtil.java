@@ -104,6 +104,13 @@ public class JwtTokenUtil {
         return claims.get("tokenType", String.class);
     }
 
+    // JWT에서 만료 날짜를 추출합니다.
+    public Date getExpirationDateFromToken(String tokenValue) {
+        Claims claims = Jwts.parserBuilder().setSigningKey(secretKey).build().parseClaimsJws(tokenValue).getBody();
+        return claims.getExpiration();
+    }
+
+
     public Claims getClaimsFromToken(String tokenValue) {
         return Jwts.parserBuilder().setSigningKey(secretKey).build().parseClaimsJws(tokenValue).getBody();
     }

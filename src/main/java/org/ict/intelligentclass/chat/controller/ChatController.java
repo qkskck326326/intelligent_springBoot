@@ -38,18 +38,13 @@ public class ChatController {
 
     @GetMapping("/countunreadall")
     public ResponseEntity<Long> countUnreadAll(@RequestParam String userId) {
-
-        log.info("countUnreadAll start");
         Long countTotalUnRead = chatService.countTotalUnread(userId);
-        log.info("countUnreadAll end" + countTotalUnRead);
         return ResponseEntity.ok(countTotalUnRead);
-
     }
 
     @PostMapping("/makechat/{roomType}")
     public ResponseEntity<ChatroomEntity> makechat(@PathVariable String roomType, @RequestBody MakeChatDto request) {
         List<String> names = request.getNames();
-        log.info("makechat start " + names + " " + roomType);
         ChatroomEntity entity = chatService.insertRoom(names, roomType);
         webSocketService.broadcastUpdate();
         return new ResponseEntity<>(entity, HttpStatus.CREATED);
@@ -57,7 +52,6 @@ public class ChatController {
 
     @GetMapping("/chatlist")
     public ResponseEntity<List<ChatroomDetailsDto>> listChatroom(@RequestParam String userId, @RequestParam boolean isChats) {
-        log.info("listChatroom start");
         List<ChatroomDetailsDto> chatrooms = chatService.getChatrooms(userId, isChats);
         return ResponseEntity.ok(chatrooms);
     }
@@ -98,18 +92,6 @@ public class ChatController {
 
         return ResponseEntity.ok(messageDto);
     }
-
-//    @PostMapping("markread")
-//    public ResponseEntity<MessageReadEntity> markRead(@RequestBody ChatMessageEntity chatMessageEntity) {
-//        log.info("markRead start");
-//        log.info("markRead {}", chatMessageEntity);
-//
-//        MessageReadCompositeKey compositeKey = new MessageReadCompositeKey(chatMessageEntity.getMessageId(), chatMessageEntity.getSenderId());
-//        Long roomId = chatMessageEntity.getRoomId();
-//        MessageReadEntity messageRead = chatService.markRead(compositeKey, roomId);
-//        return ResponseEntity.ok(messageRead);
-//    }
-
 
     @PostMapping(value = "/uploadfiles/{roomId}/{senderId}/{messageType}/{dateSent}/{isAnnouncement}", consumes = {"multipart/form-data"})
     public ResponseEntity<?> uploadFiles(

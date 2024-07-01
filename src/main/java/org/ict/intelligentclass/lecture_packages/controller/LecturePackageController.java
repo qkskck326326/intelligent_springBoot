@@ -205,4 +205,6 @@ public class LecturePackageController {
         int lectureCount = lecturePackageService.getLectureCount(lecturePackageId);
         return ResponseEntity.ok(lectureCount);
     }
+
+
 }

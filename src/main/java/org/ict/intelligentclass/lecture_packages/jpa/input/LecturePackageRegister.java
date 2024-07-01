@@ -23,6 +23,8 @@ public class LecturePackageRegister {
     private int priceForever;
     private String thumbnail;
     private String backgroundColor;
+    private List<String> learningContent = new ArrayList<>(); // 학습대상자
+    private List<String> readyContent = new ArrayList<>(); // 선수지식
     private List<Long> packageSubCategoryId = new ArrayList<>(); // 빈 리스트로 초기화
     private List<Long> packageTechStackId = new ArrayList<>();
 
