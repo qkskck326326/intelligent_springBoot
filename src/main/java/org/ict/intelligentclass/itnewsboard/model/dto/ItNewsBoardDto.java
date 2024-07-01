@@ -17,7 +17,6 @@ public class ItNewsBoardDto {
     private String siteUrl;
     private String boardUrl;
     private String title;
-    private String videoTextlizedContext;
     private String originalContext;
     private Date registDate;
 
@@ -27,7 +26,6 @@ public class ItNewsBoardDto {
                 .siteUrl(this.siteUrl)
                 .boardUrl(this.boardUrl)
                 .title(this.title)
-                .videoTextlizedContext(this.videoTextlizedContext)
                 .originalContext(this.originalContext)
                 .registDate(this.registDate)
                 .build();

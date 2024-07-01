@@ -16,4 +16,5 @@ public interface CommentRepository extends JpaRepository<CommentEntity, Long> {
     void deleteByPostId(Long postId);
 
 
+    List<CommentEntity> findByUserEmailAndProvider(String userEmail, String provider);
 }
