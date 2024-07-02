@@ -17,11 +17,13 @@ import org.ict.intelligentclass.payment.model.dto.PaymentHistoryDto;
 import org.ict.intelligentclass.user.jpa.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.RequestBody;
 
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -89,17 +91,27 @@ public class PaymentService {
 
         return paymentHistoryDtos;
     }
-    public List<ConfirmDto> getConfirmation() {
-        List<ConfirmDto> confirmDtos = new ArrayList<>();
-        List<PaymentEntity> paymentEntities = paymentRepository.getConfirmation();
-        for (PaymentEntity paymentEntity : paymentEntities) {
-            ConfirmDto confirmDto = new ConfirmDto();
+
+
+
+
+    public ConfirmDto getConfirmation(ConfirmDto confirmRequestDto) {
+        ConfirmDto confirmDto = new ConfirmDto();
+        Optional<PaymentEntity> paymentEntityOptional = paymentRepository.getConfirmation(
+                confirmRequestDto.getUserEmail(),
+                confirmRequestDto.getProvider(),
+                confirmRequestDto.getLecturePackageId(),
+                "Y"
+        );
+
+        if (paymentEntityOptional.isPresent()) {
+            PaymentEntity paymentEntity = paymentEntityOptional.get();
             confirmDto.setUserEmail(paymentEntity.getUserEmail());
             confirmDto.setProvider(paymentEntity.getProvider());
             confirmDto.setLecturePackageId(paymentEntity.getLecturePackageId());
             confirmDto.setPaymentConfirmation(paymentEntity.getPaymentConfirmation());
-            confirmDtos.add(confirmDto);
         }
-        return confirmDtos;
+
+        return confirmDto;
     }
 }
