@@ -4,6 +4,7 @@ package org.ict.intelligentclass.user.jpa.repository;
 import org.ict.intelligentclass.lecture_packages.jpa.entity.LecturePackageEntity;
 import org.ict.intelligentclass.user.jpa.entity.UserEntity;
 import org.ict.intelligentclass.user.jpa.entity.id.UserId;
+import org.ict.intelligentclass.user.model.dto.UserDto;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -137,5 +138,16 @@ public interface UserRepository extends JpaRepository<UserEntity, UserId> {
                                   @Param("startDateTime") LocalDateTime startDateTime,
                                   @Param("endDateTime") LocalDateTime endDateTime,
                                   Pageable pageable);
+
+
+
+    List<UserEntity> findAllByTeacherApplyAndUserType(char teacherApply, int userType);
+
     // 시원 추가 끝
+
+
+
+    //채림
+    @Query("SELECT u FROM UserEntity u ORDER BY u.reportCount DESC, u.registerTime DESC")
+    Page<UserEntity> findByAll (Pageable pageable);
 }
