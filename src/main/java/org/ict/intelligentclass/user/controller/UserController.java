@@ -441,4 +441,15 @@ public class UserController {
 
     }
     // 허강 여기까지
+
+
+
+    //채림
+    @GetMapping("/all")
+    public ResponseEntity<Page<UserDto>> getReportAllUsers(@RequestParam("page") int page, @RequestParam("size") int size) {
+        Page<UserDto> users = userService.getReportAllUsers(page, size);
+        return new ResponseEntity<>(users, HttpStatus.OK);
+    }
+
+
 }
