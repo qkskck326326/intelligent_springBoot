@@ -84,7 +84,7 @@ public class SecurityConfig {
                         // 해당 경로들은 인증 없이 접근 가능합니다.
                         .requestMatchers("/users/user", "/users/insertuser", "/users/check-email", "/users/send-verification-code", "/users/check-nickname", "/categories/sub").permitAll() // 태석 회원가입 관련
                         .requestMatchers("/login", "/logout", "/reissue", "/kakao/**", "/naver", "/google", "/face", "/users/reset-password/**", "/users/check-attendance").permitAll() // 태석 로그인 관련
-                        .requestMatchers("/categories/upper", "/packages/upperCategorypackageall", "/packages", "/packages/detail").permitAll() // 채림
+                        .requestMatchers("/categories/upper", "/packages/upperCategorypackageall", "/packages", "/packages/detail", "/payment/confirmation").permitAll() // 채림
                         .requestMatchers("/posts/top10", "/posts/list", "/posts/searchTitleOrContent", "/posts/searchlistByCategory", "/api/files/**").permitAll() // 도하
                         .requestMatchers("/announcement/**", "/chat/**", "/users/getpeople", "/ws/**").permitAll() // 강
                         // .requestMatchers("/").permitAll() // 경민
