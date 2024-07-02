@@ -98,10 +98,12 @@ public class PaymentController {
         }
     }
 
-    @GetMapping("/confirmation")
-    public ResponseEntity<List<ConfirmDto>> confirmation() {
-        List<ConfirmDto> confirmDto = paymentService.getConfirmation();
-        return ResponseEntity.ok(confirmDto);
+    @PostMapping("/confirmation")
+    public ResponseEntity<ConfirmDto> confirmation(@RequestBody ConfirmDto confirmDto) {
+
+        ConfirmDto confirm = paymentService.getConfirmation(confirmDto);
+
+        return ResponseEntity.ok(confirm);
     }
 
 

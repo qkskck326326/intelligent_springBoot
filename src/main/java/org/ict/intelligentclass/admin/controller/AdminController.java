@@ -345,4 +345,19 @@ public class AdminController {
         List<VisitCountEntity> visitCounts = visitCountService.getDistinctVisitorCountByDateRange(startDate, endDate);
         return ResponseEntity.ok(visitCounts);
     }
+
+    @GetMapping("/teacher-applicants")
+    public ResponseEntity<List<UserDto>> getTeacherApplicants() {
+        List<UserDto> applicants = userService.getTeacherApplicants();
+        return ResponseEntity.ok(applicants);
+    }
+
+    @PutMapping("/approve-teacher")
+    public ResponseEntity<Void> approveTeacher(@RequestBody Map<String, String> request) {
+        String email = request.get("email");
+        String provider = request.get("provider");
+        userService.approveTeacher(email, provider);
+        return ResponseEntity.ok().build();
+    }
+
 }
