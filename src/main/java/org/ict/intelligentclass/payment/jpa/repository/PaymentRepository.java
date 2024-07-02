@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface PaymentRepository extends JpaRepository<PaymentEntity, Long> {
     @Query("SELECT p.couponId FROM PaymentEntity p WHERE p.userEmail = :userEmail AND p.couponId IS NOT NULL")
@@ -15,9 +16,13 @@ public interface PaymentRepository extends JpaRepository<PaymentEntity, Long> {
     List<Long> findPurchasedPackageIdsByUserEmail(@Param("userEmail") String userEmail);
 
     List<PaymentEntity> findByUserEmail(String userEmail);
-    @Query("SELECT p FROM PaymentEntity p")
-    List<PaymentEntity> getConfirmation();
 
+    @Query("SELECT p FROM PaymentEntity p WHERE p.userEmail = :userEmail and p.provider = :provider " +
+            "and p.lecturePackageId = :lecturePackageId and p.paymentConfirmation = :paymentConfirmation")
+    Optional<PaymentEntity> getConfirmation(@Param("userEmail") String userEmail,
+                                            @Param("provider") String provider,
+                                            @Param("lecturePackageId") Long lecturePackageId,
+                                            @Param("paymentConfirmation") String paymentConfirmation);
     // 태석 추가
     @Query("SELECT p.lecturePackageId FROM PaymentEntity p WHERE p.userEmail = :userEmail AND p.provider = :provider AND p.paymentConfirmation = 'Y'")
     List<Long> findLecturePackageIdsByUserEmailAndProvider(@Param("userEmail") String userEmail, @Param("provider") String provider);

@@ -46,6 +46,7 @@ import java.util.stream.Collectors;
 public class PostController {
     private static final Logger logger = LoggerFactory.getLogger(PostService.class);
     @Autowired
+
     private PostService postService;
     @Autowired
     private BookmarkService bookmarkService;

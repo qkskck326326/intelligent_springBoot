@@ -9,7 +9,9 @@ import org.ict.intelligentclass.itnewsboard.model.dto.ItNewsBoardDto;
 
 import org.ict.intelligentclass.itnewssite.model.dto.ItNewsSiteDto;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -24,7 +26,12 @@ public class ItNewsBoardService {
     private final ItNewsBoardRepository itNewsBoardRepository;
 
     public Page<ItNewsBoardEntity> getItNewsBoardList(Pageable pageable) {
-        return itNewsBoardRepository.findAll(pageable);
+        Pageable sortedByDateDesc = PageRequest.of(
+                pageable.getPageNumber(),
+                pageable.getPageSize(),
+                Sort.by("registDate").descending()
+        );
+        return itNewsBoardRepository.findAll(sortedByDateDesc);
     }//
 
     public Page<ItNewsBoardEntity> findByTitleContaining(String title, Pageable pageable) {
