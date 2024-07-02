@@ -437,32 +437,40 @@ public class UserService {
     }
 
     private void issueCouponIfEligible(String email, String provider, LocalDate today, int days, String description, double discount) {
-        // 최근 `days` 일의 출석 기록을 조회
+        // 최근 발급된 해당 기간 쿠폰 확인
+        List<CouponEntity> recentCoupons = couponRepositoy.findByUserEmailAndProviderOrderByIssuedDateDesc(email, provider);
+
+        // 해당 쿠폰의 유효 기간을 체크하여 중복 발급 방지
+        boolean couponAlreadyIssued = recentCoupons.stream().anyMatch(coupon ->
+                coupon.getCouponDescription().equals(description) &&
+                        coupon.getIssuedDate().isAfter(today.minusDays(days))
+        );
+
+        if (couponAlreadyIssued) {
+            return; // 이미 쿠폰이 발급된 경우 쿠폰 발급 중단
+        }
+
+        // 최근 `days` 일의 출석 기록을 조회 (최근 발급된 쿠폰 날짜 이후의 출석만 조회)
+        LocalDate lastCouponIssuedDate = recentCoupons.stream()
+                .filter(coupon -> coupon.getCouponDescription().equals(description))
+                .map(CouponEntity::getIssuedDate)
+                .max(LocalDate::compareTo)
+                .orElse(today.minusDays(days));
+
         List<AttendanceEntity> recentAttendances = attendanceRepository.findByUser_UserId_UserEmailAndUser_UserId_ProviderAndAttendanceId_AttendanceTimeBetween(
-                email, provider, today.minusDays(days - 1), today);
+                email, provider, lastCouponIssuedDate.plusDays(1), today);
 
         // `days` 일 연속 출석 여부 확인
         if (recentAttendances.size() == days) {
-            // 최근 발급된 해당 기간 쿠폰 확인
-            List<CouponEntity> recentCoupons = couponRepositoy.findByUserEmailAndProviderOrderByIssuedDateDesc(email, provider);
+            CouponEntity newCoupon = new CouponEntity();
+            newCoupon.setUserEmail(email);
+            newCoupon.setProvider(provider);
+            newCoupon.setCouponDescription(description);
+            newCoupon.setDiscountAmount(discount); // 할인 쿠폰 금액
+            newCoupon.setIssuedDate(today);
 
-            // 해당 쿠폰의 유효 기간을 체크하여 중복 발급 방지
-            boolean couponAlreadyIssued = recentCoupons.stream().anyMatch(coupon ->
-                    coupon.getCouponDescription().equals(description) &&
-                            coupon.getIssuedDate().isAfter(today.minusDays(days))
-            );
-
-            if (!couponAlreadyIssued) {
-                CouponEntity newCoupon = new CouponEntity();
-                newCoupon.setUserEmail(email);
-                newCoupon.setProvider(provider);
-                newCoupon.setCouponDescription(description);
-                newCoupon.setDiscountAmount(discount); // 할인 쿠폰 금액
-                newCoupon.setIssuedDate(today);
-
-                log.info("쿠폰발급 : {}, {}, {}, {}, {}", email, provider, description, discount, today);
-                couponRepositoy.save(newCoupon);
-            }
+            log.info("쿠폰발급 : {}, {}, {}, {}, {}", email, provider, description, discount, today);
+            couponRepositoy.save(newCoupon);
         }
     }
 
@@ -594,6 +602,32 @@ public class UserService {
 
         return userEntities.map(UserEntity::toDto);
     }
-    
+
+    public List<UserDto> getTeacherApplicants() {
+        List<UserEntity> applicants = userRepository.findAllByTeacherApplyAndUserType('Y', 0);
+        return applicants.stream().map(UserEntity::toDto).collect(Collectors.toList());
+    }
+
+    public void approveTeacher(String email, String provider) {
+        UserEntity user = userRepository.findByEmailAndProvider(email, provider)
+                .orElseThrow(() -> new UserNotFoundException("User not found with email: " + email + " and provider: " + provider));
+        user.setUserType(1); // 강사로 변경
+        user.setTeacherApply('N'); // TEACHER_APPLY를 'N'으로 변경
+        userRepository.save(user);
+    }
+
     // 시원 추가 끝
+
+
+
+
+
+    // 채림 추가 시작
+    public Page<UserDto>  getReportAllUsers(int page, int size){
+        Pageable pageable = PageRequest.of(page - 1, size);
+        Page<UserEntity> userEntities = userRepository.findByAll(pageable);
+        return userEntities.map(UserEntity::toDto);
+    }
+
+    // 채림 추가 끝
 }
