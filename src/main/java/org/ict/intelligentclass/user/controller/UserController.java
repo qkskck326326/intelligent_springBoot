@@ -451,5 +451,11 @@ public class UserController {
         return new ResponseEntity<>(users, HttpStatus.OK);
     }
 
+    @PutMapping("/restrictlogin")
+    public ResponseEntity<UserEntity> restrictLogin(@RequestBody String nickname) {
+        UserEntity updatedUser = userService.toggleLoginRestriction(nickname);
+        return ResponseEntity.ok(updatedUser);
+    }
+
 
 }
