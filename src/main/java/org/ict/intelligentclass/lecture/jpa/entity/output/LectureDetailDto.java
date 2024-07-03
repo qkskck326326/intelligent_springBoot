@@ -14,6 +14,7 @@ public class LectureDetailDto {
     private String lectureName;
     private int lectureViewCount;
     private String streamUrl;
+    private Long lecturePackageId;
 
     public LectureDetailDto(LectureEntity lectureEntity) {
         this.lectureId = lectureEntity.getLectureId();
@@ -21,5 +22,6 @@ public class LectureDetailDto {
         this.lectureName = lectureEntity.getLectureName();
         this.lectureViewCount = lectureEntity.getLectureViewCount();
         this.streamUrl = lectureEntity.getStreamUrl();
+        this.lecturePackageId = lectureEntity.getLecturePackageId();
     }
 }
