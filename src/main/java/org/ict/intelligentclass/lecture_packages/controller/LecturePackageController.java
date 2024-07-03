@@ -54,35 +54,58 @@ public class LecturePackageController {
 //        return ResponseEntity.ok(lecturePackages);
 //    }
 
+
+
+
+//    @GetMapping  이거야ㅑㅑㅑ
+//    public ResponseEntity<Page<LecturePackageList>> getLecturePackages(
+//            @RequestParam int page,
+//            @RequestParam int size,
+//            @RequestParam(required = false) String sortCriteria,
+//            @RequestParam(required = false) String searchTerm,
+//            @RequestParam(required = false) Long subCategoryId,
+//            @RequestParam(required = false) String searchCriteria) {
+//
+//        Page<LecturePackageList> lecturePackages;
+//
+//        if (subCategoryId != null && sortCriteria != null) {
+//            lecturePackages = lecturePackageService.getLecturePackagesBySubCategory(page, size, sortCriteria, subCategoryId);
+//        } else if (searchTerm != null && searchCriteria != null && sortCriteria != null) {
+//            lecturePackages = lecturePackageService.getLecturePackagesBySearch(page, size, sortCriteria, searchTerm, searchCriteria);
+//        } else {
+//            lecturePackages = lecturePackageService.getAllLecturePackages(page, size, sortCriteria);
+//        }
+//
+//        return ResponseEntity.ok(lecturePackages);
+//    }
+
+
+
+
+
     @GetMapping
-    public ResponseEntity<Page<LecturePackageList>> getLecturePackages(
+    public Page<LecturePackageList> getLecturePackages(
             @RequestParam int page,
             @RequestParam int size,
             @RequestParam(required = false) String sortCriteria,
+            @RequestParam(required = false) String searchCriteria,
             @RequestParam(required = false) String searchTerm,
-            @RequestParam(required = false) Long subCategoryId,
-            @RequestParam(required = false) String searchCriteria) {
-
-        Page<LecturePackageList> lecturePackages;
-
-        if (subCategoryId != null && sortCriteria != null) {
-            lecturePackages = lecturePackageService.getLecturePackagesBySubCategory(page, size, sortCriteria, subCategoryId);
-        } else if (searchTerm != null && searchCriteria != null && sortCriteria != null) {
-            lecturePackages = lecturePackageService.getLecturePackagesBySearch(page, size, sortCriteria, searchTerm, searchCriteria);
-        } else {
-            lecturePackages = lecturePackageService.getAllLecturePackages(page, size, sortCriteria);
-        }
-
-        return ResponseEntity.ok(lecturePackages);
+            @RequestParam(required = false) Long subCategoryId) {
+        return lecturePackageService.getLecturePackages(page, size, sortCriteria, searchCriteria, searchTerm, subCategoryId);
     }
 
-    // 카테고리로 필터링된 패키지 리스트 조회
-    @GetMapping("/categorysort")
-    public ResponseEntity<List<LecturePackageList>> getCategorySortPackages(@RequestParam Long categoryId) {
-        List<LecturePackageList> lecturePackageLists = lecturePackageService.getCategorySortedPackages(categoryId);
-        log.info("getCategorySortPackages : {}", lecturePackageLists);
-        return ResponseEntity.ok(lecturePackageLists);
-    }
+
+
+
+
+
+//    // 카테고리로 필터링된 패키지 리스트 조회
+//    @GetMapping("/categorysort")
+//    public ResponseEntity<List<LecturePackageList>> getCategorySortPackages(@RequestParam Long categoryId) {
+//        List<LecturePackageList> lecturePackageLists = lecturePackageService.getCategorySortedPackages(categoryId);
+//        log.info("getCategorySortPackages : {}", lecturePackageLists);
+//        return ResponseEntity.ok(lecturePackageLists);
+//    }
 
     // 유저관심패키지 TOP10
     @GetMapping("/interestpackagetop10")

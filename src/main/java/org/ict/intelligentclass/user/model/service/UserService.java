@@ -629,5 +629,12 @@ public class UserService {
         return userEntities.map(UserEntity::toDto);
     }
 
+    public UserEntity toggleLoginRestriction(String nickname) {
+        UserEntity user = userRepository.findByNickname(nickname)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        user.setLoginOk(user.getLoginOk() == 'Y' ? 'N' : 'Y');
+        return userRepository.save(user);
+    }
+
     // 채림 추가 끝
 }

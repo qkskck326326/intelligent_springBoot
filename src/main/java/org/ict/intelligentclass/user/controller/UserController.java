@@ -24,6 +24,7 @@ import org.springframework.web.bind.annotation.*;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -164,7 +165,7 @@ public class UserController {
         userService.checkAttendance(email, provider);
         return new ResponseEntity<>(HttpStatus.OK);
     }
-    
+
     // 이메일 인증코드 전송
     @PostMapping("/send-verification-code")
     public ResponseEntity<Map<String, String>> sendVerificationCode(@RequestParam("userEmail") String userEmail) {
@@ -175,20 +176,40 @@ public class UserController {
         try {
             String verificationCode = createKey();
 
-            log.info("회원가입 인증코드 : " + verificationCode);
+            log.info("인증코드 : " + verificationCode);
 
-            String subject = "[INTELLICLASS] 인증 코드 발송 안내";
+            String subject = "[InTelliClass] 인증번호를 안내해 드립니다.";
             String text = String.format(
-                    "안녕하세요, INTELLICLASS입니다.\n\n" +
-                            "회원님의 계정 보안을 위해 아래의 인증 코드를 입력해 주세요.\n\n" +
-                            "[인증 코드: %s]\n\n" +
-                            "본 메일은 회원님의 요청에 의해 발송되었습니다.\n\n"  +
-                            "만약 본인이 요청하지 않은 경우, 즉시 고객센터로 연락해 주시기 바랍니다.\n\n" +
-                            "감사합니다.\n\n" +
-                            "INTELLICLASS 드림\n\n" +
-                            "------------------------------------------------------------------------------------\n" +
-                            "이 메일은 발신 전용입니다. 회신하지 말아 주세요.",
-                    verificationCode
+                    "<!DOCTYPE html>" +
+                            "<html lang='ko'>" +
+                            "<head><meta charset='UTF-8'><title>인증번호 안내</title></head>" +
+                            "<body style='font-family: Arial, sans-serif; background-color: #f9f9f9; padding: 20px;'>" +
+                            "<div style='max-width: 600px; margin: 0 auto; background-color: white; border: 1px solid #e0e0e0; padding: 20px; border-radius: 8px;'>" +
+                            "<h2 style='color: #0073e6; border-bottom: 2px solid #e0e0e0; padding-bottom: 10px;'>[InTelliClass] 인증번호를 안내해 드립니다.</h2>" +
+                            "<p>안녕하세요.</p><br>" +
+                            "<p>회원님의 계정 보안을 위해 이메일 인증이 필요합니다.<br>" +
+                            "아래 인증 번호를 확인하신 후 이메일 인증절차를 완료하세요.</p><br>" +
+                            "<table style='width: 100%%; border-collapse: collapse; margin-top: 20px;'>" + // 변경된 부분
+                            "<tr><th style='background-color: #f5f5f5; text-align: left; padding: 10px; border: 1px solid #ddd;'>도메인</th><td style='padding: 10px; border: 1px solid #ddd;'>intelliclass.co.kr</td></tr>" +
+                            "<tr><th style='background-color: #f5f5f5; text-align: left; padding: 10px; border: 1px solid #ddd;'>신청 내용</th><td style='padding: 10px; border: 1px solid #ddd;'>사용자 이메일 인증</td></tr>" +
+                            "<tr><th style='background-color: #f5f5f5; text-align: left; padding: 10px; border: 1px solid #ddd;'>인증 번호</th><td style='padding: 10px; border: 1px solid #ddd;'>%s</td></tr>" +
+                            "<tr><th style='background-color: #f5f5f5; text-align: left; padding: 10px; border: 1px solid #ddd;'>요청 일시</th><td style='padding: 10px; border: 1px solid #ddd;'>%s</td></tr>" +
+                            "</table>" +
+                            "<p>· 위 인증 번호를 입력창에 입력하시기 바랍니다.</p><br><br><hr>" +
+                            "<div style='text-align: center;'>" + // 중앙 정렬 시작
+                            "<p style='color: #888;'>※ 본 메일은 InTelliClass 서비스 이용에 관한 안내와 공지를 위한 메일입니다.<br>" +
+                            "따라서 메일에는 수신 거부 장치가 장착되어 있지 않습니다.</p><br>" +
+                            "<hr><br>" +
+                            "<br>회사소개 | 약관 | 개인정보처리방침 | 고객센터<br><hr><br>" +
+                            "(주)InTelliClass 서울특별시 서초구 서초대로77길 41, 4층 401 강의실<br>" +
+                            "대표전화 02-739-7235  메일/그룹웨어 02-733-3460 IDC/클라우드/보안 02-739-7235" +
+                            "</p>" +
+                            "<p style='font-size: 0.8em; color: #888;'>ⓒInTelliClass Inc. All Rights Reserved.</p>" +
+                            "</div>" + // 중앙 정렬 끝
+                            "</div>" +
+                            "</body>" +
+                            "</html>",
+                    verificationCode, LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))
             );
 
             MimeMessage m = mailSender.createMimeMessage();
@@ -196,7 +217,7 @@ public class UserController {
             h.setFrom("officialintelliclass@naver.com");
             h.setTo(userEmail);
             h.setSubject(subject);
-            h.setText(text);
+            h.setText(text, true); // HTML 형식을 사용하려면 두 번째 매개변수를 true로 설정
             mailSender.send(m);
 
             response.put("verificationCode", verificationCode); // 인증 코드 포함
@@ -449,6 +470,12 @@ public class UserController {
     public ResponseEntity<Page<UserDto>> getReportAllUsers(@RequestParam("page") int page, @RequestParam("size") int size) {
         Page<UserDto> users = userService.getReportAllUsers(page, size);
         return new ResponseEntity<>(users, HttpStatus.OK);
+    }
+
+    @PutMapping("/restrictlogin")
+    public ResponseEntity<UserEntity> restrictLogin(@RequestBody String nickname) {
+        UserEntity updatedUser = userService.toggleLoginRestriction(nickname);
+        return ResponseEntity.ok(updatedUser);
     }
 
 

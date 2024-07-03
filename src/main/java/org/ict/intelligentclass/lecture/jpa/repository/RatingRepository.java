@@ -25,6 +25,9 @@ public interface RatingRepository
     @Query("SELECT r FROM RatingEntity r WHERE r.lecturePackageId IN :lecturePackageIds")
     List<RatingEntity> findByLecturePackageIdIn(@Param("lecturePackageIds") List<Long> lecturePackageIds);
 
+    @Query("SELECT r.lecturePackageId, AVG(r.rating) as avgRating FROM RatingEntity r GROUP BY r.lecturePackageId")
+    List<Object[]> findAverageRatingGroupedByLecturePackageIds();
+
 }
 
 

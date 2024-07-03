@@ -76,20 +76,10 @@ public class ChatController {
     @PostMapping(value = "/sendmessage")
     public ResponseEntity<ChatMessageDto> sendMessage(
             @RequestBody ChatMessageEntity chatMessageEntity) {
-        log.info("Received message to send: {}", chatMessageEntity);
-
         ChatMessageEntity savedMessage = chatService.saveMessage(chatMessageEntity);
-
-        log.info("Saved message: {}", savedMessage);
-
         ChatMessageDto messageDto = chatService.convertToDto(savedMessage);
-
-        log.info("converted messageDto: {}", messageDto);
-
         webSocketService.sendToSpecificRoom(savedMessage.getRoomId(), messageDto);
-        //이걸로 업데이트가 일어남을 알림
         webSocketService.broadcastUpdate();
-
         return ResponseEntity.ok(messageDto);
     }
 
@@ -113,21 +103,15 @@ public class ChatController {
         chatMessageEntity.setDateSent(parsedDateSent);
         chatMessageEntity.setIsAnnouncement(isAnnouncement);
 
-        // Save the message first to generate the message ID
         ChatMessageEntity savedMessage = chatService.saveMessage(chatMessageEntity);
 
         List<MessageFileEntity> fileEntities = new ArrayList<>();
         if (files != null && !files.isEmpty()) {
-            log.info("파일 프로세싱");
             fileEntities = chatService.saveFiles(savedMessage, files);
         }
-
         ChatResponse response = new ChatResponse(savedMessage, fileEntities);
-
         ChatMessageDto messageDto = chatService.convertToDto(savedMessage);
-
         webSocketService.sendToSpecificRoom(roomId, messageDto);
-
         return ResponseEntity.ok(response);
     }
 
@@ -178,7 +162,6 @@ public class ChatController {
     public ResponseEntity<ChatMessageEntity> updateAnnouncement(@RequestBody Map<String, Object> request) {
         Long messageId = ((Number) request.get("messageId")).longValue();
         Long roomId = ((Number) request.get("roomId")).longValue();
-
         ChatMessageEntity updatedAnnouncement = chatService.updateAnnouncement(roomId, messageId);
         ChatMessageDto messageDto = chatService.convertToDto(updatedAnnouncement);
         webSocketService.sendToSpecificRoom(roomId, messageDto);
