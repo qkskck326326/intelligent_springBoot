@@ -304,12 +304,19 @@ public class AdminController {
                                                   @RequestParam("linkUrl") String linkUrl,
                                                   @RequestParam(value = "imageFile", required = false) MultipartFile imageFile) throws IOException {
         BannerEntity banner = bannerService.getBannerEntityById(id);
+        if (banner == null) {
+            return ResponseEntity.notFound().build();
+        }
+
         BannerDto bannerDto = new BannerDto();
         bannerDto.setTitle(title);
         bannerDto.setLinkUrl(linkUrl);
-        if (imageFile != null) {
+        if (imageFile != null && !imageFile.isEmpty()) {
             bannerDto.setImageUrl(bannerService.storeImage(imageFile));
+        } else {
+            bannerDto.setImageUrl(banner.getImageUrl());
         }
+
         banner.updateFromDto(bannerDto);
         BannerEntity updatedBanner = bannerService.saveBanner(banner);
         return ResponseEntity.ok(updatedBanner.toDto());
