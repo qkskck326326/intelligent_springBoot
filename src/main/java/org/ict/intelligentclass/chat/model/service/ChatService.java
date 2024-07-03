@@ -169,22 +169,16 @@ public class ChatService {
      * 최종 시간 복잡도 O(2M) => O(n)
      * */
     public ChatMessagesResponse getMessages(String userId, Long roomId, int page) {
-        // Fetch announcement for the room if exists
         Optional<ChatMessageEntity> announcementOpt = chatMessageRepository.findFirstByRoomIdAndIsAnnouncement(roomId, 1L);
         ChatMessageDto announcementDto = null;
         if (announcementOpt.isPresent()) {
             announcementDto = convertToDto(announcementOpt.get(), userId, roomId);
         }
-
-        // Fetch the messages for the room, paginated
         List<ChatMessageEntity> messages = chatMessageRepository.findByRoomId(roomId, PageRequest.of(page - 1, 25, Sort.by("dateSent").descending()));
-
-        // Convert messages to DTOs and fetch associated files if needed
         List<ChatMessageDto> messageDtos = messages.stream()
                 .map(message -> {
                     markMessageAsRead(userId, roomId, message);
                     ChatMessageDto messageDto = convertToDto(message, userId, roomId);
-
                     if (message.getMessageType() == 1 || message.getMessageType() == 2 || message.getMessageType() == 3) {
                         List<MessageFileEntity> files = messageFileRepository.findByMessageId(message.getMessageId());
                         List<MessageFileDto> fileDtos = files.stream()
@@ -201,16 +195,12 @@ public class ChatService {
                                 .collect(Collectors.toList());
                         messageDto.setFiles(fileDtos);
                     }
-
                     return messageDto;
                 })
                 .collect(Collectors.toList());
-
-        // If no messages found, return an empty response
         if (messageDtos.isEmpty() && announcementDto == null) {
             return new ChatMessagesResponse(null, List.of());
         }
-
         return new ChatMessagesResponse(announcementDto, messageDtos);
     }
 
@@ -370,13 +360,10 @@ public class ChatService {
      * */
     public ChatMessageEntity updateAnnouncement(Long roomId, Long messageId) {
         ChatMessageEntity currentAnnouncement = chatMessageRepository.findAnnouncementByRoomId(roomId);
-
         if (currentAnnouncement != null) {
             currentAnnouncement.setIsAnnouncement(0L);
             chatMessageRepository.save(currentAnnouncement);
         }
-
-        // Set new announcement
         Optional<ChatMessageEntity> newAnnouncementOptional = chatMessageRepository.findById(messageId);
         ChatMessageEntity newAnnouncement = newAnnouncementOptional.orElseThrow(() -> new NoSuchElementException("Message not found"));
         newAnnouncement.setIsAnnouncement(1L);
@@ -389,21 +376,14 @@ public class ChatService {
      * 최종 시간 복잡도 : O(1)
      * */
     public ChatMessageEntity saveMessage(ChatMessageEntity chatMessageEntity) {
-        log.info("Saving message: {}", chatMessageEntity);
         chatMessageEntity.setDateSent(new Date());
         ChatMessageEntity savedMessage = chatMessageRepository.save(chatMessageEntity);
-        log.info("Message saved: {}", savedMessage);
-
-        // Mark message as read by sender
         MessageReadCompositeKey compositeKey = new MessageReadCompositeKey(savedMessage.getMessageId(), chatMessageEntity.getSenderId());
         MessageReadEntity messageReadEntity = new MessageReadEntity();
         messageReadEntity.setMessageReadCompositeKey(compositeKey);
         messageReadEntity.setRoomId(chatMessageEntity.getRoomId());
         messageReadEntity.setReadAt(new Date());
-
         messageReadRepository.save(messageReadEntity);
-        log.info("Message read entry saved: {}", messageReadEntity);
-
         return savedMessage;
     }
 
@@ -413,8 +393,6 @@ public class ChatService {
      * 최종 시간 복잡도 : O(F) => O(n)
      * */
     public List<MessageFileEntity> saveFiles(ChatMessageEntity message, List<MultipartFile> files) {
-        log.info("서비스 실행됨");
-
         List<MessageFileEntity> fileEntities = new ArrayList<>();
         for (MultipartFile file : files) {
             String originalFileName = file.getOriginalFilename();
@@ -460,15 +438,11 @@ public class ChatService {
      * 최종 시간 복잡도 : O(F) => O(n)
      * */
     public ChatMessageEntity deleteMessage(Long messageId) {
-
         Optional<ChatMessageEntity> optionalChatMessage = chatMessageRepository.findById(messageId);
-
         if (!optionalChatMessage.isPresent()) {
             throw new EntityNotFoundException("Message not found");
         }
-
         ChatMessageEntity chatMessage = optionalChatMessage.get();
-
         List<MessageFileEntity> messageFiles = messageFileRepository.findByMessageId(messageId);
         if (!messageFiles.isEmpty()) {
             for (MessageFileEntity fileEntity : messageFiles) {
@@ -480,12 +454,9 @@ public class ChatService {
                 }
             }
         }
-
         messageFileRepository.deleteByMessageId(messageId);
-
         chatMessage.setMessageContent("삭제된 메시지입니다․");
         chatMessage.setMessageType(0L);
-
         return chatMessageRepository.save(chatMessage);
     }
 
