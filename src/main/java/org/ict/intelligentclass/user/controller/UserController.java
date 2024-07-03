@@ -198,9 +198,9 @@ public class UserController {
                             "<p>· 위 인증 번호를 입력창에 입력하시기 바랍니다.</p><br><br><hr>" +
                             "<div style='text-align: center;'>" + // 중앙 정렬 시작
                             "<p style='color: #888;'>※ 본 메일은 InTelliClass 서비스 이용에 관한 안내와 공지를 위한 메일입니다.<br>" +
-                            "따라서 메일에는 수신 거부 장치가 장착되어 있지 않습니다.</p>" +
-                            "<p style='border-top: 1px solid #e0e0e0; padding-top: 10px; font-size: 0.9em;'>" +
-                            "회사소개 | 약관 | 개인정보처리방침 | 고객센터<br><hr>" +
+                            "따라서 메일에는 수신 거부 장치가 장착되어 있지 않습니다.</p><br>" +
+                            "<hr><br>" +
+                            "<br>회사소개 | 약관 | 개인정보처리방침 | 고객센터<br><hr><br>" +
                             "(주)InTelliClass 서울특별시 서초구 서초대로77길 41, 4층 401 강의실<br>" +
                             "대표전화 02-739-7235  메일/그룹웨어 02-733-3460 IDC/클라우드/보안 02-739-7235" +
                             "</p>" +
