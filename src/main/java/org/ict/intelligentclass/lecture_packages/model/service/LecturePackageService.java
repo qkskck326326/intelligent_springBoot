@@ -96,109 +96,153 @@ public class LecturePackageService {
 //    }
 
 
-    @Transactional
-    public Page<LecturePackageList> getLecturePackagesBySubCategory(int page, int size, String sortCriteria, Long subCategoryId) {
-        Pageable pageable = PageRequest.of(page, size, getSort(sortCriteria));
-        Page<LecturePackageEntity> lecturePackageEntities = null;
-
-        switch (sortCriteria) {
-            case "rating":
-                lecturePackageEntities = lecturePackageRepository.findBySubCategoryIdOrderByRating(subCategoryId, pageable);
-                break;
-            case "viewCount":
-                lecturePackageEntities = lecturePackageRepository.findBySubCategoryIdOrderByViewCount(subCategoryId, pageable);
-                break;
-            case "latest":
-                lecturePackageEntities = lecturePackageRepository.findBySubCategoryIdOrderByLatest(subCategoryId, pageable);
-                break;
-            default:
+//    @Transactional
+//    public Page<LecturePackageList> getLecturePackagesBySubCategory(int page, int size, String sortCriteria, Long subCategoryId) {
+//        Pageable pageable = PageRequest.of(page, size, getSort(sortCriteria));
+//        Page<LecturePackageEntity> lecturePackageEntities = null;
+//
+//        switch (sortCriteria) {
+//            case "rating":
+//                lecturePackageEntities = lecturePackageRepository.findBySubCategoryIdOrderByRating(subCategoryId, pageable);
+//                break;
+//            case "viewCount":
+//                lecturePackageEntities = lecturePackageRepository.findBySubCategoryIdOrderByViewCount(subCategoryId, pageable);
+//                break;
+//            case "latest":
 //                lecturePackageEntities = lecturePackageRepository.findBySubCategoryIdOrderByLatest(subCategoryId, pageable);
-                break;
-        }
+//                break;
+//            default:
+////                lecturePackageEntities = lecturePackageRepository.findBySubCategoryIdOrderByLatest(subCategoryId, pageable);
+//                break;
+//        }
+//
+//        return toLecturePackageListPage(lecturePackageEntities, pageable);
+//    }
+//
+//    @Transactional
+//    public Page<LecturePackageList> getLecturePackagesBySearch(int page, int size, String sortCriteria, String searchTerm, String searchCriteria) {
+//        Pageable pageable = PageRequest.of(page, size, getSort(sortCriteria));
+//        Page<LecturePackageEntity> lecturePackageEntities = null;
+//
+//        if ("title".equals(searchCriteria)) {
+//            switch (sortCriteria) {
+//                case "rating":
+//                    lecturePackageEntities = lecturePackageRepository.searchByTitleByRating(searchTerm, pageable);
+//                    break;
+//                case "viewCount":
+//                    lecturePackageEntities = lecturePackageRepository.searchByTitleByViewCount(searchTerm, pageable);
+//                    break;
+//                case "latest":
+//                    lecturePackageEntities = lecturePackageRepository.searchByTitleRegister(searchTerm, pageable);
+//                    break;
+//                default:
+////                    lecturePackageEntities = lecturePackageRepository.searchByTitleRegister(searchTerm, pageable);
+//                    break;
+//            }
+//        } else if ("nickname".equals(searchCriteria)) {
+//            switch (sortCriteria) {
+//                case "rating":
+//                    lecturePackageEntities = lecturePackageRepository.searchByInstructorByRating(searchTerm, pageable);
+//                    break;
+//                case "viewCount":
+//                    lecturePackageEntities = lecturePackageRepository.searchByInstructorByViewCount(searchTerm, pageable);
+//                    break;
+//                case "latest":
+//                    lecturePackageEntities = lecturePackageRepository.searchByInstructorRegister(searchTerm, pageable);
+//                    break;
+//                default:
+////                    lecturePackageEntities = lecturePackageRepository.searchByInstructorRegister(searchTerm, pageable);
+//                    break;
+//            }
+//        }
+//
+//        return toLecturePackageListPage(lecturePackageEntities, pageable);
+//    }
+//
+//    @Transactional
+//    public Page<LecturePackageList> getAllLecturePackages(int page, int size, String sortCriteria) {
+//        Pageable pageable = PageRequest.of(page, size, getSort(sortCriteria));
+//        Page<LecturePackageEntity> lecturePackageEntities = null;
+//
+//        switch (sortCriteria) {
+//            case "rating":
+//                lecturePackageEntities = lecturePackageRepository.findAllOrderByRating(pageable);
+//                break;
+//            case "viewCount":
+//                lecturePackageEntities = lecturePackageRepository.findAllOrderByViewCount(pageable);
+//                break;
+//            case "latest":
+//            default:
+//                lecturePackageEntities = lecturePackageRepository.findAllOrderByLatest(pageable);
+//                break;
+//        }
+//
+//        return toLecturePackageListPage(lecturePackageEntities, pageable);
+//    }
+//
+//    private Page<LecturePackageList> toLecturePackageListPage(Page<LecturePackageEntity> lecturePackageEntities, Pageable pageable) {
+//        List<LecturePackageList> lecturePackageLists = lecturePackageEntities.stream()
+//                .map(this::toLecturePackageList)
+//                .collect(Collectors.toList());
+//
+//        return new PageImpl<>(lecturePackageLists, pageable, lecturePackageEntities.getTotalElements());
+//    }
+//
+//    private Sort getSort(String sortCriteria) {
+//        if (sortCriteria == null || sortCriteria.isEmpty()) {
+//            return Sort.by("registerDate").descending();
+//        }
+//        switch (sortCriteria) {
+//            case "viewCount":
+//                return Sort.by("viewCount").descending();
+//            case "latest":
+//            default:
+//                return Sort.by("registerDate").descending();
+//        }
+//    }
 
-        return toLecturePackageListPage(lecturePackageEntities, pageable);
-    }
 
-    @Transactional
-    public Page<LecturePackageList> getLecturePackagesBySearch(int page, int size, String sortCriteria, String searchTerm, String searchCriteria) {
-        Pageable pageable = PageRequest.of(page, size, getSort(sortCriteria));
-        Page<LecturePackageEntity> lecturePackageEntities = null;
+    public Page<LecturePackageList> getLecturePackages(int page, int size, String sortCriteria, String searchCriteria, String searchTerm, Long subCategoryId) {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<LecturePackageEntity> lecturePackages;
 
         if ("title".equals(searchCriteria)) {
-            switch (sortCriteria) {
-                case "rating":
-                    lecturePackageEntities = lecturePackageRepository.searchByTitleByRating(searchTerm, pageable);
-                    break;
-                case "viewCount":
-                    lecturePackageEntities = lecturePackageRepository.searchByTitleByViewCount(searchTerm, pageable);
-                    break;
-                case "latest":
-                    lecturePackageEntities = lecturePackageRepository.searchByTitleRegister(searchTerm, pageable);
-                    break;
-                default:
-//                    lecturePackageEntities = lecturePackageRepository.searchByTitleRegister(searchTerm, pageable);
-                    break;
-            }
+            lecturePackages = lecturePackageRepository.findByTitleContainingAndSubCategory(searchTerm, subCategoryId, pageable);
         } else if ("nickname".equals(searchCriteria)) {
-            switch (sortCriteria) {
-                case "rating":
-                    lecturePackageEntities = lecturePackageRepository.searchByInstructorByRating(searchTerm, pageable);
-                    break;
-                case "viewCount":
-                    lecturePackageEntities = lecturePackageRepository.searchByInstructorByViewCount(searchTerm, pageable);
-                    break;
-                case "latest":
-                    lecturePackageEntities = lecturePackageRepository.searchByInstructorRegister(searchTerm, pageable);
-                    break;
-                default:
-//                    lecturePackageEntities = lecturePackageRepository.searchByInstructorRegister(searchTerm, pageable);
-                    break;
-            }
+            lecturePackages = lecturePackageRepository.findByNicknameContainingAndSubCategory(searchTerm, subCategoryId, pageable);
+        } else {
+            lecturePackages = lecturePackageRepository.findByTitleContainingAndSubCategory(null, subCategoryId, pageable);
         }
 
-        return toLecturePackageListPage(lecturePackageEntities, pageable);
-    }
+        Map<Long, Float> avgRatingMap = ratingRepository.findAverageRatingGroupedByLecturePackageIds().stream()
+                .collect(Collectors.toMap(o -> (Long) o[0], o -> ((Double) o[1]).floatValue()));
 
-    @Transactional
-    public Page<LecturePackageList> getAllLecturePackages(int page, int size, String sortCriteria) {
-        Pageable pageable = PageRequest.of(page, size, getSort(sortCriteria));
-        Page<LecturePackageEntity> lecturePackageEntities = null;
-
-        switch (sortCriteria) {
-            case "rating":
-                lecturePackageEntities = lecturePackageRepository.findAllOrderByRating(pageable);
-                break;
-            case "viewCount":
-                lecturePackageEntities = lecturePackageRepository.findAllOrderByViewCount(pageable);
-                break;
-            case "latest":
-            default:
-                lecturePackageEntities = lecturePackageRepository.findAllOrderByLatest(pageable);
-                break;
-        }
-
-        return toLecturePackageListPage(lecturePackageEntities, pageable);
-    }
-
-    private Page<LecturePackageList> toLecturePackageListPage(Page<LecturePackageEntity> lecturePackageEntities, Pageable pageable) {
-        List<LecturePackageList> lecturePackageLists = lecturePackageEntities.stream()
-                .map(this::toLecturePackageList)
+        List<LecturePackageList> lecturePackageLists = lecturePackages.stream()
+                .map(lp -> convertToDto(lp, avgRatingMap.getOrDefault(lp.getLecturePackageId(), 0.0f)))
                 .collect(Collectors.toList());
 
-        return new PageImpl<>(lecturePackageLists, pageable, lecturePackageEntities.getTotalElements());
+        if ("rating".equals(sortCriteria)) {
+            lecturePackageLists.sort(Comparator.comparing(LecturePackageList::getRating).reversed());
+        } else if ("latest".equals(sortCriteria)) {
+            lecturePackageLists.sort(Comparator.comparing(LecturePackageList::getRegisterDate).reversed());
+        } else if ("viewCount".equals(sortCriteria)) {
+            lecturePackageLists.sort(Comparator.comparing(LecturePackageList::getViewCount).reversed());
+        }
+
+        return new PageImpl<>(lecturePackageLists, pageable, lecturePackages.getTotalElements());
     }
 
-    private Sort getSort(String sortCriteria) {
-        if (sortCriteria == null || sortCriteria.isEmpty()) {
-            return Sort.by("registerDate").descending();
-        }
-        switch (sortCriteria) {
-            case "viewCount":
-                return Sort.by("viewCount").descending();
-            case "latest":
-            default:
-                return Sort.by("registerDate").descending();
-        }
+    private LecturePackageList convertToDto(LecturePackageEntity lecturePackage, float avgRating) {
+        return LecturePackageList.builder()
+                .lecturePackageId(lecturePackage.getLecturePackageId())
+                .nickname(lecturePackage.getNickname())
+                .title(lecturePackage.getTitle())
+                .thumbnail(lecturePackage.getThumbnail())
+                .viewCount(lecturePackage.getViewCount())
+                .registerDate(lecturePackage.getRegisterDate())
+                .packageLevel(lecturePackage.getPackageLevel())
+                .rating(avgRating)
+                .build();
     }
 
 

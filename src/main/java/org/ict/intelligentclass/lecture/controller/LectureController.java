@@ -6,7 +6,6 @@ import org.ict.intelligentclass.lecture.jpa.entity.input.*;
 import org.ict.intelligentclass.lecture.jpa.entity.output.*;
 import org.ict.intelligentclass.lecture.model.service.LectureService;
 import org.ict.intelligentclass.lecture_packages.jpa.entity.LecturePackageEntity;
-import org.ict.intelligentclass.lecture_packages.jpa.output.LecturePackageList;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.http.*;

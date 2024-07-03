@@ -69,9 +69,11 @@ public class LectureService {
     // 강의 패키지 평균 별점 가져오기
     public PackageRatingDto selectLecturePackageRating(Long lecturePackageId) {
         Double averageRating = ratingRepository.findAverageRatingByLecturePackageId(lecturePackageId);
-        PackageRatingDto ratingDto = new PackageRatingDto(lecturePackageId, averageRating.floatValue());
+        float safeAverageRating = (averageRating != null) ? averageRating.floatValue() : 0.0f;
+        PackageRatingDto ratingDto = new PackageRatingDto(lecturePackageId, safeAverageRating);
         return ratingDto;
     }
+
 
     // 강의 패키지 별점 입력
     public void addRating(RatingInput ratingInput) {
@@ -246,6 +248,7 @@ public class LectureService {
             return new MyLecturePackageListDto(entity, ratingDto.getRating());
         });
     }
+
 }
 
 
