@@ -6,7 +6,6 @@ import org.ict.intelligentclass.user.model.service.UserService;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDate;
 import java.util.List;
 
 @Service
@@ -23,7 +22,7 @@ public class AttendanceScheduler {
     @Scheduled(cron = "0 0 0 * * ?") // 매일 자정에 실행
     public void checkDailyAttendance() {
         List<LoginTokenEntity> activeUsers = loginTokenRepository.findAll();
-        LocalDate today = LocalDate.now();
+
 
         for (LoginTokenEntity activeUser : activeUsers) {
             // 출석 체크 로직
