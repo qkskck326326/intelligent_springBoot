@@ -192,19 +192,19 @@ public class UserController {
                             "<table style='width: 100%%; border-collapse: collapse; margin-top: 20px;'>" + // 변경된 부분
                             "<tr><th style='background-color: #f5f5f5; text-align: left; padding: 10px; border: 1px solid #ddd;'>도메인</th><td style='padding: 10px; border: 1px solid #ddd;'>intelliclass.co.kr</td></tr>" +
                             "<tr><th style='background-color: #f5f5f5; text-align: left; padding: 10px; border: 1px solid #ddd;'>신청 내용</th><td style='padding: 10px; border: 1px solid #ddd;'>사용자 이메일 인증</td></tr>" +
-                            "<tr><th style='background-color: #f5f5f5; text-align: left; padding: 10px; border: 1px solid #ddd;'>인증 번호</th><td style='padding: 10px; border: 1px solid #ddd;'>%s</td></tr>" +
+                            "<tr><th style='background-color: #f5f5f5; text-align: left; padding: 10px; border: 1px solid #ddd;'>인증 번호</th><td style='color: #0073e6; padding: 10px; border: 1px solid #ddd;'>%s</td></tr>" +
                             "<tr><th style='background-color: #f5f5f5; text-align: left; padding: 10px; border: 1px solid #ddd;'>요청 일시</th><td style='padding: 10px; border: 1px solid #ddd;'>%s</td></tr>" +
                             "</table>" +
-                            "<p>· 위 인증 번호를 입력창에 입력하시기 바랍니다.</p><br><br><hr>" +
+                            "<br><p>· 위 인증 번호를 입력창에 입력하시기 바랍니다.</p><br><br><hr>" +
                             "<div style='text-align: center;'>" + // 중앙 정렬 시작
-                            "<p style='color: #888;'>※ 본 메일은 InTelliClass 서비스 이용에 관한 안내와 공지를 위한 메일입니다.<br>" +
+                            "<p style='color: #888;'><br>※ 본 메일은 InTelliClass 서비스 이용에 관한 안내와 공지를 위한 메일입니다.<br>" +
                             "따라서 메일에는 수신 거부 장치가 장착되어 있지 않습니다.</p><br>" +
                             "<hr><br>" +
-                            "<br>회사소개 | 약관 | 개인정보처리방침 | 고객센터<br><hr><br>" +
-                            "(주)InTelliClass 서울특별시 서초구 서초대로77길 41, 4층 401 강의실<br>" +
+                            "회사소개 | 약관 | 개인정보처리방침 | 고객센터<br><br><hr>" +
+                            "<br>(주)InTelliClass 서울특별시 서초구 서초대로77길 41, 4층 401 강의실<br>" +
                             "대표전화 02-739-7235  메일/그룹웨어 02-733-3460 IDC/클라우드/보안 02-739-7235" +
                             "</p>" +
-                            "<p style='font-size: 0.8em; color: #888;'>ⓒInTelliClass Inc. All Rights Reserved.</p>" +
+                            "<p style='font-size: 0.8em; color: #888;'><br>ⓒInTelliClass Inc. All Rights Reserved.</p>" +
                             "</div>" + // 중앙 정렬 끝
                             "</div>" +
                             "</body>" +

@@ -33,6 +33,7 @@ public class ReportController {
     }
 
     //승인 처리 -> user테이블에 reportCount 수정
+
     @PostMapping("/increment")
     public ResponseEntity<ReportEntity> incrementReportCount(@RequestParam String nickname, @RequestParam Long reportId) {
         reportService.incrementReportCount(nickname, reportId);
