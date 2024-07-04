@@ -21,7 +21,6 @@ public class AttendanceScheduler {
     }
 
     @Scheduled(cron = "0 0 0 * * ?") // 매일 자정에 실행
-//    @Scheduled(cron = "0 0 11 * * ?")
     public void checkDailyAttendance() {
         List<LoginTokenEntity> activeUsers = loginTokenRepository.findAll();
         LocalDate today = LocalDate.now();

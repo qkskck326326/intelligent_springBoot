@@ -151,6 +151,7 @@ public class NaverController {
         responseBody.put("provider", userId.getProvider());
         responseBody.put("profileImageUrl", userEntity.getProfileImageUrl());
         responseBody.put("isLogin", true);
+        responseBody.put("isSnsUser", true);
 
         String logoutUrl = String.format(
                 "https://nid.naver.com/oauth2.0/token?grant_type=delete&client_id=%s&client_secret=%s&access_token=%s&service_provider=%s",
