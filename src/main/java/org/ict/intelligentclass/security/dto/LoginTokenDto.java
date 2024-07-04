@@ -28,7 +28,6 @@ public class LoginTokenDto {
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime refreshTokenExpirationTime;
 
-
     public LoginTokenEntity toEntity() {
         UserId userId = new UserId(this.userEmail, this.provider);
         return LoginTokenEntity.builder()

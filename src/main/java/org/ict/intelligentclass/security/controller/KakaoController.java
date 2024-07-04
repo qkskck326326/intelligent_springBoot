@@ -104,13 +104,14 @@ public class KakaoController {
             boolean isStudent = userEntity.getUserType() == 0;
             boolean isTeacher = userEntity.getUserType() == 1;
             boolean isAdmin = userEntity.getUserType() == 2;
+            boolean isSnsUser = true;
 
             String redirectUrl = String.format(
-                    "http://localhost:3000/user/login?access=%s&refresh=%s&userEmail=%s&provider=%s&nickname=%s&profileImageUrl=%s&isStudent=%s&isTeacher=%s&isAdmin=%s",
+                    "http://localhost:3000/user/login?access=%s&refresh=%s&userEmail=%s&provider=%s&nickname=%s&profileImageUrl=%s&isStudent=%s&isTeacher=%s&isAdmin=%s&isSnsUser=%s",
                     accessToken, refreshToken, userEntity.getUserId().getUserEmail(), userEntity.getUserId().getProvider(),
                     URLEncoder.encode(userEntity.getNickname(), StandardCharsets.UTF_8.toString()),
                     URLEncoder.encode(userEntity.getProfileImageUrl(), StandardCharsets.UTF_8.toString()),
-                    isStudent, isTeacher, isAdmin
+                    isStudent, isTeacher, isAdmin, isSnsUser
             );
 
             log.info("redirectUrl: " + redirectUrl);

@@ -72,7 +72,6 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         // .requestMatchers("/**").permitAll() // 모든 경로에 대해 접근 허용
 
-
                         // .requestMatchers(HttpMethod.POST, "/admins/**").hasRole("ADMIN") // '/notice' 경로에 대한 POST 요청은 ADMIN 역할을 가진 사용자만 가능합니다.
                         .requestMatchers(HttpMethod.GET, "/admins/banners/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/admins/record-visit/**").permitAll()
@@ -85,28 +84,12 @@ public class SecurityConfig {
                         .requestMatchers("/users/user", "/users/insertuser", "/users/check-email", "/users/send-verification-code", "/users/check-nickname", "/categories/sub").permitAll() // 태석 회원가입 관련
                         .requestMatchers("/login", "/logout", "/reissue", "/kakao/**", "/naver", "/google", "/face", "/users/reset-password/**", "/users/check-attendance").permitAll() // 태석 로그인 관련
                         .requestMatchers("/categories/upper", "/packages/upperCategorypackageall", "/packages", "/packages/detail", "/payment/confirmation").permitAll() // 채림
-                        .requestMatchers("/posts/top10", "/posts/list", "/posts/searchTitleOrContent", "/posts/searchlistByCategory", "/api/files/**").permitAll() // 도하
+                        .requestMatchers("/posts/top10", "/posts/list", "/posts/searchTitleOrContent", "/posts/searchlistByCategory", "/api/files/**",  "/posts/tags/popular", "/posts/top5").permitAll() // 도하
                         .requestMatchers("/announcement/**", "/chat/**", "/users/getpeople", "/ws/**").permitAll() // 강
                         // .requestMatchers("/").permitAll() // 경민
-
                         // .requestMatchers("/").permitAll() // 시원
                         .requestMatchers("/itNewsBoard/**", "/itNewsSite/**").permitAll() // 건우
                         .requestMatchers("/file/view/*","/file/download/*").permitAll() // 공통?
-
-
-
-                        /* 강사님 코드
-                        // '/notice' path로 post 요청에 대해서는 'ADMIN' 롤 정보를 가진 사용자만 가능하다.
-                        .requestMatchers(HttpMethod.POST, "/notice").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.PUT, "/notice").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.DELETE, "/notice").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.POST, "/boards").hasAnyRole("USER", "ADMIN")
-                        .requestMatchers(HttpMethod.PUT, "/board").hasAnyRole("USER", "ADMIN")
-                        .requestMatchers(HttpMethod.DELETE, "/board").hasAnyRole("USER", "ADMIN")
-                        // 추가해야됨   // 회원서비스의 마이페이지(GET), 내정보 수정(PUT), 탈퇴(PUT | DELETE) - 로그인 해야 접근 가능 => "USER" 롤 필요
-                        // 아래는 인증 없이 접근 가능
-                        .requestMatchers("/", "/api/auth/login", "reissue", "/members/**","/logout", "/notices/**", "/boards/**", "/board").permitAll()
-                        */
 
                         .anyRequest().authenticated())  // 그 외의 모든 요청은 인증을 요구함
                 // JWTFilter 와 LoginFilter 를 필터 체인에 등록함
