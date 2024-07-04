@@ -72,7 +72,6 @@ public class CustomUserDetails implements UserDetails {
     }
 
 
-
     // 계정이 만료되었는지를 반환합니다. 여기서는 만료되지 않았다고 가정합니다.
     @Override
     public boolean isAccountNonExpired() {

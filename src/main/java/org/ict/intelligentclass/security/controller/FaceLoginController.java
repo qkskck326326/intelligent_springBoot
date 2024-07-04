@@ -72,6 +72,7 @@ public class FaceLoginController {
         responseBody.put("provider", userId.getProvider());
         responseBody.put("profileImageUrl", userEntity.getProfileImageUrl());
         responseBody.put("isLogin", true);
+        responseBody.put("isSnsUser", false);
 
         return ResponseEntity.ok(responseBody);
     }
