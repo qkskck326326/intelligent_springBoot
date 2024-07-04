@@ -24,8 +24,10 @@ public class ReportService {
 
 
     public List<ReportEntity> getReportListAll() {
-        return reportRepository.findAll();
+        return reportRepository.findAllByOrderByReportDateDesc();
     }
+
+
 
     public ReportEntity insertReport(ReportEntity reportEntity){
         if(reportEntity.getReportDate() == null){
@@ -36,8 +38,8 @@ public class ReportService {
 
 
     // 승인 시 피신고인 userEntity의 reportCount 증가시킴.
-    public UserEntity incrementReportCount(String nickname, Long reportId) {
 
+    public UserEntity incrementReportCount(String nickname, Long reportId) {
         //reportCount +1함.
         Optional<UserEntity> user = userRepository.findByNickname(nickname);
         if (!user.isPresent()) {

@@ -104,7 +104,7 @@ public class GoogleController {
         userDto.setProvider("google");
         userDto.setUserName(userInfo.get("name"));
         userDto.setUserPwd("");
-        userDto.setPhone("");
+        userDto.setPhone(""); // 구글은 휴대폰 번호 제공 안해줌..
         String nickname = userService.generateNickname(userInfo.get("name"));
         userDto.setNickname(nickname);
         userDto.setRegisterTime(LocalDateTime.now());
@@ -175,6 +175,7 @@ public class GoogleController {
         responseBody.put("provider", userId.getProvider());
         responseBody.put("profileImageUrl", userEntity.getProfileImageUrl());
         responseBody.put("isLogin", true);
+        responseBody.put("isSnsUser", true);
 
 
 //        String logoutUrl = "https://accounts.google.com/o/oauth2/revoke?token=" + userEntity.getSnsAccessToken();

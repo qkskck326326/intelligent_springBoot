@@ -44,8 +44,7 @@ public class AccessTokenReissueController {
             log.error("Invalid reissue request: no refresh token found in header");
             return new ResponseEntity<>("refresh token null", HttpStatus.BAD_REQUEST);
         }
-
-
+        
         String refreshTokenValue = authorizationHeader.substring("Bearer ".length());
 
         try {
@@ -85,15 +84,15 @@ public class AccessTokenReissueController {
         Long accessExpiredMs = 600000L; // 10분
         String newAccessToken = jwtTokenUtil.generateToken(userEmail, provider, "access", accessExpiredMs);
 
-        // 리프레시 토큰의 만료 시간이 30초 이하로 남았는지 확인
+        // 리프레시 토큰의 만료 시간이 10분 이하로 남았는지 확인
         Date refreshTokenExpiryDate = jwtTokenUtil.getExpirationDateFromToken(refreshTokenValue);
         long currentTimeMillis = System.currentTimeMillis();
         long refreshTokenExpiryTimeMillis = refreshTokenExpiryDate.getTime();
         long remainingTimeMillis = refreshTokenExpiryTimeMillis - currentTimeMillis;
 
-        // 30초 이하로 남았다면 새로운 리프레시 토큰 발급
+        // 10분 이하로 남았다면 새로운 리프레시 토큰 발급
         String newRefreshToken = refreshTokenValue;
-        if (remainingTimeMillis <= 30000L) {
+        if (remainingTimeMillis <= 600000L) {
             Long refreshExpiredMs = 86400000L; // 1일
 
             // Long refreshExpiredMs = 604800000L; // 7일
