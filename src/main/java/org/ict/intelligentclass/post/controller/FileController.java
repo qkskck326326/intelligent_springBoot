@@ -31,10 +31,8 @@ public class FileController {
     @PostMapping("/upload")
     public ResponseEntity<?> uploadFile(@RequestParam("upload") MultipartFile file) {
         try {
-            // 파일 저장
             String fileName = fileStorageService.storeFile(file);
             String fileUrl = "http://localhost:8080/api/files/" + fileName; // 클라이언트가 접근할 수 있는 URL 경로
-
             // 업로드된 파일의 URL을 반환
             Map<String, String> response = new HashMap<>();
             response.put("url", fileUrl);
