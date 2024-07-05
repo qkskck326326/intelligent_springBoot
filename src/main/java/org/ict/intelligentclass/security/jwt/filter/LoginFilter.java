@@ -147,6 +147,7 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
         responseBody.put("isStudent", isStudent);
         responseBody.put("isTeacher", isTeacher);
         responseBody.put("isAdmin", isAdmin);
+        responseBody.put("isSnsUser", false);
 
         // ObjectMapper를 사용하여 Map을 JSON 문자열로 변환합니다.
         String responseBodyJson = new ObjectMapper().writeValueAsString(responseBody);
