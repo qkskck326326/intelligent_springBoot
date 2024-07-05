@@ -96,13 +96,9 @@ public class PostService {
 
     // 인기 게시물 가져오기 메서드
     public List<PostDto> getTop5PopularPosts() {
-
+        // 1주일 전부터 현재까지의 게시물 가져오기
         LocalDateTime oneWeekAgo = LocalDateTime.now().minusWeeks(1);
-
-//        List<PostEntity> posts = postRepository.findAll();
-        // 1주일 전부터 현재까지의 게시물을 가져옵니다.
         List<PostEntity> posts = postRepository.findPopularPostsSince(oneWeekAgo);
-
         return posts.stream()
                 .map(this::convertToDto)
                 .sorted((post1, post2) -> Long.compare(calculateScore(post2), calculateScore(post1)))
@@ -144,18 +140,14 @@ public class PostService {
     public Page<PostDto> applySorting(List<PostDto> postDtos, Pageable pageable, String sort) {
         Comparator<PostDto> comparator;
         switch (sort) {
-            case "likes":
-                comparator = Comparator.comparingLong(PostDto::getLikeCount).reversed();
+            case "likes": comparator = Comparator.comparingLong(PostDto::getLikeCount).reversed();
                 break;
-            case "comments":
-                comparator = Comparator.comparingLong(PostDto::getCommentCount).reversed();
+            case "comments": comparator = Comparator.comparingLong(PostDto::getCommentCount).reversed();
                 break;
-            case "views":
-                comparator = Comparator.comparingLong(PostDto::getViewCount).reversed();
+            case "views": comparator = Comparator.comparingLong(PostDto::getViewCount).reversed();
                 break;
             case "latest":
-            default:
-                comparator = Comparator.comparing(PostDto::getPostTime).reversed();
+            default: comparator = Comparator.comparing(PostDto::getPostTime).reversed();
                 break;
         }
         postDtos.sort(comparator);
@@ -168,10 +160,8 @@ public class PostService {
     public PostDto convertToDto(PostEntity post) {
         Optional<UserEntity> userOptional = userRepository.findById(new UserId(post.getUserEmail(), post.getProvider()));
         UserDto userDto = userOptional.map(UserEntity::toDto).orElse(null);
-
         Optional<SubCategoryEntity> subCategoryOptional = subCategoryRepository.findById(post.getSubCategoryId());
         String categoryName = subCategoryOptional.map(SubCategoryEntity::getName).orElse("");
-
         long likeCount = likeRepository.countByPostId(post.getId());
         long commentCount = commentRepository.countByPostId(post.getId());
         List<String> tags = postTagRepository.findByIdPostId(post.getId())
@@ -182,52 +172,37 @@ public class PostService {
         if (postDto.getPostTime() == null) {
             postDto.setPostTime(LocalDateTime.now());
         }
-
         return postDto;
     }
 
 
 
     public PostDetailDto getPost(Long postId, String userEmail, String provider, boolean isViewed) {
-        log.info("Received request for getPost with postId: {}", postId);
-        log.info("isViewed 확인 : " + isViewed);
         Optional<PostEntity> postOptional = postRepository.findPostWithUserAndSubCategoryById(postId);
         PostEntity post = postOptional.orElseThrow(() -> new PostNotFoundException("Post not found with id: " + postId));
-        System.out.println("Post ID: " + postId + ", User: " + userEmail + ", Provider: " + provider);
-        System.out.println("isViewed: " + isViewed);
         if (!isViewed) {
-            post.setViewCount(post.getViewCount() + 1);
-            postRepository.save(post);
-            System.out.println("조회수 증가: " + post.getViewCount());
+            post.setViewCount(post.getViewCount() + 1); postRepository.save(post);
         }
-
         List<CommentEntity> comments = commentRepository.findCommentsWithUserByPostId(postId);
         List<FileEntity> files = fileRepository.findByPostId(postId);
         long likeCount = likeRepository.countByPostId(postId);
         boolean userLiked = likeRepository.existsByPostIdAndUserEmailAndProvider(postId, userEmail, provider);
         boolean userBookmarked = bookmarkService.isPostBookmarked(postId, userEmail, provider); // 북마크 상태 확인
-
         Optional<UserEntity> userOptional = userRepository.findById(new UserId(post.getUserEmail(), post.getProvider()));
         UserDto userDto = userOptional.map(UserEntity::toDto).orElse(null);
-
         Optional<SubCategoryEntity> subCategoryOptional = subCategoryRepository.findById(post.getSubCategoryId());
         String categoryName = subCategoryOptional.map(SubCategoryEntity::getName).orElse("");
-
         List<CommentDto> commentDto = comments.stream()
                 .map(comment -> {
                     Optional<UserEntity> commentUserOptional = userRepository.findById(new UserId(comment.getUserEmail(), comment.getProvider()));
-                    UserDto commentUserDto = commentUserOptional.map(UserEntity::toDto).orElse(null);
-                    return comment.toDto(commentUserDto);
+                    UserDto commentUserDto = commentUserOptional.map(UserEntity::toDto).orElse(null); return comment.toDto(commentUserDto);
                 })
                 .collect(Collectors.toList());
         List<String> tags = postTagRepository.findByIdPostId(postId)
-                .stream()
-                .map(postTagEntity -> postTagEntity.getTag().getName())
+                .stream().map(postTagEntity -> postTagEntity.getTag().getName())
                 .collect(Collectors.toList());
-
         PostDetailDto postDetailDto = post.toDetailDto(userDto, categoryName, userLiked, likeCount, comments.size(), commentDto, files, tags);
         postDetailDto.setUserBookmarked(userBookmarked); // 북마크 상태 설정
-        log.info("Returning post: {}", postDetailDto);
         return postDetailDto;
     }
 
