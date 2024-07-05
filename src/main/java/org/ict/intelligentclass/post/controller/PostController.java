@@ -99,7 +99,8 @@ public class PostController {
     ) {
         Pageable pageable = PageRequest.of(page, size);
         List<PostEntity> posts = postService.getUserPosts(userEmail, provider);
-        List<PostDto> postDtos = posts.stream().map(postService::convertToDto).collect(Collectors.toList());
+        List<PostDto> postDtos = posts.stream().
+                map(postService::convertToDto).collect(Collectors.toList());
         return postService.applySorting(postDtos, pageable, sort);
     }
 
@@ -113,7 +114,8 @@ public class PostController {
     ) {
         Pageable pageable = PageRequest.of(page, size);
         List<PostEntity> posts = postService.getUserBookmarks(userEmail, provider);
-        List<PostDto> postDtos = posts.stream().map(postService::convertToDto).collect(Collectors.toList());
+        List<PostDto> postDtos = posts.stream().
+                map(postService::convertToDto).collect(Collectors.toList());
         return postService.applySorting(postDtos, pageable, sort);
     }
 
@@ -136,7 +138,8 @@ public class PostController {
     //게시물 검색 ------------------------------------------------------------
 
     @GetMapping("/searchByTag")
-    public Page<PostDto> getSearchByTag(@RequestParam String tag, Pageable pageable, @RequestParam(defaultValue = "latest") String sort) {
+    public Page<PostDto> getSearchByTag(@RequestParam String tag, Pageable pageable,
+                                        @RequestParam(defaultValue = "latest") String sort) {
         log.info("Received request for getSearchByTag with tag: {}", tag);
         Page<PostDto> response = postService.getSearchByTag(tag, pageable, sort);
         log.info("Returning posts: {}", response.getContent());
@@ -144,7 +147,8 @@ public class PostController {
     }
 
     @GetMapping("/searchTitleOrContent")
-    public Page<PostDto> getSearchTitleOrContent(@RequestParam String keyword, Pageable pageable, @RequestParam(defaultValue = "latest") String sort) {
+    public Page<PostDto> getSearchTitleOrContent(@RequestParam String keyword, Pageable pageable,
+                                                 @RequestParam(defaultValue = "latest") String sort) {
         log.info("Received request for getSearchTitleOrContent with keyword: {}", keyword);
         Page<PostDto> response = postService.getSearchTitleOrContent(keyword, pageable, sort);
         log.info("Returning posts: {}", response.getContent());
@@ -152,7 +156,9 @@ public class PostController {
     }
 
     @GetMapping("/searchlistByCategory")
-    public Page<PostDto> getSearchlistByCategory(@RequestParam Long categoryId, Pageable pageable, @RequestParam(defaultValue = "latest") String sort) {
+    public Page<PostDto> getSearchlistByCategory(@RequestParam Long categoryId,
+                                                 Pageable pageable,
+                                                 @RequestParam(defaultValue = "latest") String sort) {
         log.info("Received request for getSearchlistByCategory with categoryId: {} and sort: {}", categoryId, sort);
         Page<PostDto> response = postService.getSearchlistByCategory(categoryId, pageable, sort);
         log.info("Returning posts: {}", response.getContent());
@@ -181,32 +187,24 @@ public class PostController {
         String viewCookieName = "postViewed_" + postId + "_" + encodedNickname;
         Cookie[] cookies = request.getCookies();
         boolean isViewed = false;
-
         if (cookies != null) {
             for (Cookie cookie : cookies) {
-                logger.info("Existing Cookie Name: " + cookie.getName() + ", Value: " + cookie.getValue());
                 if (viewCookieName.equals(cookie.getName())) {
                     isViewed = true;
                     break;
                 }
             }
         } else {
-            log.info("No cookies found in request");
         }
-
         if (!isViewed) {
             Cookie viewCookie = new Cookie(viewCookieName, "true");
             viewCookie.setPath("/");
-            viewCookie.setMaxAge(60 * 60 * 24); // 쿠키 유효 기간을 1일로 설정
-            viewCookie.setHttpOnly(false); // 클라이언트 측에서 쿠키를 접근할 수 있도록 설정
+            viewCookie.setMaxAge(60 * 60 * 24);
+            viewCookie.setHttpOnly(false);
             response.addCookie(viewCookie);
-            log.info("Setting cookie: " + viewCookieName);
         }
-        // 로그 추가
-        System.out.println("isViewed 확인 : " + isViewed);
-        log.info("Received request for getPost with postId: {}", postId);
+
         PostDetailDto responseDto = postService.getPost(postId, userEmail, provider, isViewed);
-        log.info("Returning post: {}", responseDto);
         return ResponseEntity.ok(responseDto);
     }
 
@@ -236,7 +234,9 @@ public class PostController {
 
 
     @PostMapping("/{postId}/files")
-    public ResponseEntity<Void> uploadFiles(@PathVariable Long postId, @RequestParam("files") List<MultipartFile> files) {
+    public ResponseEntity<Void> uploadFiles(@PathVariable Long postId,
+                                            @RequestParam("files")
+                                            List<MultipartFile> files) {
         for (MultipartFile file : files) {
             // 파일 저장 로직
             postService.saveFile(file, postId);
