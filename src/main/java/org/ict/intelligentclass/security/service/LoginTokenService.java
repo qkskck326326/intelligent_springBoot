@@ -16,29 +16,6 @@ import java.util.Optional;
 public class LoginTokenService {
     private final LoginTokenRepository loginTokenRepository;
 
-//    public void createOrUpdateToken(String userEmail, String provider, String accessToken, String refreshToken) {
-//        UserId userId = new UserId(userEmail, provider);
-//        LoginTokenEntity loginTokenEntity = LoginTokenEntity.builder()
-//                .id(userId)
-////                .accessTokenValue(accessToken)
-//                .refreshTokenValue(refreshToken)
-//                .build();
-//        loginTokenRepository.save(loginTokenEntity);
-//    }
-
-//    public void updateAccessToken(String userEmail, String provider, String accessToken) {
-//        LoginTokenEntity loginTokenEntity = loginTokenRepository.findByEmailAndIdProvider(userEmail, provider);
-//
-//        loginTokenEntity.setAccessTokenValue(accessToken);
-//        loginTokenRepository.save(loginTokenEntity);
-//    }
-
-//    @Transactional
-//    public void deleteTokenByEmailAndIdProvider(String userEmail, String provider) {
-//        loginTokenRepository.deleteByUserEmailAndIdProvider(userEmail, provider);
-//    }
-
-
 
     public void save(LoginTokenEntity loginTokenEntity) {
         loginTokenRepository.save(loginTokenEntity); // insert 실행 처리
