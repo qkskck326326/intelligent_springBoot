@@ -7,6 +7,7 @@ import org.ict.intelligentclass.lecture_packages.jpa.output.LecturePackageDetail
 import org.ict.intelligentclass.lecture_packages.model.service.LecturePackageService;
 import org.ict.intelligentclass.payment.jpa.entity.CouponEntity;
 import org.ict.intelligentclass.payment.jpa.entity.PaymentEntity;
+import org.ict.intelligentclass.payment.jpa.repository.PaymentRepository;
 import org.ict.intelligentclass.payment.model.dto.ConfirmDto;
 import org.ict.intelligentclass.payment.model.dto.PaymentHistoryDto;
 import org.ict.intelligentclass.payment.model.dto.PaymentRequest;
@@ -19,6 +20,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @RequestMapping("/payment")
 @Slf4j
@@ -32,6 +34,24 @@ public class PaymentController {
 
     @Autowired
     private PaymentService paymentService;
+
+    @Autowired
+    private PaymentRepository paymentRepository;
+
+    @PutMapping("/updateConfirmation/{transactionId}")
+    public ResponseEntity<String> updatePaymentConfirmation(@PathVariable Long transactionId, @RequestBody Map<String, String> updateFields) {
+        Optional<PaymentEntity> paymentEntityOptional = paymentRepository.findById(transactionId);
+        if (paymentEntityOptional.isPresent()) {
+            PaymentEntity paymentEntity = paymentEntityOptional.get();
+            if (updateFields.containsKey("paymentConfirmation")) {
+                paymentEntity.setPaymentConfirmation(updateFields.get("paymentConfirmation"));
+            }
+            paymentRepository.save(paymentEntity);
+            return ResponseEntity.ok("Payment confirmation updated successfully");
+        } else {
+            return ResponseEntity.status(404).body("Payment not found for this id :: " + transactionId);
+        }
+    }
 
 
     @GetMapping("paymentHistory/{userEmail}")

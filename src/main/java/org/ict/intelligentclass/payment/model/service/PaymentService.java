@@ -74,21 +74,23 @@ public class PaymentService {
     }
 
     public List<PaymentHistoryDto> getTransactionHistoryByUserEmail(String userEmail) {
-        List<PaymentEntity> paymentEntities = paymentRepository.findByUserEmail(userEmail);
-        log.info("결제내역가져오기 엔티티확인 {} : " + paymentEntities);
+        List<Object[]> results = paymentRepository.findByUserEmailWithLectureRead(userEmail);
         List<PaymentHistoryDto> paymentHistoryDtos = new ArrayList<>();
-        for (PaymentEntity paymentEntity : paymentEntities) {
+
+        for (Object[] result : results) {
+            PaymentEntity paymentEntity = (PaymentEntity) result[0];
+            Integer lectureRead = (Integer) result[1];
+
             LecturePackageEntity lecturePackage = lecturePackageRepository.findById(paymentEntity.getLecturePackageId()).orElse(null);
-
-            PaymentHistoryDto paymentHistoryDto = paymentEntity.toDto(new PaymentHistoryDto());
-            String title = lecturePackage.getTitle();
-            String thumbnail = lecturePackage.getThumbnail();
-            paymentHistoryDto.setTitle(title);
-            paymentHistoryDto.setThumbnail(thumbnail);
-            paymentHistoryDtos.add(paymentHistoryDto);
-            log.info("결제내역가져오기 확인 {}" + paymentHistoryDto);
+            if (lecturePackage != null) {
+                PaymentHistoryDto paymentHistoryDto = paymentEntity.toDto(new PaymentHistoryDto());
+                paymentHistoryDto.setTitle(lecturePackage.getTitle());
+                paymentHistoryDto.setThumbnail(lecturePackage.getThumbnail());
+                paymentHistoryDto.setPaymentKey(paymentEntity.getPaymentKey());
+                paymentHistoryDto.setLectureRead(lectureRead);
+                paymentHistoryDtos.add(paymentHistoryDto);
+            }
         }
-
         return paymentHistoryDtos;
     }
 
@@ -103,7 +105,6 @@ public class PaymentService {
                 confirmRequestDto.getLecturePackageId(),
                 "Y"
         );
-
         if (paymentEntityOptional.isPresent()) {
             PaymentEntity paymentEntity = paymentEntityOptional.get();
             confirmDto.setUserEmail(paymentEntity.getUserEmail());
@@ -111,7 +112,6 @@ public class PaymentService {
             confirmDto.setLecturePackageId(paymentEntity.getLecturePackageId());
             confirmDto.setPaymentConfirmation(paymentEntity.getPaymentConfirmation());
         }
-
         return confirmDto;
     }
 }
