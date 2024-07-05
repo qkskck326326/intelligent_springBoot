@@ -12,10 +12,8 @@ import org.springframework.security.authentication.LockedException;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Service;
-
 import java.util.Optional;
 
-// 스프링 컨테이너에 의해 관리되는 서비스 컴포넌트로 선언합니다.
 @Service
 @Slf4j
 @AllArgsConstructor
@@ -47,22 +45,6 @@ public class CustomUserDetailsService implements UserDetailsService {
         // CustomUserDetails 객체를 생성하여 반환합니다. 이 객체는 Spring Security에 의해 사용자 인증 과정에서 사용됩니다.
         return new CustomUserDetails(userData);
     }
-
-//    // UserDetailsService 인터페이스의 메서드를 구현합니다. 사용자 이름을 기반으로 사용자 정보를 로드합니다.
-//    @Override
-//    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-//        throw new UsernameNotFoundException("Provider가 없는 사용자 조회는 지원되지 않습니다.");
-//    }
-//
-//    public UserDetails loadUserByUsername(String email, String provider) throws UsernameNotFoundException {
-//        UserEntity userEntity = validateUser(new InputUser(email, provider));
-//        log.info("CustomUserDetailsService loadUserByUsername : " + userEntity.getUserId().getUserEmail());
-//        log.info("CustomUserDetailsService loadUserByUsername : " +userEntity.getUserId().getProvider());
-//        log.info("CustomUserDetailsService loadUserByUsername : " +userEntity.getUserPwd());
-//        return new CustomUserDetails(userEntity);
-//    }
-
-
 
     // 사용자의 유효성을 검증하는 메서드입니다.
     private UserEntity validateUser(InputUser inputUser){

@@ -44,17 +44,13 @@ public class JwtRequestFilter extends OncePerRequestFilter {
         }// 토큰 확인이 필요없는 요청 (로그인하지 않고 이용하는 서비스 url)은 그대로 다음 단계로 넘김
 
 
-
-
-        /*
         // 요청 URI를 가져옴
-        if ("/logout".equals(requestURI)) {  // '/logout' 요청은 인증 검사를 하지 않음
+        /* if ("/logout".equals(requestURI)) {  // '/logout' 요청은 인증 검사를 하지 않음
             // 찾아갈 uri(대상)으로 그대로 넘김
             filterChain.doFilter(request, response);
 
             return;
-        }
-        */
+        } */
 
         // 토큰확인이 필요없는 요청(로그인하지않아도 이용하는 서비스 url)은 그대로 다음단계로 넘김.
         // 'Authorization'이 해더에 없거나 Bearer 토큰이 아니면 요청을 계속 진행함.
@@ -66,7 +62,6 @@ public class JwtRequestFilter extends OncePerRequestFilter {
         // authorization : 클라이언트가 서버에 인증 정보를 전달하는 데 사용되는 HTTP 헤더임.
         //  >>주로 API 요청 시, 클라이언트가 자신이 인증된 사용자임을 증명하기 위해 사용됨
         //  >>일반적으로 Bearer 토큰을 통해 전달되는 경우가 많음
-
         // Bearer 토큰에서 JWT를 추출함. (토큰 정보가 request해더에 있는 경우)
         // authorization이 가진 값 : "Bearer 토큰 문자열"
         String tokenValue = authorizationHeader.split(" ")[1]; // authorizationHeader의 첫번째가 토큰임
@@ -83,21 +78,6 @@ public class JwtRequestFilter extends OncePerRequestFilter {
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             return;
         }
-
-
-
-//        // 토큰만료 여부확인, 만료시 다음 필터로 넘기지 않음.
-//        if(jwtTokenUtil.isTokenExpired(tokenValue)){ // true: 만료
-//            //response body
-//            PrintWriter writer = response.getWriter();
-//            writer.println("invalid access token : JwtRequestFilter에서 isTokenExpired(tokenValue) 처리함");
-//
-//            // response status code
-//            // 응답코드를 front와 맞추는 부분 401에러 외 다른 상태코드로 맞추면
-//            // 리프레시 토큰 발급 체크를 좀 더 빠르게 할 수 있음.
-//            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-//            return;
-//        }
 
         // token에서 tokenType 가져오기
         String tokenType = jwtTokenUtil.getTokenTypeFromToken(tokenValue);
@@ -137,30 +117,6 @@ public class JwtRequestFilter extends OncePerRequestFilter {
         Authentication authToken = new UsernamePasswordAuthenticationToken(customUserDetails, null, customUserDetails.getAuthorities());
         SecurityContextHolder.getContext().setAuthentication(authToken);
         // 액세스 토큰(로그인상태 확인)이 이상이 없다면 처리할 내용임
-
-
-
-
-//        if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
-//            jwt = authorizationHeader.substring(7);
-//            try {
-//                Claims claims = jwtTokenUtil.getClaimsFromToken(jwt);
-//                userEmail = claims.getSubject();
-//                provider = claims.get("provider", String.class);
-//            } catch (Exception e) {
-//                log.error("JWT token extraction error: ", e);
-//            }
-//        }
-//
-//        if (userEmail != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-//            UserDetails userDetails = this.userDetailsService.loadUserByUsername(userEmail, provider);
-//
-//            if (jwtTokenUtil.validateToken(jwt)) {
-//                UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken = new UsernamePasswordAuthenticationToken(
-//                        userDetails, null, userDetails.getAuthorities());
-//                SecurityContextHolder.getContext().setAuthentication(usernamePasswordAuthenticationToken);
-//            }
-//        }
 
         // 필터 체인을 계속 진행합니다.
         filterChain.doFilter(request, response);

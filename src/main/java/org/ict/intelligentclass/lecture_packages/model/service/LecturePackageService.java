@@ -249,7 +249,6 @@ public class LecturePackageService {
 
 
 
-
     private LecturePackageList toLecturePackageList(LecturePackageEntity lecturePackage) {
         RatingEntity rating = ratingRepository.findByLecturePackageId(lecturePackage.getLecturePackageId());
 

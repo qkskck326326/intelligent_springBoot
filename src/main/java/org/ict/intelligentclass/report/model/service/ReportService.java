@@ -38,7 +38,6 @@ public class ReportService {
 
 
     // 승인 시 피신고인 userEntity의 reportCount 증가시킴.
-
     public UserEntity incrementReportCount(String nickname, Long reportId) {
         //reportCount +1함.
         Optional<UserEntity> user = userRepository.findByNickname(nickname);
@@ -53,6 +52,7 @@ public class ReportService {
         reportRepository.deleteById(reportId);
         return reportCountUpdate;
     }
+
 
     public void deleteReport(Long reportId) {
         reportRepository.deleteById(reportId);

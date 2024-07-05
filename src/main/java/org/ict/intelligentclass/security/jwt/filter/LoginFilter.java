@@ -58,18 +58,15 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
     @Override
     public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) {
         try {
-            // 요청 본문에서 사용자의 로그인 데이터를 InputUser 객체로 변환합니다.
+            // 요청 본문에서 사용자의 로그인 데이터를 InputUser 객체로 변환
             InputUser loginData = new ObjectMapper().readValue(request.getInputStream(), InputUser.class);
-            // 사용자 이름과 비밀번호를 기반으로 AuthenticationToken을 생성합니다.
-            // 이 토큰은 사용자가 제공한 이메일과 비밀번호를 담고 있으며, 이후 인증 과정에서 사용됩니다.
+            // 사용자 이름과 비밀번호를 기반으로 AuthenticationToken을 생성
+            // 이 토큰은 사용자가 제공한 이메일과 비밀번호를 담고 있으며, 이후 인증 과정에서 사용됨
             log.info("Attempting to authenticate: " + loginData);
-//            UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
-//                    loginData.getUserEmail(), loginData.getUserPwd());
 
             String emailProvider = loginData.getUserEmail() + "," + loginData.getProvider();
             log.info("Attempting to authenticate with token: 프로바이더 값 확인 : " + loginData.getProvider());
-//            UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
-//                    loginData.getUserEmail(), loginData.getUserPwd());
+
             UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
                     emailProvider, loginData.getUserPwd());
 
@@ -79,7 +76,7 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
 
             return authenticationManager.authenticate(authToken);
         } catch (AuthenticationException e) {
-            // 요청 본문을 읽는 과정에서 오류가 발생한 경우, AuthenticationServiceException을 던집니다.
+            // 요청 본문을 읽는 과정에서 오류가 발생한 경우, AuthenticationServiceException 처리
             throw new AuthenticationServiceException("인증 처리 중 오류가 발생했습니다.", e);
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -93,7 +90,7 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
                                             FilterChain chain, Authentication authentication) throws IOException {
         // 인증 객체에서 CustomUserDetails를 추출합니다.
         CustomUserDetails customUserDetails = (CustomUserDetails) authentication.getPrincipal();
-        log.info("successfulAuthentication customUserDetails : " + customUserDetails);
+
         // CustomUserDetails에서 사용자 이름(이메일, 아이디)을 추출합니다.
         String userEmail = customUserDetails.getUsername();
         String provider = customUserDetails.getProvider();
@@ -101,19 +98,13 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
         String profileImageUrl = customUserDetails.getProfileImageUrl();
         UserId userId = new UserId(userEmail, provider);
 
-//        log.info("successfulAuthentication userEmail : " + userEmail);
-//        log.info("successfulAuthentication provider : " + provider);
-//        log.info("successfulAuthentication nickname : " + nickname);
-//        log.info("successfulAuthentication userId : " + userId);
         // 사용자 이름을 사용하여 JWT를 생성합니다.
         String accessToken  = jwtTokenUtil.generateToken(userEmail, provider,"access", accessExpiredMs);
         String refreshToken  = jwtTokenUtil.generateToken(userEmail, provider,"refresh", refreshExpiredMs);
         Optional<UserEntity> userOptional = userService.findByUserId(userId);  // 이메일(아이디)를 통해 사용자를 조회함.
-//        log.info("successfulAuthentication access : " + access);
-//        log.info("successfulAuthentication refresh : " + refresh);
+
 
         if(userOptional.isPresent()){  // 현재 사용자가 존재하는지 확인.
-
             LoginTokenEntity loginTokenEntity = LoginTokenEntity.builder() // 사용자가 존재하면 User 객체를 가져와 RefreshToken 엔티티를 생성
                     .userId(userId)
                     .refreshTokenValue(refreshToken)
@@ -135,10 +126,7 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
         boolean isTeacher = customUserDetails.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_TEACHER"));
         boolean isAdmin = customUserDetails.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_ADMIN"));
 
-        // 사용자가 "ROLE_ADMIN" 권한을 가지고 있는지 확인하고 변수 isAdmin에 저장함.
-
         Map<String, Object> responseBody = new HashMap<>();
-
         responseBody.put("refresh", refreshToken);  // refresh토큰
         responseBody.put("userEmail", userEmail);
         responseBody.put("provider", provider);
@@ -164,8 +152,6 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
     @Override
     protected void unsuccessfulAuthentication(HttpServletRequest request, HttpServletResponse response,
                                               AuthenticationException failed) {
-
-        log.info("unsuccessfulAuthentication");
         // failed 객체로부터 최종 원인 예외를 찾습니다.
         Throwable rootCause = failed;  // Throwable : Java의 모든 에러와 예외의 최상위 클래스임. 두 가지 주요 하위 클래스인 Error와 Exception을 포함함.
         while (rootCause.getCause() != null && rootCause.getCause() != rootCause) {
