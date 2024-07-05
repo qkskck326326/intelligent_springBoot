@@ -41,7 +41,6 @@ public class FileStorageService {
     public String storeFile(MultipartFile file) {
         String fileName = UUID.randomUUID().toString() + "_" + file.getOriginalFilename();
         Path targetLocation = this.fileStorageLocation.resolve(fileName);
-
         try {
             Files.copy(file.getInputStream(), targetLocation);
             logger.info("File stored: {}", targetLocation.toString());
