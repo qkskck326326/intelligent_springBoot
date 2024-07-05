@@ -17,18 +17,23 @@ public interface LecturePackageRepository extends JpaRepository<LecturePackageEn
 
 
 
-//    @Query("SELECT l FROM LecturePackageEntity l WHERE l.lecturePackageId = :packageId")
-//    List<LecturePackageEntity> findByCategorySortPackages(@Param("packageId") Long packageId);
+    @Query("SELECT l FROM LecturePackageEntity l WHERE l.lecturePackageId = :packageId")
+    List<LecturePackageEntity> findByCategorySortPackages(@Param("packageId") Long packageId);
 
     @Query("SELECT lp FROM LecturePackageEntity lp " +
             "WHERE (:searchTerm IS NULL OR lp.title LIKE %:searchTerm%) " +
-            "AND (:subCategoryId IS NULL OR EXISTS (SELECT 1 FROM PackageSubCategoryEntity psc WHERE psc.packageSubCategoryId.lecturePackageId = lp.lecturePackageId AND psc.packageSubCategoryId.subCategoryId = :subCategoryId))")
+            "AND (:subCategoryId IS NULL OR EXISTS (SELECT 1 FROM PackageSubCategoryEntity psc " +
+            "WHERE psc.packageSubCategoryId.lecturePackageId = lp.lecturePackageId AND psc.packageSubCategoryId.subCategoryId = :subCategoryId))")
     Page<LecturePackageEntity> findByTitleContainingAndSubCategory(String searchTerm, Long subCategoryId, Pageable pageable);
 
     @Query("SELECT lp FROM LecturePackageEntity lp " +
             "WHERE (:searchTerm IS NULL OR lp.nickname LIKE %:searchTerm%) " +
-            "AND (:subCategoryId IS NULL OR EXISTS (SELECT 1 FROM PackageSubCategoryEntity psc WHERE psc.packageSubCategoryId.lecturePackageId = lp.lecturePackageId AND psc.packageSubCategoryId.subCategoryId = :subCategoryId))")
+            "AND (:subCategoryId IS NULL OR EXISTS (SELECT 1 FROM PackageSubCategoryEntity psc " +
+            "WHERE psc.packageSubCategoryId.lecturePackageId = lp.lecturePackageId AND psc.packageSubCategoryId.subCategoryId = :subCategoryId))")
     Page<LecturePackageEntity> findByNicknameContainingAndSubCategory(String searchTerm, Long subCategoryId, Pageable pageable);
+
+
+
 
 
 
