@@ -26,4 +26,11 @@ public interface PaymentRepository extends JpaRepository<PaymentEntity, Long> {
     // 태석 추가
     @Query("SELECT p.lecturePackageId FROM PaymentEntity p WHERE p.userEmail = :userEmail AND p.provider = :provider AND p.paymentConfirmation = 'Y'")
     List<Long> findLecturePackageIdsByUserEmailAndProvider(@Param("userEmail") String userEmail, @Param("provider") String provider);
+
+    @Query("SELECT p, l.lectureRead FROM PaymentEntity p " +
+            "LEFT JOIN LectureReadEntity l ON p.lecturePackageId = l.lectureId " +
+            "WHERE p.userEmail = :userEmail")
+    List<Object[]> findByUserEmailWithLectureRead(@Param("userEmail") String userEmail);
+
+    Optional<PaymentEntity> findByUserEmailAndProviderAndLecturePackageId(String userEmail, String provider, Long lecturePackageId);
 }

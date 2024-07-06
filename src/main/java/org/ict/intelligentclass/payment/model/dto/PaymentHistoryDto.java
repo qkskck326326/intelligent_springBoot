@@ -24,6 +24,8 @@ public class PaymentHistoryDto {
     private String paymentConfirmation;
     private String title;
     private String thumbnail;
+    private String paymentKey;
+    private Integer lectureRead; // 새로운 필드
 
     public PaymentEntity toEntity(PaymentEntity entity, LecturePackageEntity lecturePackage) {
         entity.setTransactionId(this.transactionId);
@@ -36,6 +38,9 @@ public class PaymentHistoryDto {
         entity.setTransactionDate(this.transactionDate);
         entity.setOrderId(this.orderId);
         entity.setPaymentConfirmation(this.paymentConfirmation);
+        entity.setPaymentKey(this.paymentKey);
         return entity;
     }
+
+
 }

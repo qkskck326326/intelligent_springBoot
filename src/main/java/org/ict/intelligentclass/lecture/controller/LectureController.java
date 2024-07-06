@@ -82,10 +82,13 @@ public class LectureController {
 
     // 강의 읽음 처리 저장
     @PostMapping("/update-read-status/{lectureId}")
-    public ResponseEntity<String> updateReadStatus(@PathVariable("lectureId") int lectureId, @RequestBody LectureReadInput lectureReadInput) {
-        lectureReadInput.setLectureId(lectureId);
-        lectureService.updateLectureReadStatus(lectureReadInput);
-        return ResponseEntity.ok("Lecture read status updated successfully");
+    public ResponseEntity<String> updateReadStatus(@PathVariable int lectureId, @RequestBody LectureReadInput request) {
+        try {
+            lectureService.updateReadStatus(lectureId, request.getNickname(), request.getLectureRead());
+            return ResponseEntity.ok("Read status updated successfully");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error updating read status");
+        }
     }
 
     // 강의 미리보기
@@ -113,8 +116,8 @@ public class LectureController {
     @PostMapping("/register/{lecturePackageId}")
     public ResponseEntity<String> registerLecture(@PathVariable Long lecturePackageId, @RequestParam String nickname, @RequestBody LectureInput lectureInput) {
         try {
-            lectureInput.setLecturePackageId(lecturePackageId); // lecturePackageId 설정
-            lectureInput.setNickname(nickname); // nickname 설정
+            lectureInput.setLecturePackageId(lecturePackageId);
+            lectureInput.setNickname(nickname);
             if (lectureInput.getStreamUrl() == null || lectureInput.getStreamUrl().isEmpty()) {
                 lectureInput.setStreamUrl("http://example.com/default-stream");
             }
@@ -132,12 +135,10 @@ public class LectureController {
             List<Integer> lectureIds = request.get("lectureIds");
             List<String> filePaths = lectureService.getFilePathsForLectures(lectureIds);
 
-            // GitHub 파일 삭제
             for (String filePath : filePaths) {
                 deleteFileFromGitHub(filePath);
             }
 
-            // Oracle DB에서 강의 삭제
             lectureService.deleteLectures(lectureIds);
 
             return new ResponseEntity<>(HttpStatus.OK);
@@ -156,15 +157,12 @@ public class LectureController {
 
             HttpEntity<Void> requestEntity = new HttpEntity<>(headers);
 
-            // GitHub API에서 파일 경로를 추출
             String filePath = extractFilePath(fileUrl);
             String url = "https://api.github.com/repos/rudalsdl/lectureSave/contents/" + filePath;
 
-            // SHA 값을 가져오는 요청
             ResponseEntity<Map> response = restTemplate.exchange(url, HttpMethod.GET, requestEntity, Map.class);
             String sha = (String) response.getBody().get("sha");
 
-            // 파일 삭제 요청
             Map<String, String> deleteBody = Map.of(
                     "message", "Delete file " + filePath,
                     "sha", sha
@@ -178,7 +176,6 @@ public class LectureController {
     }
 
     private String extractFilePath(String fileUrl) {
-        // "https://raw.githubusercontent.com/rudalsdl/lectureSave/main/" 제거
         return fileUrl.replace("https://raw.githubusercontent.com/rudalsdl/lectureSave/main/", "");
     }
 

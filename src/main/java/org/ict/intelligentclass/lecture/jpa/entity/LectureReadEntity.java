@@ -28,7 +28,7 @@ public class LectureReadEntity {
     private String nickname;
 
     @Column(name = "LECTURE_READ", columnDefinition = "CHAR(1)")
-    private String lectureRead;
+    private Long lectureRead;
 
     // entity -> dto 변환 메서드 추가
     public LectureReadDto toDto() {
@@ -38,5 +38,13 @@ public class LectureReadEntity {
                 .nickname(nickname)
                 .lectureRead(lectureRead)
                 .build();
+    }
+
+    public void addLectureRead(Long additionalRead) {
+        if (this.lectureRead == null) {
+            this.lectureRead = additionalRead;
+        } else {
+            this.lectureRead += additionalRead;
+        }
     }
 }
