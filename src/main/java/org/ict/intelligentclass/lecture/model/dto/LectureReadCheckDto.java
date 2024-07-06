@@ -4,7 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.ict.intelligentclass.lecture.jpa.entity.LectureReadEntity;
+import org.ict.intelligentclass.lecture.jpa.entity.LectureReadCheckEntity;
 import org.springframework.stereotype.Component;
 
 @Data
@@ -12,19 +12,19 @@ import org.springframework.stereotype.Component;
 @AllArgsConstructor
 @Builder
 @Component
-public class LectureReadDto {
+public class LectureReadCheckDto {
 
-    private int lectureReadId;
+    private int lectureReadCheckId;
     private int lectureId;
     private String nickname;
-    private Long lectureRead;
+    private String readCheck;
 
-    public LectureReadEntity toEntity() {
-        return LectureReadEntity.builder()
-                .lectureReadId(this.lectureReadId)
+    public LectureReadCheckEntity toEntity() {
+        return LectureReadCheckEntity.builder()
+                .lectureReadCheckId(this.lectureReadCheckId)
                 .lectureId(this.lectureId)
                 .nickname(this.nickname)
-                .lectureRead(this.lectureRead)
+                .readCheck(this.readCheck)
                 .build();
     }
 

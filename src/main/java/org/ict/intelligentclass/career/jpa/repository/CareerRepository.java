@@ -11,7 +11,7 @@ import java.util.List;
 @Repository
 public interface CareerRepository extends JpaRepository<CareerEntity, Long> {
 
-    @Query("SELECT e FROM CareerEntity e WHERE e.nickname = :nickname")
+    @Query("SELECT e FROM CareerEntity e WHERE e.nickname = :nickname ORDER BY e.startDate DESC")
     List<CareerEntity> findByNickname(@Param("nickname") String nickname);
 
 }
