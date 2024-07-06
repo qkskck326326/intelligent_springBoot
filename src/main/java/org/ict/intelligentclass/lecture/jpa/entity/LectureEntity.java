@@ -47,6 +47,9 @@ public class LectureEntity {
     @Column(name = "LECTURE_VIEWCOUNT", nullable = false, columnDefinition = "NUMBER DEFAULT 0")
     private int lectureViewCount;
 
+    @Column(name = "LONGVIDEO", nullable = false)
+    private Long longVideo;
+
     @PrePersist
     public void prePersist() {
         this.lectureDate = this.lectureDate == null ? new Date() : this.lectureDate;
@@ -63,6 +66,7 @@ public class LectureEntity {
                 .lectureDate(lectureDate)
                 .nickname(nickname)
                 .lectureViewCount(lectureViewCount)
+                .longVideo(longVideo)
                 .build();
     }
 }

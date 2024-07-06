@@ -104,34 +104,42 @@ public class LectureService {
     // 강의 읽음 가져오기
     public LectureReadStatusDto getLectureReadStatus(int lectureId, String nickname) {
         Optional<LectureReadEntity> lectureReadEntityOpt = lectureReadRepository.findByLectureIdAndNickname(lectureId, nickname);
+        Optional<LectureEntity> lectureEntityOpt = lectureRepository.findById(lectureId);
+
+        if (!lectureEntityOpt.isPresent()) {
+            throw new IllegalArgumentException("Invalid lecture ID");
+        }
 
         LectureReadStatusDto lectureReadStatusDto = new LectureReadStatusDto();
         lectureReadStatusDto.setLectureId(lectureId);
         lectureReadStatusDto.setNickname(nickname);
+        lectureReadStatusDto.setLongVideo(lectureEntityOpt.get().getLongVideo());
 
         if (lectureReadEntityOpt.isPresent()) {
             lectureReadStatusDto.setLectureRead(lectureReadEntityOpt.get().getLectureRead());
         } else {
-            lectureReadStatusDto.setLectureRead("N");
+            lectureReadStatusDto.setLectureRead(0L); // 영상 길이를 0으로 설정
         }
 
         return lectureReadStatusDto;
     }
 
+
+
     // 강의 읽음 추가
-    public void updateLectureReadStatus(LectureReadInput lectureReadInput) {
-        LectureReadEntity existingEntity = lectureReadRepository.findReadByLectureIdAndNickname(lectureReadInput.getLectureId(), lectureReadInput.getNickname());
-        if (existingEntity == null) {
-            LectureReadEntity newEntity = LectureReadEntity.builder()
-                    .lectureId(lectureReadInput.getLectureId())
-                    .nickname(lectureReadInput.getNickname())
-                    .lectureRead(lectureReadInput.getLectureRead())
-                    .build();
-            lectureReadRepository.save(newEntity);
+    public void updateReadStatus(int lectureId, String nickname, Long lectureRead) {
+        LectureReadEntity lectureReadEntity = lectureReadRepository.findByLectureIdAndNickname(lectureId, nickname)
+                .orElse(new LectureReadEntity());
+
+        if (lectureReadEntity.getLectureId() == 0) {
+            lectureReadEntity.setLectureId(lectureId);
+            lectureReadEntity.setNickname(nickname);
+            lectureReadEntity.setLectureRead(lectureRead);
         } else {
-            existingEntity.setLectureRead(lectureReadInput.getLectureRead());
-            lectureReadRepository.save(existingEntity);
+            lectureReadEntity.setLectureRead(lectureReadEntity.getLectureRead() + lectureRead);
         }
+
+        lectureReadRepository.save(lectureReadEntity);
     }
 
     // 강의 조회수 증가
@@ -158,8 +166,9 @@ public class LectureService {
                 .lectureContent(lectureInput.getLectureContent())
                 .lectureThumbnail(lectureInput.getLectureThumbnail())
                 .streamUrl(lectureInput.getStreamUrl())
-                .lecturePackageId(lectureInput.getLecturePackageId()) // lecturePackageId 사용
-                .nickname(lectureInput.getNickname()) // nickname 사용
+                .lecturePackageId(lectureInput.getLecturePackageId())
+                .nickname(lectureInput.getNickname())
+                .longVideo(lectureInput.getLongVideo())
                 .build();
 
         lectureRepository.save(lectureEntity);

@@ -13,5 +13,5 @@ public class LectureReadInput {
 
     private int lectureId;
     private String nickname;
-    private String lectureRead;
+    private Long lectureRead;
 }
