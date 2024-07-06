@@ -14,6 +14,7 @@ public class LectureInput {
     private String lectureContent;
     private String lectureThumbnail;
     private String streamUrl;
-    private Long lecturePackageId; // 필드 추가
-    private String nickname; // 필드 추가
+    private Long lecturePackageId;
+    private String nickname;
+    private Long longVideo;
 }
