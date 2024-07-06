@@ -31,4 +31,6 @@ public interface PaymentRepository extends JpaRepository<PaymentEntity, Long> {
             "LEFT JOIN LectureReadEntity l ON p.lecturePackageId = l.lectureId " +
             "WHERE p.userEmail = :userEmail")
     List<Object[]> findByUserEmailWithLectureRead(@Param("userEmail") String userEmail);
+
+    Optional<PaymentEntity> findByUserEmailAndProviderAndLecturePackageId(String userEmail, String provider, Long lecturePackageId);
 }

@@ -38,6 +38,26 @@ public class PaymentController {
     @Autowired
     private PaymentRepository paymentRepository;
 
+    @GetMapping("/transaction/{userEmail}/{provider}/{lecturePackageId}")
+    public ResponseEntity<?> getTransaction(@PathVariable String userEmail, @PathVariable String provider, @PathVariable Long lecturePackageId) {
+        Optional<PaymentEntity> transaction = paymentService.getTransaction(userEmail, provider, lecturePackageId);
+        if (transaction.isPresent()) {
+            return ResponseEntity.ok(transaction.get());
+        } else {
+            return ResponseEntity.noContent().build();
+        }
+    }
+
+    @PutMapping("/transaction/{userEmail}/{provider}/{lecturePackageId}")
+    public ResponseEntity<?> updateTransaction(@PathVariable String userEmail, @PathVariable String provider, @PathVariable Long lecturePackageId, @RequestBody PaymentEntity paymentInfo) {
+        boolean updated = paymentService.updateTransaction(userEmail, provider, lecturePackageId, paymentInfo);
+        if (updated) {
+            return ResponseEntity.ok("Transaction updated successfully");
+        } else {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
     @PutMapping("/updateConfirmation/{transactionId}")
     public ResponseEntity<String> updatePaymentConfirmation(@PathVariable Long transactionId, @RequestBody Map<String, String> updateFields) {
         Optional<PaymentEntity> paymentEntityOptional = paymentRepository.findById(transactionId);

@@ -53,6 +53,25 @@ public class PaymentService {
 
 
 
+    public Optional<PaymentEntity> getTransaction(String userEmail, String provider, Long lecturePackageId) {
+        return paymentRepository.findByUserEmailAndProviderAndLecturePackageId(userEmail, provider, lecturePackageId);
+    }
+
+    public boolean updateTransaction(String userEmail, String provider, Long lecturePackageId, PaymentEntity paymentInfo) {
+        Optional<PaymentEntity> existingTransaction = paymentRepository.findByUserEmailAndProviderAndLecturePackageId(userEmail, provider, lecturePackageId);
+        if (existingTransaction.isPresent()) {
+            PaymentEntity transaction = existingTransaction.get();
+            transaction.setPaymentConfirmation(paymentInfo.getPaymentConfirmation());
+            transaction.setPaymentKey(paymentInfo.getPaymentKey());
+            transaction.setPaymentType(paymentInfo.getPaymentType());
+            transaction.setFinalPrice(paymentInfo.getFinalPrice());
+            transaction.setCouponId(paymentInfo.getCouponId());
+            paymentRepository.save(transaction);
+            return true;
+        }
+        return false;
+    }
+
     public List<CouponEntity> getCouponsByUserEmail(String userEmail) {
         List<CouponEntity> allCoupons = couponyRepository.findByUserEmail(userEmail);
         List<Long> usedCouponIds = paymentRepository.findUsedCouponIdsByUserEmail(userEmail);
