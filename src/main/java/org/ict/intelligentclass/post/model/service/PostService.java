@@ -281,11 +281,7 @@ public class PostService {
         if (postEntity.getPostTime() == null) {
             postEntity.setPostTime(LocalDateTime.now());}
         PostEntity updatedPost = postRepository.save(postEntity);
-
-        // 기존 태그 삭제
         postTagRepository.deleteByPostId(updatedPost.getId());
-
-
           for (String tagName : tagNames) {
             TagEntity tagEntity = tagRepository.findByName(tagName);
             if (tagEntity == null) {
