@@ -8,8 +8,6 @@ import java.util.Optional;
 @Repository
 public interface LectureReadRepository extends JpaRepository<LectureReadEntity, Integer> {
 
-    LectureReadEntity findReadByLectureIdAndNickname(int lectureId, String nickname);
-
     Optional<LectureReadEntity> findByLectureIdAndNickname(int lectureId, String nickname);
 }
 

@@ -173,11 +173,6 @@ public class PostController {
         }
     }
 
-
-
-
-
-
     // 게시물 상세페이지 ------------------------------------------------------ -----------------------------------
     @GetMapping("/detail/{postId}")
     public ResponseEntity<PostDetailDto> getPost(@PathVariable Long postId, @RequestParam String userEmail,
@@ -227,7 +222,8 @@ public class PostController {
     }
 
     @PostMapping("/{postId}/comments")
-    public ResponseEntity<Void> addComment(@PathVariable Long postId, @RequestBody CommentEntity commentEntity) {
+    public ResponseEntity<Void> addComment(
+            @PathVariable Long postId, @RequestBody CommentEntity commentEntity) {
         postService.addComment(postId, commentEntity);
         return ResponseEntity.ok().build();
     }
@@ -255,7 +251,8 @@ public class PostController {
 
     //PUT 요청부 ---------------------------------------------------------------------------------------------
     @PutMapping("/update/{postId}")
-    public ResponseEntity<PostEntity> updatePost(@PathVariable Long postId, @Valid @RequestBody PostDto postDto) {
+    public ResponseEntity<PostEntity> updatePost(@PathVariable Long postId,
+                                                 @Valid @RequestBody PostDto postDto) {
         log.info("Update post with id: {}", postId);
         PostEntity postEntity = postService.convertToEntity(postDto);
         postEntity.setId(postId); // postId를 엔티티에 설정
@@ -264,7 +261,9 @@ public class PostController {
     }
 
     @PutMapping("/{postId}/UpdateComment/{commentId}")
-    public ResponseEntity<Void> updateComment(@PathVariable Long postId, @PathVariable Long commentId, @RequestBody CommentEntity commentEntity) {
+    public ResponseEntity<Void> updateComment(
+            @PathVariable Long postId, @PathVariable Long commentId,
+            @RequestBody CommentEntity commentEntity) {
         commentEntity.setPostId(postId);
         commentEntity.setId(commentId);
         postService.upDateComment(commentEntity);
