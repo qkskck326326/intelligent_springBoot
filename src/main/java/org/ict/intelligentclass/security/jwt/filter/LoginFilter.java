@@ -49,7 +49,7 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
         this.loginTokenService = loginTokenService;
         this.authenticationManager = authenticationManager;
         this.jwtTokenUtil = jwtTokenUtil;
-        this.accessExpiredMs = 600000L; // 10분
+        this.accessExpiredMs = 3600000L; // 10분 // 임시로 1시간
         this.refreshExpiredMs = 86400000L; // 1일
     }
 
