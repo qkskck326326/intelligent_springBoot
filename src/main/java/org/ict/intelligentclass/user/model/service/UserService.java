@@ -237,8 +237,6 @@ public class UserService {
         UserEntity userEntity = userDto.toEntity();
         userRepository.save(userEntity);
 
-        // 강사일 경우, 강사 요청 리스트 테이블에 행 추가
-
         return userEntity;
     }
 

@@ -291,15 +291,11 @@ public class UserController {
                     .loginOk(enrollForm.getLoginOk())
                     .faceLoginYn(enrollForm.getFaceLoginYn())
                     .snsAccessToken(enrollForm.getSnsAccessToken())
-                    .teacherApply(teacherApply) // 강사 신청 여부 설정
+                    .teacherApply(teacherApply)
                     .build();
 
-            log.info(userDto.toString());
-
-            // UserEntity 생성
             UserEntity userEntity = userService.insertUser(userDto);
 
-            // interests를 UserInterestDto로 변환
             List<UserInterestDto> userInterestDtos = enrollForm.getInterests().stream()
                     .map(interestId -> UserInterestDto.builder()
                             .userEmail(enrollForm.getUserEmail())
@@ -308,25 +304,22 @@ public class UserController {
                             .build())
                     .collect(Collectors.toList());
 
-            // UserInterestDto를 UserInterestEntity로 변환하고 저장
             List<UserInterestEntity> userInterestEntities = userInterestDtos.stream()
                     .map(dto -> dto.toEntity(userEntity))
                     .collect(Collectors.toList());
 
-            // 저장 로직
             userService.saveAllUserInterests(userInterestEntities);
 
             // EducationEntity 저장
             List<EducationEntity> educationEntities = enrollForm.getEducations().stream()
-                    .peek(education -> education.setNickname(enrollForm.getNickname()))  // Nickname 설정
+                    .peek(education -> education.setNickname(enrollForm.getNickname()))
                     .collect(Collectors.toList());
 
             educationService.saveAllEducations(educationEntities);
 
-
             // CareerEntity 저장
             List<CareerEntity> careerEntities = enrollForm.getCareers().stream()
-                    .peek(career -> career.setNickname(enrollForm.getNickname()))  // Nickname 설정
+                    .peek(career -> career.setNickname(enrollForm.getNickname()))
                     .collect(Collectors.toList());
 
             careerService.saveAllCareers(careerEntities);
