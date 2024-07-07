@@ -67,6 +67,28 @@ public class NaverController {
         }
     }
 
+    private Map<String, Object> getNaverUserInfo(String accessToken) {
+        String apiUrl = "https://openapi.naver.com/v1/nid/me";
+        RestTemplate restTemplate = new RestTemplate();
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("Authorization", "Bearer " + accessToken);
+        HttpEntity<String> entity = new HttpEntity<>(headers);
+
+        try {
+            ResponseEntity<Map> response = restTemplate.exchange(apiUrl, HttpMethod.GET, entity, Map.class);
+            log.info(response.getBody().toString());
+            Map<String, Object> responseBody = response.getBody();
+
+            if (responseBody != null && "00".equals(responseBody.get("resultcode"))) {
+                return (Map<String, Object>) responseBody.get("response");
+            }
+            return null;
+        } catch (HttpClientErrorException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
     private ResponseEntity<?> handleSignUp(Map<String, Object> userInfo, String accessToken) {
         String userEmail = (String) userInfo.get("email");
         String userName = decodeUnicodeString((String) userInfo.get("name"));
@@ -173,28 +195,6 @@ public class NaverController {
         }
 
         return ResponseEntity.ok(responseBody);
-    }
-
-    private Map<String, Object> getNaverUserInfo(String accessToken) {
-        String apiUrl = "https://openapi.naver.com/v1/nid/me";
-        RestTemplate restTemplate = new RestTemplate();
-        HttpHeaders headers = new HttpHeaders();
-        headers.set("Authorization", "Bearer " + accessToken);
-        HttpEntity<String> entity = new HttpEntity<>(headers);
-
-        try {
-            ResponseEntity<Map> response = restTemplate.exchange(apiUrl, HttpMethod.GET, entity, Map.class);
-            log.info(response.getBody().toString());
-            Map<String, Object> responseBody = response.getBody();
-
-            if (responseBody != null && "00".equals(responseBody.get("resultcode"))) {
-                return (Map<String, Object>) responseBody.get("response");
-            }
-            return null;
-        } catch (HttpClientErrorException e) {
-            e.printStackTrace();
-            return null;
-        }
     }
 
     public static String decodeUnicodeString(String unicode) {
