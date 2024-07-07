@@ -20,9 +20,7 @@ public class CareerService {
 
     //닉네임으로 조회.
     public List<CareerEntity> getAllCareers(String nickname) {
-        List<CareerEntity> careers = careerRepository.findByNickname(nickname);
-
-        return careers;
+        return careerRepository.findByNickname(nickname);
     }
 
 
