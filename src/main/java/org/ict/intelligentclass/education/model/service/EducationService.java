@@ -44,7 +44,6 @@ public class EducationService {
 
     public EducationEntity updateEducationByNickname(EducationEntity updatedEducation) {
         Optional<EducationEntity> educationEntityOptional = educationRepository.findById(updatedEducation.getEducationId());
-
         if (educationEntityOptional.isPresent()) {
             EducationEntity educationEntity = educationEntityOptional.get();
 
@@ -59,7 +58,6 @@ public class EducationService {
             educationEntity.setHomeAndTransfer(updatedEducation.getHomeAndTransfer());
             educationEntity.setPassDate(updatedEducation.getPassDate());
             educationEntity.setUniversityLevel(updatedEducation.getUniversityLevel());
-
             educationRepository.save(educationEntity);
             return educationEntity;
         } else {

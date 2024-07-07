@@ -33,7 +33,6 @@ public class MyCertificateService {
         log.info("nickname : ", nickname);
 
         List<MyCertificateEntity> myCertificateEntities = myCertificateRepository.findByNickname(nickname);
-
         ArrayList<MyCertificateDto> list = new ArrayList<>();
         for(MyCertificateEntity entity : myCertificateEntities){
             MyCertificateDto myCertificateDto = entity.toDto();
@@ -41,7 +40,6 @@ public class MyCertificateService {
         }
         log.info("list : ", list);
         return list;
-
     }
 
     public MyCertificateDto addCertificate(MyCertificateDto certificateDTO) {
