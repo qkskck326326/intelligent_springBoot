@@ -222,6 +222,18 @@ public class ChatService {
         }
     }
 
+    public void markMessageAsRead2(String userId, Long roomId, Long messageId) {
+        MessageReadCompositeKey compositeKey = new MessageReadCompositeKey(messageId, userId);
+        boolean isRead = messageReadRepository.existsByMessageReadCompositeKey(compositeKey);
+        if (!isRead) {
+            MessageReadEntity newRead = new MessageReadEntity();
+            newRead.setMessageReadCompositeKey(compositeKey);
+            newRead.setRoomId(roomId);
+            newRead.setReadAt(new Date());
+            messageReadRepository.save(newRead);
+        }
+    }
+
 //    public MessageReadEntity markRead(MessageReadCompositeKey compositeKey, Long roomId) {
 //
 //        MessageReadEntity newRead = new MessageReadEntity();

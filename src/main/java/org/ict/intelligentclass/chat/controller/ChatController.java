@@ -36,6 +36,19 @@ public class ChatController {
     private final WebSocketService webSocketService;
     private final UserService userService;
 
+    @PostMapping("/markasread")
+    public ResponseEntity<?> markAsRead(@RequestBody Map<String, Object> payload){
+
+        String userId = (String) payload.get("userId");
+        Long roomId = ((Number) payload.get("roomId")).longValue();
+        Long messageId = ((Number) payload.get("messageId")).longValue();
+
+        log.info(userId + roomId + messageId);
+
+        chatService.markMessageAsRead2(userId, roomId, messageId);
+        return ResponseEntity.ok("Message marked as read");
+    }
+
     @GetMapping("/countunreadall")
     public ResponseEntity<Long> countUnreadAll(@RequestParam String userId) {
         Long countTotalUnRead = chatService.countTotalUnread(userId);
