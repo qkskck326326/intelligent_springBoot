@@ -95,7 +95,6 @@ public class AccessTokenReissueController {
         if (remainingTimeMillis <= 600000L) {
             Long refreshExpiredMs = 86400000L; // 1일
 
-            // Long refreshExpiredMs = 604800000L; // 7일
             newRefreshToken = jwtTokenUtil.generateToken(userEmail, provider, "refresh", refreshExpiredMs);
 
             // 기존 리프레시 토큰 삭제 및 새 리프레시 토큰 저장
