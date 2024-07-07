@@ -15,9 +15,9 @@ import java.util.Optional;
 
 @Slf4j
 @RestController
-@RequestMapping("/completes")
 @RequiredArgsConstructor
 @CrossOrigin
+@RequestMapping("/completes")
 public class CompleteController {
 
     private final CompleteService completeService;
