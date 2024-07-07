@@ -25,6 +25,7 @@ public class LectureDto {
     private Long lecturePackageId;
     private String nickname;
     private int lectureViewCount;
+    private Long longVideo;
 
 
 
@@ -39,6 +40,7 @@ public class LectureDto {
                 .lecturePackageId(this.lecturePackageId)
                 .nickname(this.nickname)
                 .lectureViewCount(this.lectureViewCount)
+                .longVideo(this.longVideo)
                 .build();
     }
 }
