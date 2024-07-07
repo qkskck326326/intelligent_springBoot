@@ -26,11 +26,11 @@ public class EducationController {
         return ResponseEntity.ok(educations);
     }
 
-    @GetMapping("/detail")
-    public ResponseEntity<EducationEntity> getDetailducationId(@RequestParam Long educationId) {
-        EducationEntity education = educationService.getDetaill(educationId);
-        return ResponseEntity.ok(education);
-    }
+//    @GetMapping("/detail")
+//    public ResponseEntity<EducationEntity> getDetailducationId(@RequestParam Long educationId) {
+//        EducationEntity education = educationService.getDetaill(educationId);
+//        return ResponseEntity.ok(education);
+//    }
 
     @PostMapping
     public ResponseEntity<EducationEntity> createEducation(@RequestBody EducationEntity education) {
