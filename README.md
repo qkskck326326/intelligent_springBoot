@@ -40,7 +40,7 @@ Intelliclass - Spring Boot ( BackEnd)
 
 1. 보안
    - SpringSecurity :
-   - JWT : s
+   - JJWT : s
 
 ***이하 내용은 프론트앤드에서 요청을 주고 받으며, 그사이에 DB로의 요청을 주고 받는 것을 전제로 합니다.***
 
